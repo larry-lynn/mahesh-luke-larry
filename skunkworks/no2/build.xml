@@ -1,0 +1,34 @@
+<project default="run">
+
+    <target name="clean">
+        <delete dir="build"/>
+        <delete file="test1.pas" />
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/mp" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="mp"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="make-executable" depends="jar">
+        <chmod file="build/jar/mp" perm="755" />
+    </target>
+
+    <target name="prepare-input">
+        <copy file="src/test1.pas" todir="./" />
+    </target>
+
+    <target name="run" depends="make-executable, prepare-input">
+        <java jar="build/jar/mp" fork="true"/>
+    </target>
+
+</project>
