@@ -1,0 +1,34 @@
+<project default="run">
+
+	<property name="src" location="./"/>
+	<property name="build" location="../../build"/>
+	<property name="dist" location="../../dist"/>
+		
+    <target name="clean">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${build}/classes"/>
+        <javac srcdir="${src}" destdir="${build}/classes"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist}/jar"/>
+        <jar destfile="${dist}/jar/mp" basedir="${build}/classes">
+            <manifest>
+                <attribute name="Main-Class" value="scanner.mp"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="make-executable" depends="jar">
+        <chmod file="${dist}/jar/mp" perm="755" />
+    </target>
+
+    <target name="run" depends="make-executable">
+        <java jar="${dist}/jar/mp" fork="true"/>
+    </target>
+
+</project>
