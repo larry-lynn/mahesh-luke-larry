@@ -1,5 +1,10 @@
 package scanner;
 
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.*;
+
 public class Dispatcher {
   
     public enum State { q0, q1, q2, q3, q4, q5, q6 }
@@ -8,15 +13,35 @@ public class Dispatcher {
     int row;
     int column;
     int file_pointer;
+    String fileAsString;
 
     //Constructor
-    public Dispatcher(char[] file_data_from_driver){
-        source_to_scan = file_data_from_driver;
+    public Dispatcher(){
+        source_to_scan = new char[0];
         row = 0;
         column = 0;
         file_pointer = 0;
     }
 
+    public void openFile(String fileWithPath) throws IOException {
+    	/*adapted from
+        http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file */
+	    FileInputStream stream = new FileInputStream(new File(fileWithPath));
+	    try {
+	        FileChannel fc = stream.getChannel();
+	        MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+	        /* Instead of using default, pass in a decoder. */
+	        fileAsString = Charset.defaultCharset().decode(bb).toString();
+	        //convert the contents of the file to an array of characters
+	        source_to_scan = fileAsString.toCharArray();
+
+	    }
+	    finally {
+	        stream.close();
+	    }
+    }
+    
+    // Main method for scanning and retrieving tokens
     public Token getToken(){
         Token tok = null;
 
