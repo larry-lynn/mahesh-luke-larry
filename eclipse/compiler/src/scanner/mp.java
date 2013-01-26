@@ -3,7 +3,7 @@ package scanner;
 public class mp {
 
     public static void main(String [] args) throws Exception{
-        String infile = "../../data/test1.pas";
+        String infile = "./data/test1.pas";
 
         scanner.Dispatcher disp;
         scanner.Token tok;

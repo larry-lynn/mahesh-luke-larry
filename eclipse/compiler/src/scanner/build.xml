@@ -28,7 +28,7 @@
     </target>
 
     <target name="run" depends="make-executable">
-        <java jar="${dist}/jar/mp" fork="true"/>
+        <java jar="${dist}/jar/mp" fork="true" dir="../../" />
     </target>
 
 </project>
