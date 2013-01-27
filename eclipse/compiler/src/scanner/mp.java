@@ -24,10 +24,10 @@ public class mp {
  
         while( true ){
             tok = disp.getToken();
-            if(tok == null){
+            System.out.println(tok.token_name + "\t" + tok.line_number + "\t" + tok.column_number + "\t" + tok.lexeme);
+            if(tok.token_name == "MP_EOF"){
                 break;
             }
-            System.out.println(tok.token_name + "\t" + tok.line_number + "\t" + tok.column_number + "\t" + tok.lexeme);
         }
 
 
