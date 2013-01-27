@@ -3,7 +3,14 @@ package scanner;
 public class mp {
 
     public static void main(String [] args) throws Exception{
-        String infile = "./data/test1.pas";
+    	
+    	if( (args.length == 0) || (args.length > 1) ){
+    		System.out.println("Usage: " + mp.class.getClass().getName() + "<source-code-file>");
+    		System.exit(-3);
+    	}
+    	
+        //String infile = "./data/test1.pas";
+    	String infile = args[0];
 
         scanner.Dispatcher disp;
         scanner.Token tok;

@@ -28,7 +28,10 @@
     </target>
 
     <target name="run" depends="make-executable">
-        <java jar="${dist}/jar/mp" fork="true" dir="../../" />
+        <java jar="${dist}/jar/mp" fork="true" dir="../../" >
+        	<arg value="./data/test1.pas"/>
+        </java>
+
     </target>
 
 </project>
