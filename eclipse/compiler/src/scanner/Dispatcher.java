@@ -69,6 +69,8 @@ public class Dispatcher {
 				// State q0: normal scanning
 				switch (source_to_scan[file_pointer]) {
 				// using fall through switching for multi-char matching
+				
+				// Dispatch to Number FSM
 				case '0':
 				case '1':
 				case '2':
@@ -82,11 +84,20 @@ public class Dispatcher {
 					tok = MPIntegerLitFSM();
 					dispatcherState = State.q7;
 					break;
+					
+				// Dispatch to Comment Style 1 FSM
 				case '{':
 					consumeComment1();
 					break;
 				// using fall-through switching for matching mutiple types of
 				// whitespace
+					
+				// Dispatch to semi-colon FSM
+				case ';':
+				    tok = MPSemiColonFSM();
+					dispatcherState = State.q7;
+				    break;
+				    
 				case ' ':
 				case '\t':
 					dispatcherState = State.q1;
@@ -94,7 +105,7 @@ public class Dispatcher {
 				case '\n':
 					dispatcherState = State.q2;
 				default:
-					// EOF? this needs to change
+					// XXX Fixme - this should be changed to handle scanning errors
 					tok = null;
 					break;
 				} // end inndf q0 state switch
@@ -122,7 +133,7 @@ public class Dispatcher {
 			case q7:
 				// the while terminator should intercept the flow of control
 				// such that this is unreachable
-				System.out.println("Reached dispactcher state q7 in switch!");
+				System.out.println("Reached dispactcher state q7 in switch! This should not happen!");
 				break;
 			case q8:
 				// state q8: file pointer advanced till end of file
@@ -143,8 +154,7 @@ public class Dispatcher {
 				// Should this terminate things?
 				return (tok);
 			default:
-				System.out
-						.println("Default case in dispatcher FSM should be unreachable!");
+				System.out.println("Default case in dispatcher FSM should be unreachable!");
 				break;
 
 			} // end dispatcher state swtich
@@ -231,6 +241,56 @@ public class Dispatcher {
 
 	} // end MPIntegerLitFSM()
 
+	public Token MPSemiColonFSM() {
+		int peek = 0;
+		State fsm_state = State.q0;
+		Token tok;
+
+		System.out.println("semi colon FSM triggered");
+		while (fsm_state != State.q2) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case ';':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case ';':
+					peek = peek + 1;
+					fsm_state = State.q2;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q2 exit state reached
+		
+		tok = new Token("MP_SCOLON", ";");
+
+		// update token with extra information
+		tok.column_number = column;
+		tok.line_number = row;
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+
+		return tok;
+
+	} // end MPSemiColonFSM()		
+	
 	void consumeComment1() {
 		State commentState = State.q0;
 
