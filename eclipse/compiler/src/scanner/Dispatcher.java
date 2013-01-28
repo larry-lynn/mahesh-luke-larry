@@ -64,7 +64,7 @@ public class Dispatcher {
 
 		while (dispatcherState != State.q7) {
 			switch (dispatcherState) {
-			
+
 			case q0:
 				// State q0: normal scanning
 				switch (source_to_scan[file_pointer]) {
@@ -82,7 +82,11 @@ public class Dispatcher {
 					tok = MPIntegerLitFSM();
 					dispatcherState = State.q7;
 					break;
-				// using fall-through switching for matching mutiple types of whitespace
+				case '{':
+					consumeComment1();
+					break;
+				// using fall-through switching for matching mutiple types of
+				// whitespace
 				case ' ':
 				case '\t':
 					dispatcherState = State.q1;
@@ -90,12 +94,12 @@ public class Dispatcher {
 				case '\n':
 					dispatcherState = State.q2;
 				default:
-					// EOF?  this needs to change
+					// EOF? this needs to change
 					tok = null;
 					break;
 				} // end inndf q0 state switch
-				break;  // end main scanning case
-				
+				break; // end main scanning case
+
 			case q1:
 				// State q1: consuming whitespace
 				column = column + 1;
@@ -124,22 +128,26 @@ public class Dispatcher {
 				// state q8: file pointer advanced till end of file
 				tok = new Token("MP_EOF", row, column, null);
 				dispatcherState = State.q9;
-				// alternate return path for EOF to avoid resetting dispatcher FSM
+				// alternate return path for EOF to avoid resetting dispatcher
+				// FSM
 				// to scan state
-				return(tok);
+				return (tok);
 			case q9:
 				// state q9: EOF processed and scanning complete
-				// this is an ERROR STATE because getToken() should not be called
+				// this is an ERROR STATE because getToken() should not be
+				// called
 				// after the dispatcher has reached the end of file
 				tok = new Token("MP_EOF", row, column, null);
-				System.out.println("Scanner Error: Attempted to get new token after EOF reached");
+				System.out
+						.println("Scanner Error: Attempted to get new token after EOF reached");
 				// Should this terminate things?
-				return(tok);
+				return (tok);
 			default:
-				System.out.println("Default case in dispatcher FSM should be unreachable!");
+				System.out
+						.println("Default case in dispatcher FSM should be unreachable!");
 				break;
-				
-			}  // end dispatcher state swtich
+
+			} // end dispatcher state swtich
 		} // end dispatcher while loop
 
 		// Reset dispatcher FSM for more scanning
@@ -222,5 +230,74 @@ public class Dispatcher {
 		return tok;
 
 	} // end MPIntegerLitFSM()
+
+	void consumeComment1() {
+		State commentState = State.q0;
+
+		while (commentState != State.q8) {
+			switch (commentState) {
+			case q0:
+				switch (source_to_scan[file_pointer]) {
+				case '{':
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					commentState = State.q1;
+					break;
+				default:
+					System.out.println("Comment unexpected error state1");
+					break;
+				}
+				break;  // end q0
+
+			case q1:
+				// skipping everything between '{' and '}'
+				switch (source_to_scan[file_pointer]) {
+				case '{':
+					System.out.println("Scanner Warning: found { embedded in comment.  Possibly missing }?");
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				case '\n':
+					file_pointer = file_pointer + 1;
+					column = 0;
+					row = row + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				case '}':
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					commentState = State.q8;
+					break;
+				default:
+					// scanned anything else
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				}
+				break;  // end q1
+			case q8:
+				System.out.println("Reached supposadly unreachable q8 case.");
+				break;
+			case q9:
+				// runaway comment -- comment ran to EOF
+				System.out.println("Scanner Error: Runaway Comment");
+				dispatcherState = State.q8;
+				return;
+			default:
+				System.out.println("Comment unexpected error state 3");
+				break;
+			}  // end state switch
+		} // end comment state while loop
+        return;
+		
+	}
 
 }
