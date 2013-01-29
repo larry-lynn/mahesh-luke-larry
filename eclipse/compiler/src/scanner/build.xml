@@ -28,13 +28,13 @@
     </target>
 
     <target name="run" depends="make-executable">
-        <java jar="${dist}/jar/mp" fork="true" dir="../../" >
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
         	<arg value="./data/test1.pas" />
         </java>
-        <java jar="${dist}/jar/mp" fork="true" dir="../../" >
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
         	<arg value="./data/test2.pas" />
         </java>
-    <java jar="${dist}/jar/mp" fork="true" dir="../../" >
+    <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
     	<arg value="./data/test3.mp" />
     </java>
     	
