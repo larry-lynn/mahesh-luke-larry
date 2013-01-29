@@ -82,6 +82,7 @@ public class Dispatcher {
 				case '8':
 				case '9':
 					tok = MPIntegerLitFSM();
+					System.out.println("Exited integer FSM");
 					dispatcherState = State.q7;
 					break;
 					
@@ -178,7 +179,16 @@ public class Dispatcher {
 		} // end dispatcher while loop
 
 		// Reset dispatcher FSM for more scanning
-		dispatcherState = State.q0;
+		if (file_pointer < source_to_scan.length) {
+			// we can keep scanning
+			dispatcherState = State.q0;
+			System.out.println("OK to keep going");
+		}
+		else{
+			// set dispatcher FSM to indicate EOF
+		    dispatcherState = State.q8;
+		    System.out.println( "EOF detected after finding token" );
+		}
 		return (tok);
 
 	} // end get token
@@ -225,6 +235,10 @@ public class Dispatcher {
 				case '8':
 				case '9':
 					peek = peek + 1;
+					if ( (file_pointer + peek ) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						fsm_state = State.q2;
+					}
 					break;
 				default:
 					// we've scanned another character, not a digit
