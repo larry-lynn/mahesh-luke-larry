@@ -24,6 +24,7 @@ public class Dispatcher {
 	// q2 = consuming newline
 	// q3 = consuming old style comment
 	// q4 = consuming new style comment
+	// q6 = error state - hit EOF while scanning a comment
 	// q7 = found token
 	// q8 = file pointer advanced till end of file
 	// q9 = EOF processed and scanning complete
@@ -111,6 +112,12 @@ public class Dispatcher {
 					dispatcherState = State.q7;
 					break;
 					
+				// 
+				case '<':
+					tok = MPLtLeqNeq();
+					dispatcherState = State.q7;
+					break;	
+					
 				// using fall-through switching for matching multiple types of
 				// whitespace
 				case ' ':
@@ -130,8 +137,9 @@ public class Dispatcher {
 					System.out.println("Scanned character was: "
 							+ source_to_scan[file_pointer]);
 					tok = null;
+					System.exit(-4);
 					break;
-				} // end inndf q0 state switch
+				} // end token-scanning q0 state switch
 				break; // end main scanning case
 
 			case q1:
@@ -378,6 +386,7 @@ public class Dispatcher {
 	}
 
 	public Token MPMinusFSM() {
+
 		int peek = 0;
 		State fsm_state = State.q0;
 		Token tok;
@@ -425,6 +434,84 @@ public class Dispatcher {
 		return tok;
 	}
 
+	public Token MPLtLeqNeq(){
+
+		int peek = 0;
+		int biggest_token_found = 0;
+		State fsm_state = State.q0;
+		Token tok;
+		tok = null;
+
+		while (fsm_state != State.q7) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case '<':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			// consume first character.  check file pointer.  possibly continue
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '<':
+					peek = peek + 1;
+					biggest_token_found = peek;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						tok = new Token("MP_LTHAN", row, column, "<");
+						fsm_state = State.q7;
+					}
+					else{
+					    fsm_state = State.q2;
+					}
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			// found 1 character - try to find a larger token
+			case q2:
+				switch(source_to_scan[file_pointer + peek]) {
+					case '=':
+						peek = peek + 1;
+						biggest_token_found = peek;
+						tok = new Token("MP_LEQUAL", row, column, "<=");
+						fsm_state = State.q7;
+						break;
+					case '>':
+						peek = peek + 1;
+						biggest_token_found = peek;
+						tok = new Token("MP_NEQUAL", row, column, "<>");
+						fsm_state = State.q7;
+						break;
+					default:
+						// found another character, but not one that can complete a 2 character token
+						fsm_state = State.q7;
+						tok = new Token("MP_LTHAN", row, column, "<");
+						break;
+				} // end q2 switch
+				break;
+				
+				
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q7 exit state reached
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+		
+		return(tok);
+	}  // end MPLtLeqNeq()
+	
 	public Token consumeCommentFSM() {
 		State commentState = State.q0;
 		// Create a placeholder token that stores original row and column

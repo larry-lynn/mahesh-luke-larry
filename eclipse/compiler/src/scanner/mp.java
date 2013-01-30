@@ -14,6 +14,7 @@ public class mp {
         //String infile = "./data/test1.pas";
     	String infile = args[0];
         PrintWriter writeFileHandle = new PrintWriter(infile + ".tok");
+        String outputLine;
     	
         scanner.Dispatcher disp;
         scanner.Token tok;
@@ -31,7 +32,13 @@ public class mp {
             tok = disp.getToken();
             //System.out.println(tok.token_name + "\t" + tok.getLineNumber() + "\t" + tok.getColumnNumber() + "\t" + tok.getLexeme() );
             //System.out.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
-            writeFileHandle.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            //writeFileHandle.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            outputLine = String.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            // Write output to file to meet spec
+            writeFileHandle.format("%s", outputLine);
+            // Print to stdout for ease of debugging;
+            System.out.print(outputLine);
+            
             if(tok.token_name == "MP_EOF"){;
                 break;
             }
