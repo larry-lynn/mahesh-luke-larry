@@ -24,8 +24,9 @@ public class mp {
  
         while( true ){
             tok = disp.getToken();
-            System.out.println(tok.token_name + "\t" + tok.getLineNumber() + "\t" + tok.getColumnNumber() + "\t" + tok.getLexeme() );
-            if(tok.token_name == "MP_EOF"){
+            //System.out.println(tok.token_name + "\t" + tok.getLineNumber() + "\t" + tok.getColumnNumber() + "\t" + tok.getLexeme() );
+            System.out.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            if(tok.token_name == "MP_EOF"){;
                 break;
             }
         }

@@ -429,7 +429,7 @@ public class Dispatcher {
 		State commentState = State.q0;
 		// Create a placeholder token that stores original row and column
 		// in case we encounter a run-on comment
-		Token tok = new Token("MP_RUN_COMMENT", row, column, "");
+		Token tok = new Token("MP_RUN_COMMENT", row, column, null);
 
 		while (commentState != State.q8) {
 			switch (commentState) {
@@ -486,7 +486,6 @@ public class Dispatcher {
 				break;
 			case q9:
 				// runaway comment -- comment ran to EOF
-				// System.out.println("Scanner Error: Runaway Comment");
 				dispatcherState = State.q6;
 				return (tok);
 			default:
