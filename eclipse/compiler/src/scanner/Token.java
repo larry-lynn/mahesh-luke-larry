@@ -20,5 +20,17 @@ public class Token {
         column_number = column;
         lexeme = lex;
     }
+    
+    public String getLexeme(){
+    	return(this.lexeme);
+    }
+    
+    public int getLineNumber(){
+    	return(this.line_number);
+    }
+    
+    public int getColumnNumber(){
+        return(this.column_number);	
+    }
 	
 }
