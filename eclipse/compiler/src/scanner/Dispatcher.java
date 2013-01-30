@@ -437,7 +437,6 @@ public class Dispatcher {
 	public Token MPLtLeqNeq(){
 
 		int peek = 0;
-		int biggest_token_found = 0;
 		State fsm_state = State.q0;
 		Token tok;
 		tok = null;
@@ -460,7 +459,6 @@ public class Dispatcher {
 				switch (source_to_scan[file_pointer + peek]) {
 				case '<':
 					peek = peek + 1;
-					biggest_token_found = peek;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
 						tok = new Token("MP_LTHAN", row, column, "<");
@@ -480,13 +478,11 @@ public class Dispatcher {
 				switch(source_to_scan[file_pointer + peek]) {
 					case '=':
 						peek = peek + 1;
-						biggest_token_found = peek;
 						tok = new Token("MP_LEQUAL", row, column, "<=");
 						fsm_state = State.q7;
 						break;
 					case '>':
 						peek = peek + 1;
-						biggest_token_found = peek;
 						tok = new Token("MP_NEQUAL", row, column, "<>");
 						fsm_state = State.q7;
 						break;
