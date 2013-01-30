@@ -1,5 +1,7 @@
 package scanner;
 
+import java.io.*;
+
 public class mp {
 
     public static void main(String [] args) throws Exception{
@@ -11,7 +13,8 @@ public class mp {
     	
         //String infile = "./data/test1.pas";
     	String infile = args[0];
-
+        PrintWriter writeFileHandle = new PrintWriter(infile + ".tok");
+    	
         scanner.Dispatcher disp;
         scanner.Token tok;
 
@@ -22,14 +25,19 @@ public class mp {
         disp = new Dispatcher();
         disp.openFile(infile);
  
+        
+        
         while( true ){
             tok = disp.getToken();
             //System.out.println(tok.token_name + "\t" + tok.getLineNumber() + "\t" + tok.getColumnNumber() + "\t" + tok.getLexeme() );
-            System.out.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            //System.out.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            writeFileHandle.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
             if(tok.token_name == "MP_EOF"){;
                 break;
             }
         }
+        
+        writeFileHandle.close();
 
 
     } // end main()    
