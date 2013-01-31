@@ -87,11 +87,18 @@ public class Dispatcher {
 					dispatcherState = State.q7;
 					break;
 
+				// Dispatch to comma FSM
 				case ',':
 				        tok = MPCommaFSM();
-				        dispatcherState = State.q7;
+					dispatcherState = State.q7;
 				        break;
 
+				// Dispatch to equal FSM
+				case '=':
+				        tok = MPEqualFSM();
+					dispatcherState = State.q7;
+				        break;
+		       
 				// Dispatch to Comment Style 1 FSM
 				case '{':
 					tok = consumeCommentFSM();
@@ -116,12 +123,24 @@ public class Dispatcher {
 					tok = MPMinusFSM();
 					dispatcherState = State.q7;
 					break;					
-				// 
+				//
 				case '<':
 					tok = MPLtLeqNeq();
 					dispatcherState = State.q7;
 					break;	
-					
+				
+				// Dispatch to GreaterThan FSM
+				case '>':
+					tok = MPGtGeq();
+					dispatcherState = State.q7;
+					break;	
+
+				// Dispatch to Colon FSM
+				case ':':
+					tok = MPColonAssign();
+					dispatcherState = State.q7;
+					break;	
+
 				// using fall-through switching for matching multiple types of
 				// whitespace
 				case ' ':
@@ -426,7 +445,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_Comma", ",");
+		tok = new Token("MP_COMMA", ",");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -438,6 +457,57 @@ public class Dispatcher {
 
 		return tok;
 	}
+
+
+	public Token MPEqualFSM() {
+
+		int peek = 0;
+		State fsm_state = State.q0;
+		Token tok;
+
+		while (fsm_state != State.q2) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case '=':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '=':
+					peek = peek + 1;
+					fsm_state = State.q2;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q2 exit state reached
+
+		tok = new Token("MP_EQUAL", "=");
+
+		// update token with extra information
+		tok.column_number = column;
+		tok.line_number = row;
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+
+		return tok;
+	}
+
 
 	public Token MPMinusFSM() {
 
@@ -561,6 +631,143 @@ public class Dispatcher {
 		
 		return(tok);
 	}  // end MPLtLeqNeq()
+
+	public Token MPGtGeq(){
+
+		int peek = 0;
+		State fsm_state = State.q0;
+		Token tok;
+		tok = null;
+
+		while (fsm_state != State.q7) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case '>':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			// consume first character.  check file pointer.  possibly continue
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '>':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						tok = new Token("MP_GTHAN", row, column, ">");
+						fsm_state = State.q7;
+					}
+					else{
+					    fsm_state = State.q2;
+					}
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			// found 1 character - try to find a larger token
+			case q2:
+				switch(source_to_scan[file_pointer + peek]) {
+					case '=':
+						peek = peek + 1;
+						tok = new Token("MP_GEQUAL", row, column, ">=");
+						fsm_state = State.q7;
+						break;			   
+					default:
+       						fsm_state = State.q7;
+						tok = new Token("MP_GTHAN", row, column, ">");
+						break;
+				} // end q2 switch
+				break;
+				
+				
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q7 exit state reached
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+		
+		return(tok);
+	}  // end MPGtGeq()
+
+	public Token MPColonAssign(){
+
+		int peek = 0;
+		State fsm_state = State.q0;
+		Token tok;
+		tok = null;
+
+		while (fsm_state != State.q7) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case ':':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			// consume first character.  check file pointer.  possibly continue
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case ':':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						tok = new Token("MP_COLON", row, column, ":");
+						fsm_state = State.q7;
+					}
+					else{
+					    fsm_state = State.q2;
+					}
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			// found 1 character - try to find a larger token
+			case q2:
+				switch(source_to_scan[file_pointer + peek]) {
+					case '=':
+						peek = peek + 1;
+						tok = new Token("MP_ASSIGN", row, column, ":=");
+						fsm_state = State.q7;
+						break;			   
+					default:
+       						fsm_state = State.q7;
+						tok = new Token("MP_COLON", row, column, ":");
+						break;
+				} // end q2 switch
+				break;
+				
+				
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q7 exit state reached
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+		
+		return(tok);
+	}  // end MPColonAssign()
+
 	
 	public Token consumeCommentFSM() {
 		State commentState = State.q0;
