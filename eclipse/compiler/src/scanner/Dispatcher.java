@@ -139,7 +139,13 @@ public class Dispatcher {
 				case ':':
 					tok = MPColonAssign();
 					dispatcherState = State.q7;
-					break;	
+					break;
+				
+				// Dispatch to String Literal FSM
+				case '\'':
+					tok =  MPStringLitFSM();
+					dispatcherState = State.q7;
+					break;
 
 				// using fall-through switching for matching multiple types of
 				// whitespace
@@ -408,7 +414,6 @@ public class Dispatcher {
 		return tok;
 	}
 
-
 	public Token MPCommaFSM() {
 
 		int peek = 0;
@@ -458,7 +463,6 @@ public class Dispatcher {
 		return tok;
 	}
 
-
 	public Token MPEqualFSM() {
 
 		int peek = 0;
@@ -507,7 +511,6 @@ public class Dispatcher {
 
 		return tok;
 	}
-
 
 	public Token MPMinusFSM() {
 
@@ -767,7 +770,6 @@ public class Dispatcher {
 		
 		return(tok);
 	}  // end MPColonAssign()
-
 	
 	public Token consumeCommentFSM() {
 		State commentState = State.q0;
@@ -843,4 +845,99 @@ public class Dispatcher {
 
 	}
 
+	public Token MPStringLitFSM() {
+		int peek = 0;
+		int i = 0;
+		State fsm_state = State.q0;
+		Token tok;
+		StringBuilder lex = new StringBuilder("");
+		tok = null; // XXX fixme
+		while(fsm_state != State.q7){
+			switch(fsm_state){
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case '\'':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			case q1:
+				// consume opening apostrophe
+				switch (source_to_scan[file_pointer + peek]) {
+				case '\'':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						fsm_state = State.q9;
+					}	
+					else{
+						fsm_state = State.q2;
+					}
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			case q2:
+				// normal reading of string lit constant
+				switch (source_to_scan[file_pointer + peek]) {
+				case '\n':
+					// newline illegal in micro-pascal string
+					// Terminate token FSM early if EOF reached
+					fsm_state = State.q9;
+				    break;
+				case '\'':
+					// found string terminator - haven't determined if it is an escape character 
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// case for '<eof>, not '' - accept with string now
+						fsm_state = State.q7;
+					}
+					else{
+					    fsm_state = State.q3;
+					}
+					break;
+					default:
+						// found a non EOF, non EOL, non apostrophe - normal string reading
+						lex.append(source_to_scan[file_pointer + peek]);
+						peek = peek + 1;
+						if ((file_pointer + peek) >= source_to_scan.length) {
+							// Terminate token FSM early if EOF reached
+							fsm_state = State.q9;
+						}
+						break;
+						
+				}   // end q2 switch
+				break;  // end outer q2 case
+			case q3:
+				//  Found this pattern '*' -- don't know if the 2nd apostraphe is an escape char
+				// XXX fixme - early termination, need to check for escape char
+				fsm_state = State.q7;
+				break;
+			
+			case q9:
+				// error case - reached EOF or EOL while scanning string
+				tok = new Token("MP_RUN_STRING", row, column, null);
+				break;
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+
+		} // end FSM while loop
+		
+		tok = new Token("MP_STRING_LIT", row, column, lex.toString());
+		
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+		
+		return(tok);
+	}
+	
 }
