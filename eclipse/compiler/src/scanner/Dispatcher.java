@@ -87,6 +87,11 @@ public class Dispatcher {
 					dispatcherState = State.q7;
 					break;
 
+				case ',':
+				        tok = MPCommaFSM();
+				        dispatcherState = State.q7;
+				        break;
+
 				// Dispatch to Comment Style 1 FSM
 				case '{':
 					tok = consumeCommentFSM();
@@ -110,8 +115,7 @@ public class Dispatcher {
 				case '-':
 					tok = MPMinusFSM();
 					dispatcherState = State.q7;
-					break;
-					
+					break;					
 				// 
 				case '<':
 					tok = MPLtLeqNeq();
@@ -373,6 +377,56 @@ public class Dispatcher {
 		} // end big while loop for fsm - q2 exit state reached
 
 		tok = new Token("MP_PLUS", "+");
+
+		// update token with extra information
+		tok.column_number = column;
+		tok.line_number = row;
+
+		// update column & file pointer
+		column = column + peek;
+		file_pointer = file_pointer + peek;
+
+		return tok;
+	}
+
+
+	public Token MPCommaFSM() {
+
+		int peek = 0;
+		State fsm_state = State.q0;
+		Token tok;
+
+		while (fsm_state != State.q2) {
+			switch (fsm_state) {
+			case q0:
+				// initial state
+				switch (source_to_scan[file_pointer + peek]) {
+				case ',':
+					fsm_state = State.q1;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-1);
+				} // end q0 inner switch
+				break; // end q0 state case
+			case q1:
+				switch (source_to_scan[file_pointer + peek]) {
+				case ',':
+					peek = peek + 1;
+					fsm_state = State.q2;
+					break;
+				default:
+					// shouldn't ever get here
+					System.exit(-3);
+				} // end q1 inner switch
+				break; // end q1 state case
+			default:
+				// shouldn't ever get here
+				System.exit(-2);
+			} // end outer fsm switch
+		} // end big while loop for fsm - q2 exit state reached
+
+		tok = new Token("MP_Comma", ",");
 
 		// update token with extra information
 		tok.column_number = column;
