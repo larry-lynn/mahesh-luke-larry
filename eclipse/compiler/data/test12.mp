@@ -2,4 +2,5 @@
   888
 ::=
 'Hello World'
-111
+222
+'good string with EOF right after'

@@ -847,7 +847,6 @@ public class Dispatcher {
 
 	public Token MPStringLitFSM() {
 		int peek = 0;
-		int i = 0;
 		State fsm_state = State.q0;
 		Token tok;
 		StringBuilder lex = new StringBuilder("");
@@ -923,7 +922,9 @@ public class Dispatcher {
 			case q9:
 				// error case - reached EOF or EOL while scanning string
 				tok = new Token("MP_RUN_STRING", row, column, null);
-				break;
+				column = column + peek;
+				file_pointer = file_pointer + peek;
+				return(tok);
 			default:
 				// shouldn't ever get here
 				System.exit(-2);
