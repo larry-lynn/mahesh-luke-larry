@@ -64,7 +64,7 @@ public class Dispatcher {
 		Token tok = null;
 
 		while (dispatcherState != State.q7) {
-			
+
 			switch (dispatcherState) {
 
 			case q0:
@@ -89,20 +89,20 @@ public class Dispatcher {
 
 				// Dispatch to comma FSM
 				case ',':
-				        tok = MPCommaFSM();
+					tok = MPCommaFSM();
 					dispatcherState = State.q7;
-				        break;
+					break;
 
 				// Dispatch to equal FSM
 				case '=':
-				        tok = MPEqualFSM();
+					tok = MPEqualFSM();
 					dispatcherState = State.q7;
-				        break;
-		       
+					break;
+
 				// Dispatch to Comment Style 1 FSM
 				case '{':
 					tok = consumeCommentFSM();
-					// tok should be null in a normal state, 
+					// tok should be null in a normal state,
 					// run-on comment token on error
 					break;
 
@@ -122,28 +122,28 @@ public class Dispatcher {
 				case '-':
 					tok = MPMinusFSM();
 					dispatcherState = State.q7;
-					break;					
+					break;
 				//
 				case '<':
 					tok = MPLtLeqNeq();
 					dispatcherState = State.q7;
-					break;	
-				
+					break;
+
 				// Dispatch to GreaterThan FSM
 				case '>':
 					tok = MPGtGeq();
 					dispatcherState = State.q7;
-					break;	
+					break;
 
 				// Dispatch to Colon FSM
 				case ':':
 					tok = MPColonAssign();
 					dispatcherState = State.q7;
 					break;
-				
+
 				// Dispatch to String Literal FSM
 				case '\'':
-					tok =  MPStringLitFSM();
+					tok = MPStringLitFSM();
 					dispatcherState = State.q7;
 					break;
 
@@ -161,12 +161,20 @@ public class Dispatcher {
 				default:
 					// XXX Fixme - this should be changed to handle scanning
 					// errors
-					System.out
-							.println("XXX reached a case reserved for future scanning errors");
-					System.out.println("Scanned character was: "
-							+ source_to_scan[file_pointer]);
-					tok = null;
-					System.exit(-4);
+					// System.out.println("XXX reached a case reserved for future scanning errors");
+					// System.out.println("Scanned character was: " +
+					// source_to_scan[file_pointer]);
+
+					// Unrecongnized Character
+					tok = new Token("MP_ERROR", row, column, Character
+							.toString(source_to_scan[file_pointer]));
+					
+					dispatcherState = State.q7;
+
+					// update column & file pointer
+					column = column + 1;
+					file_pointer = file_pointer + 1;
+
 					break;
 				} // end token-scanning q0 state switch
 				break; // end main scanning case
@@ -233,7 +241,7 @@ public class Dispatcher {
 			// set dispatcher FSM to indicate EOF
 			dispatcherState = State.q8;
 		}
-		
+
 		return (tok);
 	} // end get token
 
@@ -561,7 +569,7 @@ public class Dispatcher {
 		return tok;
 	}
 
-	public Token MPLtLeqNeq(){
+	public Token MPLtLeqNeq() {
 
 		int peek = 0;
 		State fsm_state = State.q0;
@@ -581,7 +589,7 @@ public class Dispatcher {
 					System.exit(-1);
 				} // end q0 inner switch
 				break; // end q0 state case
-			// consume first character.  check file pointer.  possibly continue
+			// consume first character. check file pointer. possibly continue
 			case q1:
 				switch (source_to_scan[file_pointer + peek]) {
 				case '<':
@@ -590,9 +598,8 @@ public class Dispatcher {
 						// Terminate token FSM early if EOF reached
 						tok = new Token("MP_LTHAN", row, column, "<");
 						fsm_state = State.q7;
-					}
-					else{
-					    fsm_state = State.q2;
+					} else {
+						fsm_state = State.q2;
 					}
 					break;
 				default:
@@ -602,26 +609,26 @@ public class Dispatcher {
 				break; // end q1 state case
 			// found 1 character - try to find a larger token
 			case q2:
-				switch(source_to_scan[file_pointer + peek]) {
-					case '=':
-						peek = peek + 1;
-						tok = new Token("MP_LEQUAL", row, column, "<=");
-						fsm_state = State.q7;
-						break;
-					case '>':
-						peek = peek + 1;
-						tok = new Token("MP_NEQUAL", row, column, "<>");
-						fsm_state = State.q7;
-						break;
-					default:
-						// found another character, but not one that can complete a 2 character token
-						fsm_state = State.q7;
-						tok = new Token("MP_LTHAN", row, column, "<");
-						break;
+				switch (source_to_scan[file_pointer + peek]) {
+				case '=':
+					peek = peek + 1;
+					tok = new Token("MP_LEQUAL", row, column, "<=");
+					fsm_state = State.q7;
+					break;
+				case '>':
+					peek = peek + 1;
+					tok = new Token("MP_NEQUAL", row, column, "<>");
+					fsm_state = State.q7;
+					break;
+				default:
+					// found another character, but not one that can complete a
+					// 2 character token
+					fsm_state = State.q7;
+					tok = new Token("MP_LTHAN", row, column, "<");
+					break;
 				} // end q2 switch
 				break;
-				
-				
+
 			default:
 				// shouldn't ever get here
 				System.exit(-2);
@@ -631,11 +638,11 @@ public class Dispatcher {
 		// update column & file pointer
 		column = column + peek;
 		file_pointer = file_pointer + peek;
-		
-		return(tok);
-	}  // end MPLtLeqNeq()
 
-	public Token MPGtGeq(){
+		return (tok);
+	} // end MPLtLeqNeq()
+
+	public Token MPGtGeq() {
 
 		int peek = 0;
 		State fsm_state = State.q0;
@@ -655,7 +662,7 @@ public class Dispatcher {
 					System.exit(-1);
 				} // end q0 inner switch
 				break; // end q0 state case
-			// consume first character.  check file pointer.  possibly continue
+			// consume first character. check file pointer. possibly continue
 			case q1:
 				switch (source_to_scan[file_pointer + peek]) {
 				case '>':
@@ -664,9 +671,8 @@ public class Dispatcher {
 						// Terminate token FSM early if EOF reached
 						tok = new Token("MP_GTHAN", row, column, ">");
 						fsm_state = State.q7;
-					}
-					else{
-					    fsm_state = State.q2;
+					} else {
+						fsm_state = State.q2;
 					}
 					break;
 				default:
@@ -676,20 +682,19 @@ public class Dispatcher {
 				break; // end q1 state case
 			// found 1 character - try to find a larger token
 			case q2:
-				switch(source_to_scan[file_pointer + peek]) {
-					case '=':
-						peek = peek + 1;
-						tok = new Token("MP_GEQUAL", row, column, ">=");
-						fsm_state = State.q7;
-						break;			   
-					default:
-       						fsm_state = State.q7;
-						tok = new Token("MP_GTHAN", row, column, ">");
-						break;
+				switch (source_to_scan[file_pointer + peek]) {
+				case '=':
+					peek = peek + 1;
+					tok = new Token("MP_GEQUAL", row, column, ">=");
+					fsm_state = State.q7;
+					break;
+				default:
+					fsm_state = State.q7;
+					tok = new Token("MP_GTHAN", row, column, ">");
+					break;
 				} // end q2 switch
 				break;
-				
-				
+
 			default:
 				// shouldn't ever get here
 				System.exit(-2);
@@ -699,11 +704,11 @@ public class Dispatcher {
 		// update column & file pointer
 		column = column + peek;
 		file_pointer = file_pointer + peek;
-		
-		return(tok);
-	}  // end MPGtGeq()
 
-	public Token MPColonAssign(){
+		return (tok);
+	} // end MPGtGeq()
+
+	public Token MPColonAssign() {
 
 		int peek = 0;
 		State fsm_state = State.q0;
@@ -723,7 +728,7 @@ public class Dispatcher {
 					System.exit(-1);
 				} // end q0 inner switch
 				break; // end q0 state case
-			// consume first character.  check file pointer.  possibly continue
+			// consume first character. check file pointer. possibly continue
 			case q1:
 				switch (source_to_scan[file_pointer + peek]) {
 				case ':':
@@ -732,9 +737,8 @@ public class Dispatcher {
 						// Terminate token FSM early if EOF reached
 						tok = new Token("MP_COLON", row, column, ":");
 						fsm_state = State.q7;
-					}
-					else{
-					    fsm_state = State.q2;
+					} else {
+						fsm_state = State.q2;
 					}
 					break;
 				default:
@@ -744,20 +748,19 @@ public class Dispatcher {
 				break; // end q1 state case
 			// found 1 character - try to find a larger token
 			case q2:
-				switch(source_to_scan[file_pointer + peek]) {
-					case '=':
-						peek = peek + 1;
-						tok = new Token("MP_ASSIGN", row, column, ":=");
-						fsm_state = State.q7;
-						break;			   
-					default:
-       						fsm_state = State.q7;
-						tok = new Token("MP_COLON", row, column, ":");
-						break;
+				switch (source_to_scan[file_pointer + peek]) {
+				case '=':
+					peek = peek + 1;
+					tok = new Token("MP_ASSIGN", row, column, ":=");
+					fsm_state = State.q7;
+					break;
+				default:
+					fsm_state = State.q7;
+					tok = new Token("MP_COLON", row, column, ":");
+					break;
 				} // end q2 switch
 				break;
-				
-				
+
 			default:
 				// shouldn't ever get here
 				System.exit(-2);
@@ -767,10 +770,10 @@ public class Dispatcher {
 		// update column & file pointer
 		column = column + peek;
 		file_pointer = file_pointer + peek;
-		
-		return(tok);
-	}  // end MPColonAssign()
-	
+
+		return (tok);
+	} // end MPColonAssign()
+
 	public Token MPStringLitFSM() {
 		int peek = 0;
 		int longPeek = 0;
@@ -779,8 +782,8 @@ public class Dispatcher {
 		StringBuilder lex = new StringBuilder("");
 		StringBuilder bestLexSoFar = new StringBuilder("");
 		tok = null; // XXX fixme
-		while(fsm_state != State.q7){
-			switch(fsm_state){
+		while (fsm_state != State.q7) {
+			switch (fsm_state) {
 			case q0:
 				// initial state
 				switch (source_to_scan[file_pointer + peek]) {
@@ -800,8 +803,7 @@ public class Dispatcher {
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
 						fsm_state = State.q9;
-					}	
-					else{
+					} else {
 						fsm_state = State.q2;
 					}
 					break;
@@ -817,40 +819,42 @@ public class Dispatcher {
 					// newline illegal in micro-pascal string
 					// Terminate token FSM early if EOF reached
 					fsm_state = State.q9;
-				    break;
+					break;
 				case '\'':
-					// found string terminator - haven't determined if it is an escape character 
+					// found string terminator - haven't determined if it is an
+					// escape character
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						bestLexSoFar = lex;
 						fsm_state = State.q7;
-					}
-					else{
-					    fsm_state = State.q3;
+					} else {
+						fsm_state = State.q3;
 					}
 					break;
-					default:
-						// found a non EOF, non EOL, non apostrophe - normal string reading
-						lex.append(source_to_scan[file_pointer + peek]);
-						peek = peek + 1;
-						if ((file_pointer + peek) >= source_to_scan.length) {
-							// Terminate token FSM early if EOF reached
-							fsm_state = State.q9;
-						}
-						break;
-						
-				}   // end q2 switch
-				break;  // end outer q2 case
+				default:
+					// found a non EOF, non EOL, non apostrophe - normal string
+					// reading
+					lex.append(source_to_scan[file_pointer + peek]);
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+						fsm_state = State.q9;
+					}
+					break;
+
+				} // end q2 switch
+				break; // end outer q2 case
 			case q3:
-				//  Found this pattern '*' -- don't know if the 2nd apostrophe is an escape char
-				//fsm_state = State.q7;
+				// Found this pattern '*' -- don't know if the 2nd apostrophe is
+				// an escape char
+				// fsm_state = State.q7;
 				longPeek = peek;
-				//bestLexSoFar = lex;
-				bestLexSoFar = new StringBuilder( lex.toString() );
-				
-				switch (source_to_scan[file_pointer + longPeek]){
+				// bestLexSoFar = lex;
+				bestLexSoFar = new StringBuilder(lex.toString());
+
+				switch (source_to_scan[file_pointer + longPeek]) {
 				case '\'':
-					// found an escaped apostrophe - map to apostrophe literal 
+					// found an escaped apostrophe - map to apostrophe literal
 					longPeek = longPeek + 1;
 					lex.append('\'');
 					if ((file_pointer + longPeek) >= source_to_scan.length) {
@@ -861,70 +865,73 @@ public class Dispatcher {
 					fsm_state = State.q4;
 					break;
 				default:
-					// if we scanned anything other than 'a', not 'a'' then end the string
+					// if we scanned anything other than 'a', not 'a'' then end
+					// the string
 					fsm_state = State.q7;
 					break;
 				} // end inner q3 switch
-				break;  // end q3 case
+				break; // end q3 case
 			case q4:
 				// found 'a''b... continue scanning
 				// reading of string lit constant after escape seq
 				switch (source_to_scan[file_pointer + longPeek]) {
 				case '\n':
-                    // found 'a''bc<eol> - abandon longPeek and back up to 'a'
+					// found 'a''bc<eol> - abandon longPeek and back up to 'a'
 					fsm_state = State.q7;
-				    break;
-				case '\'':					
-					// case 'a''b' -- accept state, but don't necessarily stop scanning
+					break;
+				case '\'':
+					// case 'a''b' -- accept state, but don't necessarily stop
+					// scanning
 					// save longPeek
 					longPeek = longPeek + 1;
 					peek = longPeek;
-					//bestLexSoFar = lex;
-					bestLexSoFar = new StringBuilder( lex.toString() );
+					// bestLexSoFar = lex;
+					bestLexSoFar = new StringBuilder(lex.toString());
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// case 'a''b'<eof>
 						fsm_state = State.q7;
-					}
-					else{
-						//case 'a''b' . . . something (could continue)
-					    fsm_state = State.q3;
+					} else {
+						// case 'a''b' . . . something (could continue)
+						fsm_state = State.q3;
 					}
 					break;
 				default:
-					// found a non EOF, non EOL, non apostrophe - normal string reading
+					// found a non EOF, non EOL, non apostrophe - normal string
+					// reading
 					lex.append(source_to_scan[file_pointer + longPeek]);
 					longPeek = longPeek + 1;
 					if ((file_pointer + longPeek) >= source_to_scan.length) {
-                        // case 'a''bcd<eof> - abandon longPeek and back up to 'a'
+						// case 'a''bcd<eof> - abandon longPeek and back up to
+						// 'a'
 						fsm_state = State.q7;
 					}
 					break;
-						
-				}   // end q4 switch
-				break;  // end outer q4 case
-			
+
+				} // end q4 switch
+				break; // end outer q4 case
+
 			case q9:
 				// error case - reached EOF or EOL while scanning string
 				tok = new Token("MP_RUN_STRING", row, column, null);
 				column = column + peek;
 				file_pointer = file_pointer + peek;
-				return(tok);
+				return (tok);
 			default:
 				// shouldn't ever get here
 				System.exit(-2);
 			} // end outer fsm switch
 
 		} // end FSM while loop
-		
+
 		tok = new Token("MP_STRING_LIT", row, column, bestLexSoFar.toString());
-		
+
 		// update column & file pointer
 		column = column + peek;
 		file_pointer = file_pointer + peek;
-		
-		return(tok);
+
+		return (tok);
 	}
-	
+
 	public Token consumeCommentFSM() {
 		State commentState = State.q0;
 		// Create a placeholder token that stores original row and column
@@ -998,5 +1005,5 @@ public class Dispatcher {
 		return (tok);
 
 	}
-	
+
 }
