@@ -33,7 +33,6 @@
 
     <target name="run" depends="make-executable">
     	
-    	<!--
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
         	<arg value="./data/test1.pas" />
         </java>
@@ -73,7 +72,6 @@
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test14.mp" />
         </java>
-    	-->
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test15.mp" />
         </java>
