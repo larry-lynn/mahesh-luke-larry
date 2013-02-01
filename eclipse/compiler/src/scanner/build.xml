@@ -81,6 +81,15 @@
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test17.mp" />
         </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test18.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test19.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test20.mp" />
+        </java>
     	
     </target>
 
