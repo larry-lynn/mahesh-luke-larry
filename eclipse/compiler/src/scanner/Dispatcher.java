@@ -847,9 +847,11 @@ public class Dispatcher {
 
 	public Token MPStringLitFSM() {
 		int peek = 0;
+		int longPeek = 0;
 		State fsm_state = State.q0;
 		Token tok;
 		StringBuilder lex = new StringBuilder("");
+		StringBuilder bestLexSoFar = new StringBuilder("");
 		tok = null; // XXX fixme
 		while(fsm_state != State.q7){
 			switch(fsm_state){
@@ -894,7 +896,7 @@ public class Dispatcher {
 					// found string terminator - haven't determined if it is an escape character 
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
-						// case for '<eof>, not '' - accept with string now
+						bestLexSoFar = lex;
 						fsm_state = State.q7;
 					}
 					else{
@@ -914,10 +916,31 @@ public class Dispatcher {
 				}   // end q2 switch
 				break;  // end outer q2 case
 			case q3:
-				//  Found this pattern '*' -- don't know if the 2nd apostraphe is an escape char
+				//  Found this pattern '*' -- don't know if the 2nd apostrophe is an escape char
 				// XXX fixme - early termination, need to check for escape char
-				fsm_state = State.q7;
-				break;
+				//fsm_state = State.q7;
+				longPeek = peek;
+				switch (source_to_scan[file_pointer + longPeek]){
+				case '\'':
+					// found an escaped apostrophe - map to apostrophe literal 
+					longPeek = longPeek + 1;
+					lex.append('\'');
+					if ((file_pointer + longPeek) >= source_to_scan.length) {
+						// case 'a''<eof> -- accept 'a'
+						// throw away longPeek, back up 1
+						fsm_state = State.q7;
+					}
+					fsm_state = State.q4;
+					break;
+				default:
+					// if we scanned anything other than 'a', not 'a'' then end the string
+					fsm_state = State.q7;
+					break;
+				} // end inner q3 switch
+				break;  // end q3 case
+			case q4:
+				// found 'a''b... continue scanning
+                break;
 			
 			case q9:
 				// error case - reached EOF or EOL while scanning string
@@ -932,7 +955,7 @@ public class Dispatcher {
 
 		} // end FSM while loop
 		
-		tok = new Token("MP_STRING_LIT", row, column, lex.toString());
+		tok = new Token("MP_STRING_LIT", row, column, bestLexSoFar.toString());
 		
 		// update column & file pointer
 		column = column + peek;
