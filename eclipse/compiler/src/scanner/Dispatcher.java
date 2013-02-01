@@ -771,80 +771,6 @@ public class Dispatcher {
 		return(tok);
 	}  // end MPColonAssign()
 	
-	public Token consumeCommentFSM() {
-		State commentState = State.q0;
-		// Create a placeholder token that stores original row and column
-		// in case we encounter a run-on comment
-		Token tok = new Token("MP_RUN_COMMENT", row, column, null);
-
-		while (commentState != State.q8) {
-			switch (commentState) {
-			case q0:
-				switch (source_to_scan[file_pointer]) {
-				case '{':
-					file_pointer = file_pointer + 1;
-					column = column + 1;
-					commentState = State.q1;
-					break;
-				default:
-					System.out.println("Comment unexpected error state1");
-					break;
-				}
-				break; // end q0
-
-			case q1:
-				// skipping everything between '{' and '}'
-				switch (source_to_scan[file_pointer]) {
-				case '{':
-					System.out
-							.println("Scanner Warning: found { embedded in comment.  Possibly missing }?");
-					file_pointer = file_pointer + 1;
-					column = column + 1;
-					if (file_pointer >= source_to_scan.length) {
-						commentState = State.q9;
-					}
-					break;
-				case '\n':
-					file_pointer = file_pointer + 1;
-					column = 0;
-					row = row + 1;
-					if (file_pointer >= source_to_scan.length) {
-						commentState = State.q9;
-					}
-					break;
-				case '}':
-					file_pointer = file_pointer + 1;
-					column = column + 1;
-					commentState = State.q8;
-					break;
-				default:
-					// scanned anything else
-					file_pointer = file_pointer + 1;
-					column = column + 1;
-					if (file_pointer >= source_to_scan.length) {
-						commentState = State.q9;
-					}
-					break;
-				}
-				break; // end q1
-			case q8:
-				System.out.println("Reached supposadly unreachable q8 case.");
-				break;
-			case q9:
-				// runaway comment -- comment ran to EOF
-				dispatcherState = State.q6;
-				return (tok);
-			default:
-				System.out.println("Comment unexpected error state 3");
-				break;
-			} // end state switch
-		} // end comment state while loop
-		// normal termination - no run-on comment. null out token
-		tok = null;
-		return (tok);
-
-	}
-
 	public Token MPStringLitFSM() {
 		int peek = 0;
 		int longPeek = 0;
@@ -917,9 +843,11 @@ public class Dispatcher {
 				break;  // end outer q2 case
 			case q3:
 				//  Found this pattern '*' -- don't know if the 2nd apostrophe is an escape char
-				// XXX fixme - early termination, need to check for escape char
 				//fsm_state = State.q7;
 				longPeek = peek;
+				//bestLexSoFar = lex;
+				bestLexSoFar = new StringBuilder( lex.toString() );
+				
 				switch (source_to_scan[file_pointer + longPeek]){
 				case '\'':
 					// found an escaped apostrophe - map to apostrophe literal 
@@ -940,7 +868,40 @@ public class Dispatcher {
 				break;  // end q3 case
 			case q4:
 				// found 'a''b... continue scanning
-                break;
+				// reading of string lit constant after escape seq
+				switch (source_to_scan[file_pointer + longPeek]) {
+				case '\n':
+                    // found 'a''bc<eol> - abandon longPeek and back up to 'a'
+					fsm_state = State.q7;
+				    break;
+				case '\'':					
+					// case 'a''b' -- accept state, but don't necessarily stop scanning
+					// save longPeek
+					longPeek = longPeek + 1;
+					peek = longPeek;
+					//bestLexSoFar = lex;
+					bestLexSoFar = new StringBuilder( lex.toString() );
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// case 'a''b'<eof>
+						fsm_state = State.q7;
+					}
+					else{
+						//case 'a''b' . . . something (could continue)
+					    fsm_state = State.q3;
+					}
+					break;
+				default:
+					// found a non EOF, non EOL, non apostrophe - normal string reading
+					lex.append(source_to_scan[file_pointer + longPeek]);
+					longPeek = longPeek + 1;
+					if ((file_pointer + longPeek) >= source_to_scan.length) {
+                        // case 'a''bcd<eof> - abandon longPeek and back up to 'a'
+						fsm_state = State.q7;
+					}
+					break;
+						
+				}   // end q4 switch
+				break;  // end outer q4 case
 			
 			case q9:
 				// error case - reached EOF or EOL while scanning string
@@ -962,6 +923,80 @@ public class Dispatcher {
 		file_pointer = file_pointer + peek;
 		
 		return(tok);
+	}
+	
+	public Token consumeCommentFSM() {
+		State commentState = State.q0;
+		// Create a placeholder token that stores original row and column
+		// in case we encounter a run-on comment
+		Token tok = new Token("MP_RUN_COMMENT", row, column, null);
+
+		while (commentState != State.q8) {
+			switch (commentState) {
+			case q0:
+				switch (source_to_scan[file_pointer]) {
+				case '{':
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					commentState = State.q1;
+					break;
+				default:
+					System.out.println("Comment unexpected error state1");
+					break;
+				}
+				break; // end q0
+
+			case q1:
+				// skipping everything between '{' and '}'
+				switch (source_to_scan[file_pointer]) {
+				case '{':
+					System.out
+							.println("Scanner Warning: found { embedded in comment.  Possibly missing }?");
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				case '\n':
+					file_pointer = file_pointer + 1;
+					column = 0;
+					row = row + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				case '}':
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					commentState = State.q8;
+					break;
+				default:
+					// scanned anything else
+					file_pointer = file_pointer + 1;
+					column = column + 1;
+					if (file_pointer >= source_to_scan.length) {
+						commentState = State.q9;
+					}
+					break;
+				}
+				break; // end q1
+			case q8:
+				System.out.println("Reached supposadly unreachable q8 case.");
+				break;
+			case q9:
+				// runaway comment -- comment ran to EOF
+				dispatcherState = State.q6;
+				return (tok);
+			default:
+				System.out.println("Comment unexpected error state 3");
+				break;
+			} // end state switch
+		} // end comment state while loop
+		// normal termination - no run-on comment. null out token
+		tok = null;
+		return (tok);
+
 	}
 	
 }
