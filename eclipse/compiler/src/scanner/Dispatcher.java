@@ -1249,7 +1249,6 @@ public class Dispatcher {
 		return (tok);
 
 	}
-<<<<<<< HEAD
 	
 	//Method: 		Determine Period
 	//Input:  		Takes the current location of file pointer 
@@ -1547,8 +1546,4 @@ public class Dispatcher {
 		return coin;
 	}
 
-	
-=======
-
->>>>>>> c333686cb8eb533de261178eae5f6f4f745aa9a2
 }
