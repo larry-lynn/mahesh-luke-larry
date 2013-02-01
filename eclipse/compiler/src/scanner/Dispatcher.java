@@ -496,14 +496,30 @@ public class Dispatcher {
 				case '+': 
 				case '-':
 					peek = peek + 1;
-					if ((file_pointer + peek) >= source_to_scan.length) {
+				        if (source_to_scan[file_pointer + peek] == '0' || 
+					    source_to_scan[file_pointer + peek] == '1' || 
+					    source_to_scan[file_pointer + peek] == '2' || 
+					    source_to_scan[file_pointer + peek] == '3' || 
+					    source_to_scan[file_pointer + peek] == '4' || 
+					    source_to_scan[file_pointer + peek] == '5' || 
+					    source_to_scan[file_pointer + peek] == '6' || 
+					    source_to_scan[file_pointer + peek] == '7' || 
+					    source_to_scan[file_pointer + peek] == '8' || 
+					    source_to_scan[file_pointer + peek] == '9'
+					    ){
+					        fsm_state = State.q6;
+					}
+					else if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
 					        peek = peek - 2;
 						tokenType = "MP_FIXED_LIT";
 						fsm_state = State.q2;
 					}
 					else {
-					    fsm_state = State.q6;
+						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
+					        peek = peek - 2;
+						tokenType = "MP_FIXED_LIT";
+						fsm_state = State.q2;
 					}
 					break;
 				default:
