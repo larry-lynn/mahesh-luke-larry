@@ -171,6 +171,63 @@ public class Dispatcher {
 					tok = MPTimesFSM();
 					dispatcherState = State.q7;
 					break;
+					
+				//Falling through switch statements to check for a-z,A-Z which will test for valid tokens
+				case 'a':
+				case 'b':
+				case 'c':
+				case 'd':
+				case 'e':
+				case 'f':
+				case 'g':
+				case 'h':
+				case 'i':
+				case 'j':
+				case 'k':
+				case 'l':
+				case 'm':
+				case 'n':
+				case 'o':
+				case 'p':
+				case 'q':
+				case 'r':
+				case 's':
+				case 't':
+				case 'u':
+				case 'v':
+				case 'w':
+				case 'x':
+				case 'y':
+				case 'z':
+				case 'A':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'E':
+				case 'F':
+				case 'G':
+				case 'H':
+				case 'I':
+				case 'J':
+				case 'K':
+				case 'L':
+				case 'M':
+				case 'N':
+				case 'O':
+				case 'P':
+				case 'Q':
+				case 'R':
+				case 'S':
+				case 'T':
+				case 'U':
+				case 'V':
+				case 'W':
+				case 'X':
+				case 'Y':
+				case 'Z':
+					tok = MPIdentifierFSM();
+					dispatcherState = State.q7;
+					break;
 
 				// using fall-through switching for matching multiple types of
 				// whitespace
@@ -1179,5 +1236,111 @@ public class Dispatcher {
 		file_pointer += peek;
 		return coin;
 	}
+	
+	//Method:		Determine Identifier
+	//Input: 		Takes the current pointer of the file 
+	//Output:		Returns a Token containing the information
+	//Procedure:	Determines whether or not the string obtained is a valid identifier following
+	//				The syntax of (letter | "_"(letter | digit)) {["_"](letter | digit)}
+	
+	public Token MPIdentifierFSM()
+	{
+		//String built for the identifier
+		StringBuilder id = new StringBuilder();
+		//Token coin that will be returned
+		Token coin = new Token("MP_Identifier",id.toString());
+		//State object for the ID fsm
+		State id_fsm = State.q0;
+		//int peek to look ahead of the file pointer
+		int peek = 0;
+		
+		
+		//while checker for first part of the identifier
+		while(id_fsm != State.q1)
+		{
+			char ch = source_to_scan[file_pointer + peek];
+			//check to see if we have found a letter using ASCII value for A-Z,a-z at the start
+			if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122))
+			{
+				id.append(ch);
+				id_fsm = State.q1;
+			}
+			//check to see if we have more to the variable
+			peek += 1;
+			if(source_to_scan.length > peek)
+			{
+				ch = source_to_scan[file_pointer + peek];
+				if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) || (ch == '_') )
+				{
+					id_fsm = State.q2;
+					//id.append(ch);
+					//continue to scan the rest of the ID
+					while(id_fsm != State.q1)
+					{
+						//peek += 1;
+						if(source_to_scan.length > peek)
+						{
+							ch = source_to_scan[file_pointer + peek];
+							//check to see if we have a letter A-Z,a-z or a digit 0-9
+							if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) )
+							{
+								//add the letter or digit to it
+								peek += 1;
+								id.append(ch);
+							}
+							else if(ch == '_')
+							{
+								//check to see if we have a letter or digit that is following the underscore
+								peek += 1;
+								if(source_to_scan.length > peek)
+								{
+									ch = source_to_scan[file_pointer + peek];
+									//check to see if we have a letter A-Z,a-z or a digit 0-9, or an underscore
+									if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) )
+									{
+										id.append('_');
+										id.append(ch);
+										peek += 1;
+									}
+									else
+									{
+										id.append('_');
+										//we have an invalid variable here
+										System.out.println("Notification of Identifier with invalid syntax.");
+									}
+								}
+								else
+								{
+									System.out.println("Notification of Identifier with invalid syntax.");
+								}
+							}
+							//else we scanned something that is either the end or not what we want
+							else
+							{
+								id_fsm = State.q1;
+							}
+						}
+						//this else will execute if we are at the end of the source_to_scan
+						else
+						{
+							id_fsm = State.q1;
+						}
+					}
+				}
+			}
+		}
+		
+		//update the coin with information
+		coin.column_number = column + peek;
+		coin.line_number = row;
+		coin.lexeme = id.toString();
+		
+		//update column & file pointer
+		column += peek;
+		file_pointer += peek;
+		
+		return coin;
+	}
+
 	
 }
