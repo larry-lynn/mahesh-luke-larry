@@ -83,7 +83,7 @@ public class Dispatcher {
 				case '7':
 				case '8':
 				case '9':
-					tok = MPIntegerLitFSM();
+					tok = MPNumberLitFSM();
 					dispatcherState = State.q7;
 					break;
 
@@ -245,12 +245,13 @@ public class Dispatcher {
 		return (tok);
 	} // end get token
 
-	public Token MPIntegerLitFSM() {
+	public Token MPNumberLitFSM() {
 		int peek = 0;
 		int i = 0;
 		State fsm_state = State.q0;
 		Token tok;
 		StringBuilder lex;
+		String tokenType = "";
 
 		while (fsm_state != State.q2) {
 			switch (fsm_state) {
@@ -276,7 +277,7 @@ public class Dispatcher {
 				break; // end q0 state case
 			case q1:
 				switch (source_to_scan[file_pointer + peek]) {
-				case '0':
+				case '0': 
 				case '1':
 				case '2':
 				case '3':
@@ -289,17 +290,178 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
+					        tokenType = "MP_INTEGER_LIT";
 						fsm_state = State.q2;
 					}
 					break;
-				default:
+				case '.':
+				        // Case to handle fixed or floating point numbers
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached, and return the number before current character as integer
+					        peek = peek - 1;
+						tokenType = "MP_INTEGER_LIT";
+						fsm_state = State.q2;
+					}
+					else {
+					    fsm_state = State.q3;
+					}
+					break;
+ 				default:
 					// we've scanned another character, not a digit
-					// peek = peek + 1;
+				        tokenType = "MP_INTEGER_LIT";
 					fsm_state = State.q2;
 					break;
 				} // end q1 inner switch
 				break; // end q1 state case
-			default:
+
+			case q3:
+      				switch (source_to_scan[file_pointer + peek]) {
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				        peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+					        tokenType = "MP_FIXED_LIT";
+						fsm_state = State.q2;
+					}
+					else {
+					    fsm_state = State.q4;
+					}
+					break;
+ 				default:
+					// we've scanned another character, not a digit
+				        // return the number 1 character before this character as integer
+				        peek = peek - 1;
+				        tokenType = "MP_INTEGER_LIT";
+					fsm_state = State.q2;
+					break;
+				}
+				break; // end q3 state case
+
+			case q4:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '0': 
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+					        tokenType = "MP_FIXED_LIT";
+					        fsm_state = State.q2;
+					}
+					break;
+				case 'e':
+				case 'E':
+				        // Case to handle fixed or floating point numbers
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached, and return the number 1 place before current charatcer as fixed point number
+					        peek = peek - 1;
+						tokenType = "MP_FIXED_LIT";
+						fsm_state = State.q2;
+					}
+					else {
+					    fsm_state = State.q5;
+					}
+				    break;
+ 				default:
+					// we've scanned another character, not a digit
+				        // return the number 1 character before this character as fixed point number
+				        tokenType = "MP_FIXED_LIT";
+					fsm_state = State.q2;
+					break;
+				}
+				break; // end q4 state here
+
+			case q5:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				        peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+					        tokenType = "MP_FLOAT_LIT";
+						fsm_state = State.q2;
+					}
+					else {
+					       fsm_state = State.q6;
+					}
+				        break;
+				case '+': 
+				case '-':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
+					        peek = peek - 2;
+						tokenType = "MP_FIXED_LIT";
+						fsm_state = State.q2;
+					}
+					else {
+					    fsm_state = State.q6;
+					}
+					break;
+				default:
+					// we've scanned another character, not a digit
+				        // return the number 1 character before this character as fixed point number
+				        peek = peek - 1;
+				        tokenType = "MP_FIXED_LIT";
+					fsm_state = State.q2;
+				        break;
+				}
+				break; //end q5 state here
+
+			case q6:
+				switch (source_to_scan[file_pointer + peek]) {
+				case '0': 
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached
+					        tokenType = "MP_FLOAT_LIT";
+						fsm_state = State.q2;
+					}
+					break;
+ 				default:
+					// we've scanned another character, not a digit
+				        tokenType = "MP_FLOAT_LIT";
+					fsm_state = State.q2;
+					break;
+				}			    
+			        break; // end q6 state here
+
+	      		default:
 				// shouldn't ever get here
 				System.exit(-2);
 
@@ -310,7 +472,7 @@ public class Dispatcher {
 		for (i = 0; i < peek; ++i) {
 			lex.append(source_to_scan[file_pointer + i]);
 		}
-		tok = new Token("MP_INTEGER_LIT", lex.toString());
+		tok = new Token(tokenType, lex.toString());
 
 		// update token with extra information
 		tok.column_number = column;
@@ -322,7 +484,7 @@ public class Dispatcher {
 
 		return tok;
 
-	} // end MPIntegerLitFSM()
+	} // end MPNumberLitFSM()
 
 	public Token MPSemiColonFSM() {
 		int peek = 0;
