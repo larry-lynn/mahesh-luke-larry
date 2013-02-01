@@ -1,0 +1,11 @@
+MP_INTEGER_LIT      0      2      999
+MP_INTEGER_LIT      1      2      888
+MP_COLON            2      0      :
+MP_ASSIGN           2      1      :=
+MP_STRING_LIT       3      0      
+MP_INTEGER_LIT      4      0      222
+MP_RUN_STRING       4      3      null
+MP_INTEGER_LIT      5      0      111
+MP_STRING_LIT       6      0      
+MP_RUN_STRING       7      0      null
+MP_EOF              7      1      null

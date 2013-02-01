@@ -146,6 +146,31 @@ public class Dispatcher {
 					tok =  MPStringLitFSM();
 					dispatcherState = State.q7;
 					break;
+					
+				//New methods added by Luke today
+				// Dispatch to Period FSM
+				case '.':
+					tok = MPPeriodFSM();
+					dispatcherState = State.q7;
+					break;
+					
+				// Dispatch to Left Paren FSM
+				case '(':
+					tok = MPLeftParenFSM();
+					dispatcherState = State.q7;
+					break;
+					
+				// Dispatch to Right Paren FSM
+				case ')':
+					tok = MPRightParenFSM();
+					dispatcherState = State.q7;
+					break;
+					
+				// Dispatch to Time FSM
+				case '*':
+					tok = MPTimesFSM();
+					dispatcherState = State.q7;
+					break;
 
 				// using fall-through switching for matching multiple types of
 				// whitespace
@@ -962,6 +987,197 @@ public class Dispatcher {
 		file_pointer = file_pointer + peek;
 		
 		return(tok);
+	}
+	
+	//Method: 		Determine Period
+	//Input:  		Takes the current location of file pointer 
+	//Output: 		Returns a Token containing the information
+	//Procedure:	Determines whether or not the token is a period?
+	public Token MPPeriodFSM()
+	{
+		//Token coin that will be returned
+		Token coin = new Token("MP_Period",".");
+		//State object to determine the "."
+		State p_fsm = State.q0;
+		//int peek to look ahead of the file pointer
+		int peek = 0;
+		
+		//While check
+		while(p_fsm != State.q1)
+		{
+			if(source_to_scan.length > peek)
+			{
+				char ch = source_to_scan[file_pointer + peek];
+				switch(ch)
+				{
+					case '.':
+						p_fsm = State.q1;
+						peek += 1;
+						break;
+					case ' ':
+						peek+=1;
+						break;
+					default:
+						System.exit(-1);
+						
+				}
+			}
+			//we somehow got the end and should exit the system
+			else
+			{
+				System.exit(-1);
+			}
+		}
+		
+		//update the coin with information
+		coin.column_number = column + peek;
+		coin.line_number = row;
+		
+		//update column & file pointer
+		column += peek;
+		file_pointer += peek;
+		
+		return coin;
+	}
+	
+	//Method:		Determine Left Paren
+	//Input:		Takes the current location of the file pointer
+	//Output: 		Returns a Token containing the information
+	//Procedure:	Determines whether the current pointer of the file is looking at a "("
+	public Token MPLeftParenFSM()
+	{
+		//Token coin that will be returned with the information
+		Token coin = new Token("MP_Left_Paren","(");
+		//State object for the left paren
+		State lp_fsm = State.q0;
+		//Int peek to look ahead of the file pointer
+		int peek = 0;
+		
+		//While checker
+		while(lp_fsm != State.q1)
+		{
+			char ch = source_to_scan[file_pointer + peek];
+			if (source_to_scan.length > peek)
+			{
+				switch(ch)
+				{
+					case '(':
+						lp_fsm = State.q1;
+						peek += 1;
+						break;
+					case ' ':
+						peek += 1;
+						break;
+					default:
+						System.exit(-1);
+				}
+			}
+			//this would be an exit state
+			else
+			{
+				System.exit(-1);
+			}
+		}
+		
+		//update coin information
+		coin.column_number = column + peek;
+		coin.line_number = row;
+		
+		//update the column and file_pointer information
+		column += peek;
+		file_pointer += peek;
+		
+		return coin;
+	}
+	
+	//Method:		Determine Right Paren
+	//Input: 		Takes the current location of the file pointer
+	//Output:		Returns a Token containing the information
+	//Procedure:	Determines whether the current pointer of the file is looking at a ")"
+	public Token MPRightParenFSM()
+	{
+		//Token coin that will be returned with the information
+		Token coin = new Token("MP_Right_Paren",")");
+		//State object to determine the state
+		State rp_fsm = State.q0;
+		//Int object peek to look ahead of the file pointer
+		int peek = 0;
+		
+		while(rp_fsm != State.q1)
+		{
+			char ch = source_to_scan[file_pointer + peek];
+			if(source_to_scan.length > peek)
+			{
+				switch(ch)
+				{
+					case ')':
+						rp_fsm = State.q1;
+						peek += 1;
+						break;
+					case ' ':
+						peek += 1;
+						break;
+					default:
+						System.exit(-1);
+				}
+			}
+			else
+			{
+				System.exit(-1);
+			}
+		}
+		
+		//update coin information
+		coin.column_number = column + peek;
+		coin.line_number = row;
+		
+		//update the file_pointer & column
+		file_pointer += peek;
+		column += peek;
+		return coin;
+	}
+	
+	//Method:		Determine Times
+	//Input:		Takes the current location of the file pointer
+	//Output:		Returns a Token containing the information
+	//Procedure:	Determines whether the current pointer of the file is looking at a "*"
+	public Token MPTimesFSM()
+	{
+		//Token coin containing the information
+		Token coin = new Token("MP_Times","*");
+		//State object for the times fsm
+		State t_fsm = State.q0;
+		//Int object peek to look ahead of the file pointer
+		int peek = 0;
+		
+		//while checker
+		while(t_fsm != State.q1)
+		{
+			char ch = source_to_scan[file_pointer + peek];
+			if(source_to_scan.length > peek)
+			{
+				switch(ch)
+				{
+					case '*':
+						t_fsm = State.q1;
+						peek += 1;
+						break;
+					case ' ':
+						peek += 1;
+						break;
+					default:
+						System.exit(-1);
+				}
+			}
+		}
+		
+		//update the coin information
+		coin.column_number = column + peek;
+		coin.line_number = row;
+		//update the file_pointer & column
+		column += peek;
+		file_pointer += peek;
+		return coin;
 	}
 	
 }

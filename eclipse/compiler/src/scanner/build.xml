@@ -62,7 +62,7 @@
 	        <arg value="./data/test9.mp" />
         </java>
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test11.mp" />
+            <arg value="./data/test10.mp" />
         </java>
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test12.mp" />

@@ -3,10 +3,14 @@
 	<property name="src" location="./"/>
 	<property name="build" location="../../build"/>
 	<property name="dist" location="../../dist"/>
+	<property name="data" location="../../data"/>
 		
     <target name="clean">
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
+    	<delete>
+    		<fileset dir="${data}" includes="*.tok" />
+    	</delete>
     </target>
 
     <target name="compile">
@@ -28,7 +32,48 @@
     </target>
 
     <target name="run" depends="make-executable">
-        <java jar="${dist}/jar/mp" fork="true"/>
+    	
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+        	<arg value="./data/test1.pas" />
+        </java>
+    	
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+        	<arg value="./data/test2.pas" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+    	    <arg value="./data/test3.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+    	    <arg value="./data/test4.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+    	    <arg value="./data/test5.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+    	    <arg value="./data/test6.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+	        <arg value="./data/test7.mp" />
+        </java>
+	    <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+	        <arg value="./data/test8.mp" />
+        </java>
+	    <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+	        <arg value="./data/test9.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test10.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test12.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test13.mp" />
+        </java>
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test14.mp" />
+        </java>
+    	
     </target>
 
 </project>
