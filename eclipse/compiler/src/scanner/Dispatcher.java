@@ -225,6 +225,7 @@ public class Dispatcher {
 				case 'X':
 				case 'Y':
 				case 'Z':
+				case '_':
 					tok = MPIdentifierFSM();
 					dispatcherState = State.q7;
 					break;
@@ -1457,7 +1458,6 @@ public class Dispatcher {
 		file_pointer += peek;
 		return coin;
 	}
-	
 	//Method:		Determine Identifier
 	//Input: 		Takes the current pointer of the file 
 	//Output:		Returns a Token containing the information
@@ -1469,87 +1469,140 @@ public class Dispatcher {
 		//String built for the identifier
 		StringBuilder id = new StringBuilder();
 		//Token coin that will be returned
-		Token coin = new Token("MP_IDENTIFIER",id.toString());
+		Token coin = new Token("MP_Identifier",id.toString());
 		//State object for the ID fsm
 		State id_fsm = State.q0;
 		//int peek to look ahead of the file pointer
 		int peek = 0;
 		
-		
-		//while checker for first part of the identifier
-		while(id_fsm != State.q1)
+		//Staying in the loop until we reach the done state
+		while( id_fsm != State.q3)
 		{
 			char ch = source_to_scan[file_pointer + peek];
-			//check to see if we have found a letter using ASCII value for A-Z,a-z at the start
-			if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122))
+			switch(id_fsm)
 			{
-				id.append(ch);
-				id_fsm = State.q1;
-			}
-			//check to see if we have more to the variable
-			peek += 1;
-			if(source_to_scan.length > peek)
-			{
-				ch = source_to_scan[file_pointer + peek];
-				if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) || (ch == '_') )
-				{
-					id_fsm = State.q2;
-					//id.append(ch);
-					//continue to scan the rest of the ID
-					while(id_fsm != State.q1)
+				//inital state we enter in on
+				case q0:
+					//add the first char we get onto the string
+					id.append(ch);
+					//increment peek to look at the next char
+					peek += 1;
+					//check to make sure we won't run off the file
+					if(source_to_scan.length > file_pointer + peek)
 					{
-						//peek += 1;
-						if(source_to_scan.length > peek)
+						//get the next char in the source to check
+						ch = source_to_scan[file_pointer + peek];
+						//if statement to check for 0-9,A-Z,a-z respectively.
+						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
 						{
-							ch = source_to_scan[file_pointer + peek];
-							//check to see if we have a letter A-Z,a-z or a digit 0-9
-							if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) )
-							{
-								//add the letter or digit to it
-								peek += 1;
-								id.append(ch);
-							}
-							else if(ch == '_')
-							{
-								//check to see if we have a letter or digit that is following the underscore
-								peek += 1;
-								if(source_to_scan.length > peek)
-								{
-									ch = source_to_scan[file_pointer + peek];
-									//check to see if we have a letter A-Z,a-z or a digit 0-9, or an underscore
-									if( (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch >= 48 && ch <= 57) )
-									{
-										id.append('_');
-										id.append(ch);
-										peek += 1;
-									}
-									else
-									{
-										id.append('_');
-										//we have an invalid variable here
-										System.out.println("Notification of Identifier with invalid syntax.");
-									}
-								}
-								else
-								{
-									System.out.println("Notification of Identifier with invalid syntax.");
-								}
-							}
-							//else we scanned something that is either the end or not what we want
-							else
-							{
-								id_fsm = State.q1;
-							}
+							//change to accept state as we are valid right now
+							id_fsm = State.q1;
+							break;
 						}
-						//this else will execute if we are at the end of the source_to_scan
+						else if(ch == '_')
+						{
+							//change to state where we are expecting another input
+							id_fsm = State.q2;
+							break;
+						}
 						else
 						{
-							id_fsm = State.q1;
+							//we have reached a state where we scanned something not valid in the ID syntax.
+							id_fsm = State.q3;
+							break;
 						}
 					}
-				}
-			}
-		}
+					else
+					{
+						id_fsm = State.q3;
+						break;
+					}
+				//state q1 is an accept state
+				case q1:
+					//add the char we are pointing at
+					id.append(ch);
+					//increment peek to look at the next char
+					peek += 1;
+					//check to make sure we don't run off the file
+					if(source_to_scan.length > file_pointer + peek)
+					{
+						//get the next char in the source to check
+						ch = source_to_scan[file_pointer + peek];
+						//if statement to check for 0-9,A-Z,a-z respectively.
+						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
+						{
+							//change to accept state as we are valid right now
+							id_fsm = State.q1;
+							break;
+						}
+						else if(ch == '_')
+						{
+							//change to state where we are expecting another input
+							id_fsm = State.q2;
+							break;
+						}
+						else
+						{
+							//we have reached a state where we scanned something not valid in the ID syntax.
+							id_fsm = State.q3;
+							break;
+						}
+						
+					}
+					else
+					{
+						id_fsm = State.q3;
+						break;
+					}
+				//state q2 is a reject state where we just read an underscore
+				case q2:
+					//check to see if we have the double underscore case
+					if(id.charAt(peek - 1) == '_' && ch == '_')
+					{
+						id_fsm = State.q3;
+						break;
+					}
+					//add the char we are pointer at
+					id.append(ch);
+					//increment peek to look at the next char
+					peek += 1;
+					//check to make sure we don't run off the file
+					if(source_to_scan.length > file_pointer + peek)
+					{
+						//get the next char in the source to check
+						ch = source_to_scan[file_pointer + peek];
+						//if statement to check for 0-9,A-Z,a-z respectively.
+						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
+						{
+							//change to accept state as we are valid right now
+							id_fsm = State.q1;
+							break;
+						}
+						else if(ch == '_')
+						{
+							//change to state where we got invalid input and also strip last off
+							id.deleteCharAt(peek - 1);
+							peek -= 1;
+							id_fsm = State.q3;
+							break;
+						}
+						else
+						{
+							//we have reached a state where we scanned something not valid in the ID syntax.
+							id_fsm = State.q3;
+							break;
+						}
+						
+					}
+					else
+					{
+						id.deleteCharAt(peek - 1);
+						peek -= 1;
+						id_fsm = State.q3;
+						break;
+					}
+			} //end switch statement
+		} //end while loop
 		
 		//update the coin with information
 		coin.column_number = column + peek;
