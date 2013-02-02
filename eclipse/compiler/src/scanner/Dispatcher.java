@@ -233,6 +233,7 @@ public class Dispatcher {
 				// whitespace
 				case ' ':
 				case '\t':
+                                case '\r':
 					dispatcherState = State.q1;
 					break;
 
@@ -1273,7 +1274,7 @@ public class Dispatcher {
 	public Token MPPeriodFSM()
 	{
 		//Token coin that will be returned
-		Token coin = new Token("MP_Period",".");
+		Token coin = new Token("MP_PERIOD",".");
 		//State object to determine the "."
 		State p_fsm = State.q0;
 		//int peek to look ahead of the file pointer
@@ -1324,7 +1325,7 @@ public class Dispatcher {
 	public Token MPLeftParenFSM()
 	{
 		//Token coin that will be returned with the information
-		Token coin = new Token("MP_Left_Paren","(");
+		Token coin = new Token("MP_LPAREN","(");
 		//State object for the left paren
 		State lp_fsm = State.q0;
 		//Int peek to look ahead of the file pointer
@@ -1374,7 +1375,7 @@ public class Dispatcher {
 	public Token MPRightParenFSM()
 	{
 		//Token coin that will be returned with the information
-		Token coin = new Token("MP_Right_Paren",")");
+		Token coin = new Token("MP_RPAREN",")");
 		//State object to determine the state
 		State rp_fsm = State.q0;
 		//Int object peek to look ahead of the file pointer
@@ -1421,7 +1422,7 @@ public class Dispatcher {
 	public Token MPTimesFSM()
 	{
 		//Token coin containing the information
-		Token coin = new Token("MP_Times","*");
+		Token coin = new Token("MP_TIMES","*");
 		//State object for the times fsm
 		State t_fsm = State.q0;
 		//Int object peek to look ahead of the file pointer
