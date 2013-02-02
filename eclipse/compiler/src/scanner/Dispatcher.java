@@ -1469,7 +1469,7 @@ public class Dispatcher {
 		//String built for the identifier
 		StringBuilder id = new StringBuilder();
 		//Token coin that will be returned
-		Token coin = new Token("MP_Identifier",id.toString());
+		Token coin = new Token("MP_IDENTIFIER",id.toString());
 		//State object for the ID fsm
 		State id_fsm = State.q0;
 		//int peek to look ahead of the file pointer
