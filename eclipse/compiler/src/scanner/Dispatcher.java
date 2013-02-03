@@ -492,30 +492,33 @@ public class Dispatcher {
 				case '+': 
 				case '-':
 					peek = peek + 1;
-				        if (source_to_scan[file_pointer + peek] == '0' || 
-					    source_to_scan[file_pointer + peek] == '1' || 
-					    source_to_scan[file_pointer + peek] == '2' || 
-					    source_to_scan[file_pointer + peek] == '3' || 
-					    source_to_scan[file_pointer + peek] == '4' || 
-					    source_to_scan[file_pointer + peek] == '5' || 
-					    source_to_scan[file_pointer + peek] == '6' || 
-					    source_to_scan[file_pointer + peek] == '7' || 
-					    source_to_scan[file_pointer + peek] == '8' || 
-					    source_to_scan[file_pointer + peek] == '9'
-					    ){
+				        switch (source_to_scan[file_pointer + peek]) {
+					    case '0':
+					    case '1':
+					    case '2':
+					    case '3':
+					    case '4':
+					    case '5':
+					    case '6':
+					    case '7':
+					    case '8':
+					    case '9':
 					        fsm_state = State.q6;
-					}
-					else if ((file_pointer + peek) >= source_to_scan.length) {
+					        break;
+					    default:
+						if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
 					        peek = peek - 2;
 						tokenType = "MP_FIXED_LIT";
 						fsm_state = State.q2;
-					}
-					else {
+					        }
+					        else {
 						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
 					        peek = peek - 2;
 						tokenType = "MP_FIXED_LIT";
 						fsm_state = State.q2;
+					        }
+						break;
 					}
 					break;
 				default:
@@ -1465,6 +1468,57 @@ public class Dispatcher {
 		State fsm_state = State.q0;
 		int peek = 0;
 		int peekFurther = 0;
+		int arrayPointer = 0;
+
+		//Hash table for reserved words
+		String[][] reservedWords = new String[23][2];
+		    reservedWords[0][0] = "and";
+		    reservedWords[0][1] = "MP_AND";
+		    reservedWords[1][0] = "begin";
+		    reservedWords[1][1] = "MP_BEGIN";
+		    reservedWords[2][0] = "div";
+		    reservedWords[2][1] = "MP_DIV";
+      		    reservedWords[3][0] = "do";
+		    reservedWords[3][1] = "MP_DO";
+		    reservedWords[4][0] = "downto";
+		    reservedWords[4][1] = "MP_DOWNTO";
+		    reservedWords[5][0] = "else";
+		    reservedWords[5][1] = "MP_ELSE";
+		    reservedWords[6][0] = "end";
+		    reservedWords[6][1] = "MP_END";
+		    reservedWords[7][0] = "for";
+		    reservedWords[7][1] = "MP_FOR";
+		    reservedWords[8][0] = "function";
+		    reservedWords[8][1] = "MP_FUNCTION";
+		    reservedWords[9][0] = "if";
+		    reservedWords[9][1] = "MP_IF";
+		    reservedWords[10][0] = "mod";
+		    reservedWords[10][1] = "MP_MOD";
+		    reservedWords[11][0] = "not";
+		    reservedWords[11][1] = "MP_NOT";
+		    reservedWords[12][0] = "or";
+		    reservedWords[12][1] = "MP_OR";
+		    reservedWords[13][0] = "procedure";
+		    reservedWords[13][1] = "MP_PROCEDURE";
+		    reservedWords[14][0] = "program";
+		    reservedWords[14][1] = "MP_PROGRAM";
+		    reservedWords[15][0] = "read";
+		    reservedWords[15][1] = "MP_READ";
+		    reservedWords[16][0] = "repeat";
+		    reservedWords[16][1] = "MP_REPEAT";
+		    reservedWords[17][0] = "then";
+		    reservedWords[17][1] = "MP_THEN";
+		    reservedWords[18][0] = "to";
+		    reservedWords[18][1] = "MP_TO";
+		    reservedWords[19][0] = "until";
+		    reservedWords[19][1] = "MP_UNTIL";
+		    reservedWords[20][0] = "var";
+		    reservedWords[20][1] = "MP_VAR";
+		    reservedWords[21][0] = "while";
+		    reservedWords[21][1] = "MP_WHILE";
+		    reservedWords[22][0] = "write";
+		    reservedWords[22][1] = "MP_WRITE";
+		
 		
 		//Staying in the loop until we reach the done state
 		while( fsm_state != State.q7){
@@ -1527,7 +1581,7 @@ public class Dispatcher {
     			case 'Z':
     				idLexeme.append(source_to_scan[file_pointer + peek]);
 					tok.lexeme = idLexeme.toString();
-    				peek = peek + 1;
+				peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// early bailout for a<eof>
 						fsm_state = State.q7;
@@ -1539,7 +1593,7 @@ public class Dispatcher {
     			case '_':
     				idLexeme.append(source_to_scan[file_pointer + peek]);
     				tok.lexeme = idLexeme.toString();
-    				peek = peek + 1;
+       				peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// early bailout for '_<eof>'
 						tok.token_name = "MP_ERROR";
@@ -1839,6 +1893,13 @@ public class Dispatcher {
 		//update column & file pointer
 		column = column + peek;
 		file_pointer = file_pointer +  peek;
+
+		for(arrayPointer = 0; arrayPointer < 23; arrayPointer++){
+		    if(tok.lexeme.toLowerCase().equals(reservedWords[arrayPointer][0])){
+			tok.token_name = reservedWords[arrayPointer][1];
+			break;
+		    }
+		}
 		
 		return(tok);
 	}

@@ -32,7 +32,7 @@
     </target>
 
     <target name="run" depends="make-executable">
-    	
+
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
         	<arg value="./data/test1.pas" />
         </java>
@@ -92,7 +92,7 @@
         </java>
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/error.up" />
-        </java>
+        </java> 
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test17.mp" />
         </java>
@@ -104,8 +104,10 @@
         </java>
         <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
             <arg value="./data/test20.mp" />
+        </java>   
+        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
+            <arg value="./data/test21.mp" />
         </java>
-   
     	
     </target>
 
