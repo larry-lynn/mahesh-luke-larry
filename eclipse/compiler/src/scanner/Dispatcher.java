@@ -1471,7 +1471,6 @@ public class Dispatcher {
             switch(fsm_state){
             // initial state - letter or underscore
             case q0:
-            	System.out.println("in id state q0");
                 switch(source_to_scan[file_pointer + peek]){
                 // use fallthrough logic to match all letters
     			case 'a':
@@ -1526,7 +1525,6 @@ public class Dispatcher {
     			case 'X':
     			case 'Y':
     			case 'Z':
-    				System.out.println("in q0 letter switch;");
     				idLexeme.append(source_to_scan[file_pointer + peek]);
 					tok.lexeme = idLexeme.toString();
     				peek = peek + 1;
@@ -1539,7 +1537,6 @@ public class Dispatcher {
 					break;
 				// identifier starts with '_'
     			case '_':
-    				System.out.println("in q0 _ switch");
     				idLexeme.append(source_to_scan[file_pointer + peek]);
     				tok.lexeme = idLexeme.toString();
     				peek = peek + 1;
@@ -1559,7 +1556,6 @@ public class Dispatcher {
                 
             // id starts with '_'
             case q1:
-            	System.out.println("in id state q1");
             	switch(source_to_scan[file_pointer + peek]){
                 // use fall-through logic to match all letters and numbers
     			case 'a':
@@ -1643,7 +1639,6 @@ public class Dispatcher {
             	break;
             	
             case q2:
-            	System.out.println("in id state q2");
             	// Once we get to q2, we know we are going to return and identifier
             	switch(source_to_scan[file_pointer + peek]){
                 // use fallthrough logic to match all letters and numbers
@@ -1719,17 +1714,11 @@ public class Dispatcher {
 					break;
     			case '_':
     				// found 'aaa_'
-    				System.out.println("in q2 _ case");
     				peekFurther = peek;
     				peekFurther = peekFurther + 1;
 					if ((file_pointer + peekFurther) >= source_to_scan.length) {
 						// accept 'aaa' leave '_<eof>' to produce error next iteration 
-						// XXX hacking
-						System.out.println("about to append in a_<eof> case");
 	    				tok.lexeme = idLexeme.toString();
-	    				
-	    				// XXX hacking 4
-	    				//peek = peekFurther;
 						fsm_state = State.q7;
 					} 
 					else{
@@ -1746,7 +1735,6 @@ public class Dispatcher {
             	break;
             	
             case q3:
-            	System.out.println("in ID state q3");
             	// scanned 'ab_' -- unsure if identifier continues
             	switch(source_to_scan[file_pointer + peekFurther]){
                 // use fallthrough logic to match all letters and numbers
@@ -1812,7 +1800,6 @@ public class Dispatcher {
     			case '7':
     			case '8':
     			case '9':
-    				System.out.println("q3 letters and numbers case");
 					testLongerLexeme.append(source_to_scan[file_pointer + peekFurther]);
 					peek = peekFurther;
 					idLexeme = new StringBuilder(testLongerLexeme);
@@ -1827,7 +1814,6 @@ public class Dispatcher {
 					// if we haven't reached EOF, continue scanning in state q2
     				break;
     			default:
-    				System.out.println("q3 default case");
     				// case 'abc_*' -- need to back up, return 'abc', leve '_' for next iteration
     				// need to back up here
     				peekFurther = 0;
