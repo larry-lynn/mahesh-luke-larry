@@ -243,12 +243,6 @@ public class Dispatcher {
 					break;
 
 				default:
-					// XXX Fixme - this should be changed to handle scanning
-					// errors
-					// System.out.println("XXX reached a case reserved for future scanning errors");
-					// System.out.println("Scanned character was: " +
-					// source_to_scan[file_pointer]);
-
 					// Unrecongnized Character
 					tok = new Token("MP_ERROR", row, column, Character
 							.toString(source_to_scan[file_pointer]));
@@ -1043,7 +1037,7 @@ public class Dispatcher {
 		Token tok;
 		StringBuilder lex = new StringBuilder("");
 		StringBuilder bestLexSoFar = new StringBuilder("");
-		tok = null; // XXX fixme
+		tok = null; 
 		while (fsm_state != State.q7) {
 			switch (fsm_state) {
 			case q0:
@@ -1464,156 +1458,403 @@ public class Dispatcher {
 	//Procedure:	Determines whether or not the string obtained is a valid identifier following
 	//				The syntax of (letter | "_"(letter | digit)) {["_"](letter | digit)}
 	
-	public Token MPIdentifierFSM()
-	{
-		//String built for the identifier
-		StringBuilder id = new StringBuilder();
-		//Token coin that will be returned
-		Token coin = new Token("MP_Identifier",id.toString());
-		//State object for the ID fsm
-		State id_fsm = State.q0;
-		//int peek to look ahead of the file pointer
+	public Token MPIdentifierFSM(){
+		StringBuilder idLexeme = new StringBuilder();
+		StringBuilder testLongerLexeme = new StringBuilder();
+		Token tok = new Token("MP_IDENTIFIER", row, column, "");
+		State fsm_state = State.q0;
 		int peek = 0;
+		int peekFurther = 0;
 		
 		//Staying in the loop until we reach the done state
-		while( id_fsm != State.q3)
-		{
-			char ch = source_to_scan[file_pointer + peek];
-			switch(id_fsm)
-			{
-				//inital state we enter in on
-				case q0:
-					//add the first char we get onto the string
-					id.append(ch);
-					//increment peek to look at the next char
-					peek += 1;
-					//check to make sure we won't run off the file
-					if(source_to_scan.length > file_pointer + peek)
-					{
-						//get the next char in the source to check
-						ch = source_to_scan[file_pointer + peek];
-						//if statement to check for 0-9,A-Z,a-z respectively.
-						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
-						{
-							//change to accept state as we are valid right now
-							id_fsm = State.q1;
-							break;
-						}
-						else if(ch == '_')
-						{
-							//change to state where we are expecting another input
-							id_fsm = State.q2;
-							break;
-						}
-						else
-						{
-							//we have reached a state where we scanned something not valid in the ID syntax.
-							id_fsm = State.q3;
-							break;
-						}
+		while( fsm_state != State.q7){
+            switch(fsm_state){
+            // initial state - letter or underscore
+            case q0:
+            	System.out.println("in id state q0");
+                switch(source_to_scan[file_pointer + peek]){
+                // use fallthrough logic to match all letters
+    			case 'a':
+    			case 'b':
+    			case 'c':
+    			case 'd':
+    			case 'e':
+    			case 'f':
+    			case 'g':
+    			case 'h':
+    			case 'i':
+    			case 'j':
+    			case 'k':
+    			case 'l':
+    			case 'm':
+    			case 'n':
+    			case 'o':
+    			case 'p':
+    			case 'q':
+    			case 'r':
+    			case 's':
+    			case 't':
+    			case 'u':
+    			case 'v':
+    			case 'w':
+    			case 'x':
+    			case 'y':
+    			case 'z':
+    			case 'A':
+    			case 'B':
+    			case 'C':
+    			case 'D':
+    			case 'E':
+    			case 'F':
+    			case 'G':
+    			case 'H':
+    			case 'I':
+    			case 'J':
+    			case 'K':
+    			case 'L':
+    			case 'M':
+    			case 'N':
+    			case 'O':
+    			case 'P':
+    			case 'Q':
+    			case 'R':
+    			case 'S':
+    			case 'T':
+    			case 'U':
+    			case 'V':
+    			case 'W':
+    			case 'X':
+    			case 'Y':
+    			case 'Z':
+    				System.out.println("in q0 letter switch;");
+    				idLexeme.append(source_to_scan[file_pointer + peek]);
+					tok.lexeme = idLexeme.toString();
+    				peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// early bailout for a<eof>
+						fsm_state = State.q7;
+					} else {
+						fsm_state = State.q2;
 					}
-					else
-					{
-						id_fsm = State.q3;
-						break;
+					break;
+				// identifier starts with '_'
+    			case '_':
+    				System.out.println("in q0 _ switch");
+    				idLexeme.append(source_to_scan[file_pointer + peek]);
+    				tok.lexeme = idLexeme.toString();
+    				peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// early bailout for '_<eof>'
+						tok.token_name = "MP_ERROR";
+						fsm_state = State.q7;
+					} else {
+						fsm_state = State.q1;
 					}
-				//state q1 is an accept state
-				case q1:
-					//add the char we are pointing at
-					id.append(ch);
-					//increment peek to look at the next char
-					peek += 1;
-					//check to make sure we don't run off the file
-					if(source_to_scan.length > file_pointer + peek)
-					{
-						//get the next char in the source to check
-						ch = source_to_scan[file_pointer + peek];
-						//if statement to check for 0-9,A-Z,a-z respectively.
-						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
-						{
-							//change to accept state as we are valid right now
-							id_fsm = State.q1;
-							break;
-						}
-						else if(ch == '_')
-						{
-							//change to state where we are expecting another input
-							id_fsm = State.q2;
-							break;
-						}
-						else
-						{
-							//we have reached a state where we scanned something not valid in the ID syntax.
-							id_fsm = State.q3;
-							break;
-						}
-						
+					break;
+				default:
+					// Shouldn't be reachable -- dispatcher problem?
+					System.exit(-2);
+                }  // end q0 case
+                break;
+                
+            // id starts with '_'
+            case q1:
+            	System.out.println("in id state q1");
+            	switch(source_to_scan[file_pointer + peek]){
+                // use fall-through logic to match all letters and numbers
+    			case 'a':
+    			case 'b':
+    			case 'c':
+    			case 'd':
+    			case 'e':
+    			case 'f':
+    			case 'g':
+    			case 'h':
+    			case 'i':
+    			case 'j':
+    			case 'k':
+    			case 'l':
+    			case 'm':
+    			case 'n':
+    			case 'o':
+    			case 'p':
+    			case 'q':
+    			case 'r':
+    			case 's':
+    			case 't':
+    			case 'u':
+    			case 'v':
+    			case 'w':
+    			case 'x':
+    			case 'y':
+    			case 'z':
+    			case 'A':
+    			case 'B':
+    			case 'C':
+    			case 'D':
+    			case 'E':
+    			case 'F':
+    			case 'G':
+    			case 'H':
+    			case 'I':
+    			case 'J':
+    			case 'K':
+    			case 'L':
+    			case 'M':
+    			case 'N':
+    			case 'O':
+    			case 'P':
+    			case 'Q':
+    			case 'R':
+    			case 'S':
+    			case 'T':
+    			case 'U':
+    			case 'V':
+    			case 'W':
+    			case 'X':
+    			case 'Y':
+    			case 'Z':
+    			case '0':
+    			case '1':
+    			case '2':
+    			case '3':
+    			case '4':
+    			case '5':
+    			case '6':
+    			case '7':
+    			case '8':
+    			case '9':
+    				idLexeme.append(source_to_scan[file_pointer + peek]);
+					tok.lexeme = idLexeme.toString();
+    				peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// early bailout for '_a<eof>'
+						fsm_state = State.q7;
+					} else {
+						fsm_state = State.q2;
+					}	
+					break;
+    			default:
+    				// error case for '_+' or '__'
+					tok = new Token("MP_ERROR", row, column, idLexeme.toString() );
+					fsm_state = State.q7;
+					break;
+            	} // end q1 case
+            	break;
+            	
+            case q2:
+            	System.out.println("in id state q2");
+            	// Once we get to q2, we know we are going to return and identifier
+            	switch(source_to_scan[file_pointer + peek]){
+                // use fallthrough logic to match all letters and numbers
+    			case 'a':
+    			case 'b':
+    			case 'c':
+    			case 'd':
+    			case 'e':
+    			case 'f':
+    			case 'g':
+    			case 'h':
+    			case 'i':
+    			case 'j':
+    			case 'k':
+    			case 'l':
+    			case 'm':
+    			case 'n':
+    			case 'o':
+    			case 'p':
+    			case 'q':
+    			case 'r':
+    			case 's':
+    			case 't':
+    			case 'u':
+    			case 'v':
+    			case 'w':
+    			case 'x':
+    			case 'y':
+    			case 'z':
+    			case 'A':
+    			case 'B':
+    			case 'C':
+    			case 'D':
+    			case 'E':
+    			case 'F':
+    			case 'G':
+    			case 'H':
+    			case 'I':
+    			case 'J':
+    			case 'K':
+    			case 'L':
+    			case 'M':
+    			case 'N':
+    			case 'O':
+    			case 'P':
+    			case 'Q':
+    			case 'R':
+    			case 'S':
+    			case 'T':
+    			case 'U':
+    			case 'V':
+    			case 'W':
+    			case 'X':
+    			case 'Y':
+    			case 'Z':
+    			case '0':
+    			case '1':
+    			case '2':
+    			case '3':
+    			case '4':
+    			case '5':
+    			case '6':
+    			case '7':
+    			case '8':
+    			case '9':
+    				idLexeme.append(source_to_scan[file_pointer + peek]);
+    				tok.lexeme = idLexeme.toString();
+    				peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						fsm_state = State.q7;
+					} 
+					// if we haven't reached EOF, continue scanning in state q2
+					break;
+    			case '_':
+    				// found 'aaa_'
+    				System.out.println("in q2 _ case");
+    				peekFurther = peek;
+    				peekFurther = peekFurther + 1;
+					if ((file_pointer + peekFurther) >= source_to_scan.length) {
+						// accept 'aaa' leave '_<eof>' to produce error next iteration 
+						// XXX hacking
+						System.out.println("about to append in a_<eof> case");
+	    				tok.lexeme = idLexeme.toString();
+	    				
+	    				// XXX hacking 4
+	    				//peek = peekFurther;
+						fsm_state = State.q7;
+					} 
+					else{
+						testLongerLexeme = new StringBuilder(idLexeme);
+						// XXX hacking
+						testLongerLexeme.append(source_to_scan[file_pointer + peek]);
+						fsm_state = State.q3;
 					}
-					else
-					{
-						id_fsm = State.q3;
-						break;
+    			    break;
+				default:
+					// case 'aa_b+' -- accept 'aa_b', leave '+ for next iteration
+					fsm_state = State.q7;
+            	} // end q2 case 
+            	break;
+            	
+            case q3:
+            	System.out.println("in ID state q3");
+            	// scanned 'ab_' -- unsure if identifier continues
+            	switch(source_to_scan[file_pointer + peekFurther]){
+                // use fallthrough logic to match all letters and numbers
+    			case 'a':
+    			case 'b':
+    			case 'c':
+    			case 'd':
+    			case 'e':
+    			case 'f':
+    			case 'g':
+    			case 'h':
+    			case 'i':
+    			case 'j':
+    			case 'k':
+    			case 'l':
+    			case 'm':
+    			case 'n':
+    			case 'o':
+    			case 'p':
+    			case 'q':
+    			case 'r':
+    			case 's':
+    			case 't':
+    			case 'u':
+    			case 'v':
+    			case 'w':
+    			case 'x':
+    			case 'y':
+    			case 'z':
+    			case 'A':
+    			case 'B':
+    			case 'C':
+    			case 'D':
+    			case 'E':
+    			case 'F':
+    			case 'G':
+    			case 'H':
+    			case 'I':
+    			case 'J':
+    			case 'K':
+    			case 'L':
+    			case 'M':
+    			case 'N':
+    			case 'O':
+    			case 'P':
+    			case 'Q':
+    			case 'R':
+    			case 'S':
+    			case 'T':
+    			case 'U':
+    			case 'V':
+    			case 'W':
+    			case 'X':
+    			case 'Y':
+    			case 'Z':
+    			case '0':
+    			case '1':
+    			case '2':
+    			case '3':
+    			case '4':
+    			case '5':
+    			case '6':
+    			case '7':
+    			case '8':
+    			case '9':
+    				System.out.println("q3 letters and numbers case");
+					testLongerLexeme.append(source_to_scan[file_pointer + peekFurther]);
+					peek = peekFurther;
+					idLexeme = new StringBuilder(testLongerLexeme);
+    				tok.lexeme = idLexeme.toString();
+    				peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						fsm_state = State.q7;
 					}
-				//state q2 is a reject state where we just read an underscore
-				case q2:
-					//check to see if we have the double underscore case
-					if(id.charAt(peek - 1) == '_' && ch == '_')
-					{
-						id_fsm = State.q3;
-						break;
+					else{
+					    fsm_state = State.q2;
 					}
-					//add the char we are pointer at
-					id.append(ch);
-					//increment peek to look at the next char
-					peek += 1;
-					//check to make sure we don't run off the file
-					if(source_to_scan.length > file_pointer + peek)
-					{
-						//get the next char in the source to check
-						ch = source_to_scan[file_pointer + peek];
-						//if statement to check for 0-9,A-Z,a-z respectively.
-						if( (ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122) )
-						{
-							//change to accept state as we are valid right now
-							id_fsm = State.q1;
-							break;
-						}
-						else if(ch == '_')
-						{
-							//change to state where we got invalid input and also strip last off
-							id.deleteCharAt(peek - 1);
-							peek -= 1;
-							id_fsm = State.q3;
-							break;
-						}
-						else
-						{
-							//we have reached a state where we scanned something not valid in the ID syntax.
-							id_fsm = State.q3;
-							break;
-						}
-						
-					}
-					else
-					{
-						id.deleteCharAt(peek - 1);
-						peek -= 1;
-						id_fsm = State.q3;
-						break;
-					}
-			} //end switch statement
-		} //end while loop
-		
-		//update the coin with information
-		coin.column_number = column + peek;
-		coin.line_number = row;
-		coin.lexeme = id.toString();
+					// if we haven't reached EOF, continue scanning in state q2
+    				break;
+    			default:
+    				System.out.println("q3 default case");
+    				// case 'abc_*' -- need to back up, return 'abc', leve '_' for next iteration
+    				// need to back up here
+    				peekFurther = 0;
+    				testLongerLexeme = null;
+    				// XXX hacking 2
+    				// idLexeme.append(source_to_scan[file_pointer + peek]);
+    				tok.lexeme = idLexeme.toString();
+    				fsm_state = State.q7;
+    				
+    				break;
+            	} // end q3 switch
+            break;
+            	
+            // default for main FSM switch
+            default:
+				// shouldn't ever get here
+            	System.out.println("in id state default");
+				System.exit(-1);
+
+            } // end main FSM state switch
+		} //end FSM state loop
 		
 		//update column & file pointer
-		column += peek;
-		file_pointer += peek;
+		column = column + peek;
+		file_pointer = file_pointer +  peek;
 		
-		return coin;
+		return(tok);
 	}
 
 }
