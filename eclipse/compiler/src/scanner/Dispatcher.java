@@ -244,7 +244,7 @@ public class Dispatcher {
 
 				default:
 					// Unrecongnized Character
-					tok = new Token("MP_ERROR", row, column, Character
+					tok = new Token(TokenType.MP_ERROR, row, column, Character
 							.toString(source_to_scan[file_pointer]));
 					
 					dispatcherState = State.q7;
@@ -288,7 +288,7 @@ public class Dispatcher {
 				break;
 			case q8:
 				// state q8: file pointer advanced till end of file
-				tok = new Token("MP_EOF", row, column, null);
+				tok = new Token(TokenType.MP_EOF, row, column, null);
 				dispatcherState = State.q9;
 				// alternate return path for EOF to avoid resetting dispatcher
 				// FSM
@@ -299,7 +299,7 @@ public class Dispatcher {
 				// this is an ERROR STATE because getToken() should not be
 				// called
 				// after the dispatcher has reached the end of file
-				tok = new Token("MP_EOF", row, column, null);
+				tok = new Token(TokenType.MP_EOF, row, column, null);
 				System.out
 						.println("Scanner Error: Attempted to get new token after EOF reached");
 				// Should this terminate things?
@@ -329,7 +329,7 @@ public class Dispatcher {
 		State fsm_state = State.q0;
 		Token tok;
 		StringBuilder lex;
-		String tokenType = "";
+		TokenType tokenType = null;
 
 		while (fsm_state != State.q2) {
 			switch (fsm_state) {
@@ -368,7 +368,7 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-					        tokenType = "MP_INTEGER_LIT";
+					        tokenType = TokenType.MP_INTEGER_LIT;
 						fsm_state = State.q2;
 					}
 					break;
@@ -378,7 +378,7 @@ public class Dispatcher {
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached, and return the number before current character as integer
 					        peek = peek - 1;
-						tokenType = "MP_INTEGER_LIT";
+						tokenType = TokenType.MP_INTEGER_LIT;
 						fsm_state = State.q2;
 					}
 					else {
@@ -387,7 +387,7 @@ public class Dispatcher {
 					break;
  				default:
 					// we've scanned another character, not a digit
-				        tokenType = "MP_INTEGER_LIT";
+				        tokenType = TokenType.MP_INTEGER_LIT;
 					fsm_state = State.q2;
 					break;
 				} // end q1 inner switch
@@ -408,7 +408,7 @@ public class Dispatcher {
 				        peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-					        tokenType = "MP_FIXED_LIT";
+					        tokenType = TokenType.MP_FIXED_LIT;
 						fsm_state = State.q2;
 					}
 					else {
@@ -419,7 +419,7 @@ public class Dispatcher {
 					// we've scanned another character, not a digit
 				        // return the number 1 character before this character as integer
 				        peek = peek - 1;
-				        tokenType = "MP_INTEGER_LIT";
+				        tokenType = TokenType.MP_INTEGER_LIT;
 					fsm_state = State.q2;
 					break;
 				}
@@ -440,7 +440,7 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-					        tokenType = "MP_FIXED_LIT";
+					        tokenType = TokenType.MP_FIXED_LIT;
 					        fsm_state = State.q2;
 					}
 					break;
@@ -451,7 +451,7 @@ public class Dispatcher {
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached, and return the number 1 place before current charatcer as fixed point number
 					        peek = peek - 1;
-						tokenType = "MP_FIXED_LIT";
+						tokenType = TokenType.MP_FIXED_LIT;
 						fsm_state = State.q2;
 					}
 					else {
@@ -461,7 +461,7 @@ public class Dispatcher {
  				default:
 					// we've scanned another character, not a digit
 				        // return the number 1 character before this character as fixed point number
-				        tokenType = "MP_FIXED_LIT";
+				        tokenType = TokenType.MP_FIXED_LIT;
 					fsm_state = State.q2;
 					break;
 				}
@@ -482,7 +482,7 @@ public class Dispatcher {
 				        peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-					        tokenType = "MP_FLOAT_LIT";
+					        tokenType = TokenType.MP_FLOAT_LIT;
 						fsm_state = State.q2;
 					}
 					else {
@@ -509,13 +509,13 @@ public class Dispatcher {
 						if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
 					        peek = peek - 2;
-						tokenType = "MP_FIXED_LIT";
+						tokenType = TokenType.MP_FIXED_LIT;
 						fsm_state = State.q2;
 					        }
 					        else {
 						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
 					        peek = peek - 2;
-						tokenType = "MP_FIXED_LIT";
+						tokenType = TokenType.MP_FIXED_LIT;
 						fsm_state = State.q2;
 					        }
 						break;
@@ -525,7 +525,7 @@ public class Dispatcher {
 					// we've scanned another character, not a digit
 				        // return the number 1 character before this character as fixed point number
 				        peek = peek - 1;
-				        tokenType = "MP_FIXED_LIT";
+				        tokenType = TokenType.MP_FIXED_LIT;
 					fsm_state = State.q2;
 				        break;
 				}
@@ -546,13 +546,13 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-					        tokenType = "MP_FLOAT_LIT";
+					        tokenType = TokenType.MP_FLOAT_LIT;
 						fsm_state = State.q2;
 					}
 					break;
  				default:
 					// we've scanned another character, not a digit
-				        tokenType = "MP_FLOAT_LIT";
+				        tokenType = TokenType.MP_FLOAT_LIT;
 					fsm_state = State.q2;
 					break;
 				}			    
@@ -618,7 +618,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_SCOLON", ";");
+		tok = new Token(TokenType.MP_SCOLON, ";");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -668,7 +668,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_PLUS", "+");
+		tok = new Token(TokenType.MP_PLUS, "+");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -717,7 +717,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_COMMA", ",");
+		tok = new Token(TokenType.MP_COMMA, ",");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -766,7 +766,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_EQUAL", "=");
+		tok = new Token(TokenType.MP_EQUAL, "=");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -815,7 +815,7 @@ public class Dispatcher {
 			} // end outer fsm switch
 		} // end big while loop for fsm - q2 exit state reached
 
-		tok = new Token("MP_MINUS", "-");
+		tok = new Token(TokenType.MP_MINUS, "-");
 
 		// update token with extra information
 		tok.column_number = column;
@@ -855,7 +855,7 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-						tok = new Token("MP_LTHAN", row, column, "<");
+						tok = new Token(TokenType.MP_LTHAN, row, column, "<");
 						fsm_state = State.q7;
 					} else {
 						fsm_state = State.q2;
@@ -871,19 +871,19 @@ public class Dispatcher {
 				switch (source_to_scan[file_pointer + peek]) {
 				case '=':
 					peek = peek + 1;
-					tok = new Token("MP_LEQUAL", row, column, "<=");
+					tok = new Token(TokenType.MP_LEQUAL, row, column, "<=");
 					fsm_state = State.q7;
 					break;
 				case '>':
 					peek = peek + 1;
-					tok = new Token("MP_NEQUAL", row, column, "<>");
+					tok = new Token(TokenType.MP_NEQUAL, row, column, "<>");
 					fsm_state = State.q7;
 					break;
 				default:
 					// found another character, but not one that can complete a
 					// 2 character token
 					fsm_state = State.q7;
-					tok = new Token("MP_LTHAN", row, column, "<");
+					tok = new Token(TokenType.MP_LTHAN, row, column, "<");
 					break;
 				} // end q2 switch
 				break;
@@ -928,7 +928,7 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-						tok = new Token("MP_GTHAN", row, column, ">");
+						tok = new Token(TokenType.MP_GTHAN, row, column, ">");
 						fsm_state = State.q7;
 					} else {
 						fsm_state = State.q2;
@@ -944,12 +944,12 @@ public class Dispatcher {
 				switch (source_to_scan[file_pointer + peek]) {
 				case '=':
 					peek = peek + 1;
-					tok = new Token("MP_GEQUAL", row, column, ">=");
+					tok = new Token(TokenType.MP_GEQUAL, row, column, ">=");
 					fsm_state = State.q7;
 					break;
 				default:
 					fsm_state = State.q7;
-					tok = new Token("MP_GTHAN", row, column, ">");
+					tok = new Token(TokenType.MP_GTHAN, row, column, ">");
 					break;
 				} // end q2 switch
 				break;
@@ -994,7 +994,7 @@ public class Dispatcher {
 					peek = peek + 1;
 					if ((file_pointer + peek) >= source_to_scan.length) {
 						// Terminate token FSM early if EOF reached
-						tok = new Token("MP_COLON", row, column, ":");
+						tok = new Token(TokenType.MP_COLON, row, column, ":");
 						fsm_state = State.q7;
 					} else {
 						fsm_state = State.q2;
@@ -1010,12 +1010,12 @@ public class Dispatcher {
 				switch (source_to_scan[file_pointer + peek]) {
 				case '=':
 					peek = peek + 1;
-					tok = new Token("MP_ASSIGN", row, column, ":=");
+					tok = new Token(TokenType.MP_ASSIGN, row, column, ":=");
 					fsm_state = State.q7;
 					break;
 				default:
 					fsm_state = State.q7;
-					tok = new Token("MP_COLON", row, column, ":");
+					tok = new Token(TokenType.MP_COLON, row, column, ":");
 					break;
 				} // end q2 switch
 				break;
@@ -1171,7 +1171,7 @@ public class Dispatcher {
 
 			case q9:
 				// error case - reached EOF or EOL while scanning string
-				tok = new Token("MP_RUN_STRING", row, column, null);
+				tok = new Token(TokenType.MP_RUN_STRING, row, column, null);
 				column = column + peek;
 				file_pointer = file_pointer + peek;
 				return (tok);
@@ -1182,7 +1182,7 @@ public class Dispatcher {
 
 		} // end FSM while loop
 
-		tok = new Token("MP_STRING_LIT", row, column, bestLexSoFar.toString());
+		tok = new Token(TokenType.MP_STRING_LIT, row, column, bestLexSoFar.toString());
 
 		// update column & file pointer
 		column = column + peek;
@@ -1195,7 +1195,7 @@ public class Dispatcher {
 		State commentState = State.q0;
 		// Create a placeholder token that stores original row and column
 		// in case we encounter a run-on comment
-		Token tok = new Token("MP_RUN_COMMENT", row, column, null);
+		Token tok = new Token(TokenType.MP_RUN_COMMENT, row, column, null);
 
 		while (commentState != State.q8) {
 			switch (commentState) {
@@ -1272,7 +1272,7 @@ public class Dispatcher {
 	public Token MPPeriodFSM()
 	{
 		//Token coin that will be returned
-		Token coin = new Token("MP_PERIOD",".");
+		Token coin = new Token(TokenType.MP_PERIOD,".");
 		//State object to determine the "."
 		State p_fsm = State.q0;
 		//int peek to look ahead of the file pointer
@@ -1323,7 +1323,7 @@ public class Dispatcher {
 	public Token MPLeftParenFSM()
 	{
 		//Token coin that will be returned with the information
-		Token coin = new Token("MP_LPAREN","(");
+		Token coin = new Token(TokenType.MP_LPAREN,"(");
 		//State object for the left paren
 		State lp_fsm = State.q0;
 		//Int peek to look ahead of the file pointer
@@ -1373,7 +1373,7 @@ public class Dispatcher {
 	public Token MPRightParenFSM()
 	{
 		//Token coin that will be returned with the information
-		Token coin = new Token("MP_RPAREN",")");
+		Token coin = new Token(TokenType.MP_RPAREN,")");
 		//State object to determine the state
 		State rp_fsm = State.q0;
 		//Int object peek to look ahead of the file pointer
@@ -1420,7 +1420,7 @@ public class Dispatcher {
 	public Token MPTimesFSM()
 	{
 		//Token coin containing the information
-		Token coin = new Token("MP_TIMES","*");
+		Token coin = new Token(TokenType.MP_TIMES,"*");
 		//State object for the times fsm
 		State t_fsm = State.q0;
 		//Int object peek to look ahead of the file pointer
@@ -1466,12 +1466,12 @@ public class Dispatcher {
 		//String built for the identifier
 		StringBuilder id = new StringBuilder();
 		//Token coin that will be returned
-		Token coin = new Token("MP_IDENTIFIER",row,column,id.toString());
+		Token coin = new Token(TokenType.MP_IDENTIFIER,row,column,id.toString());
 		//State object for the ID fsm
 		State id_fsm = State.q0;
 		//int peek to look ahead of the file pointer
 		int peek = 0;
-		String possibleReservedWord = "FALSE";
+		TokenType possibleReservedWord = null;
 
 		//While loop to stay in until we return a valid ID or
 		while(id_fsm != State.q4)
@@ -1526,7 +1526,7 @@ public class Dispatcher {
 				if(file_pointer + peek >= source_to_scan.length)
 				{
 					//signal there is nothing left to scan and return an error token instead
-					coin.token_name = "MP_ERROR";
+					coin.token_name = TokenType.MP_ERROR;
 					id_fsm = State.q4;
 				}
 				//else we have more to scan 
@@ -1541,7 +1541,7 @@ public class Dispatcher {
 					else
 					{
 						//switch to exit state and return an error
-						coin.token_name = "MP_ERROR";
+						coin.token_name = TokenType.MP_ERROR;
 						id_fsm = State.q4;
 					}
 				}
@@ -1583,11 +1583,13 @@ public class Dispatcher {
 		file_pointer += peek;
 		coin.lexeme = id.toString();
 		
+		
 		possibleReservedWord = ReservedWords.checkReserved(coin.getLexeme());
-		if(! possibleReservedWord.equals("FALSE")){
+		if(possibleReservedWord != null){
 			// We've found a reserved word
 			coin.token_name = possibleReservedWord;
 		}
+		
 		//System.out.println(ReservedWords.simpleHash(coin.getLexeme() ));
 		
 		return coin;

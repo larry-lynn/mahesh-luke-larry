@@ -39,7 +39,7 @@ public class mp {
             // Print to stdout for ease of debugging;
             System.out.print(outputLine);
             
-            if(tok.token_name == "MP_EOF"){;
+            if(tok.token_name.toString() == "MP_EOF"){;
                 break;
             }
         }
