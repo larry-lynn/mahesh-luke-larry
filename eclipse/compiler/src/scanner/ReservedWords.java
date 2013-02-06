@@ -6,8 +6,8 @@ public class ReservedWords {
 	public static final int a_prime = 137;
 	
 	public static final String [] preComputedTable = {
-		 "read", // index 0 
-		 "", // index 1 
+		 "", // index 0 
+		 "read", // index 1 
 		 "", // index 2 
 		 "", // index 3 
 		 "", // index 4 
@@ -175,6 +175,9 @@ public class ReservedWords {
 			break;
 		case 46: // mod
 			output = TokenType.MP_MOD;
+			break;
+		case 48: // function
+			output = TokenType.MP_FUNCTION;
 			break;
 		case 49: // div
 			output = TokenType.MP_DIV;
