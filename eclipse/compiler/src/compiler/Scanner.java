@@ -5,7 +5,7 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.nio.charset.*;
 
-public class Dispatcher {
+public class Scanner {
 
 	public enum State {
 		q0, q1, q2, q3, q4, q5, q6, q7, q8, q9
@@ -30,7 +30,7 @@ public class Dispatcher {
 	// q9 = EOF processed and scanning complete
 
 	// Constructor
-	public Dispatcher() {
+	public Scanner() {
 		source_to_scan = new char[0];
 		row = 0;
 		column = 0;
@@ -60,6 +60,7 @@ public class Dispatcher {
 	}
 
 	// Main method for scanning and retrieving tokens
+	// The getToken method performs the tasks of the Dispatcher
 	public Token getToken() {
 		Token tok = null;
 

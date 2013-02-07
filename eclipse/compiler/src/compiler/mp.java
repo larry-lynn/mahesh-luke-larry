@@ -16,23 +16,20 @@ public class mp {
         PrintWriter writeFileHandle = new PrintWriter(infile + ".tok");
         String outputLine;
     	
-        compiler.Dispatcher disp;
-        compiler.Token tok;
+        Scanner scan;
+        Token tok;
 
         
         System.out.println("Working Directory = " +
                 System.getProperty("user.dir"));
         
-        disp = new Dispatcher();
-        disp.openFile(infile);
+        scan = new Scanner();
+        scan.openFile(infile);
  
         
         
         while( true ){
-            tok = disp.getToken();
-            //System.out.println(tok.token_name + "\t" + tok.getLineNumber() + "\t" + tok.getColumnNumber() + "\t" + tok.getLexeme() );
-            //System.out.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
-            //writeFileHandle.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
+            tok = scan.getToken();
             outputLine = String.format("%-20s%-7s%-7s%s\n", tok.token_name, tok.getLineNumber(), tok.getColumnNumber(), tok.getLexeme());
             // Write output to file to meet spec
             writeFileHandle.format("%s", outputLine);
