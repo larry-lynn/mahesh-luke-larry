@@ -22,7 +22,7 @@
         <mkdir dir="${dist}/jar"/>
         <jar destfile="${dist}/jar/mp" basedir="${build}/classes">
             <manifest>
-                <attribute name="Main-Class" value="scanner.mp"/>
+                <attribute name="Main-Class" value="compiler.mp"/>
             </manifest>
         </jar>
     </target>

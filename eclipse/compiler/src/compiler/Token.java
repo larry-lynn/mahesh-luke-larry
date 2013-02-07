@@ -1,4 +1,4 @@
-package scanner;
+package compiler;
 
 public class Token {
 

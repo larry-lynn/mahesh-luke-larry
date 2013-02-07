@@ -1,4 +1,4 @@
-package scanner;
+package compiler;
 
 import java.io.*;
 import java.nio.*;

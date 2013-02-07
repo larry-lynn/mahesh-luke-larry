@@ -1,4 +1,4 @@
-package scanner;
+package compiler;
 
 import java.io.*;
 
@@ -16,8 +16,8 @@ public class mp {
         PrintWriter writeFileHandle = new PrintWriter(infile + ".tok");
         String outputLine;
     	
-        scanner.Dispatcher disp;
-        scanner.Token tok;
+        compiler.Dispatcher disp;
+        compiler.Token tok;
 
         
         System.out.println("Working Directory = " +

@@ -1,4 +1,4 @@
-package scanner;
+package compiler;
 
 // research on simple hash functions foundhere
 // http://www.cs.hmc.edu/~geoff/classes/hmc.cs070.200101/homework10/hashfuncs.html
