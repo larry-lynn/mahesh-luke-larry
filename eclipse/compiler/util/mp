@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# this script is needed to match the specs for executing the program
+# because esus doesn't have binfmt-support to execute jar's directly
+
+if test $# -eq 0
+then 
+  echo "usage: $0 <mp-input-file-to-compiler>"
+  exit 2
+fi
+#pushd ../dist/jar/
+java -jar -Xmx1024m ../dist/jar/mp $1
+#popd
