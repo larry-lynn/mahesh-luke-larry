@@ -4,6 +4,13 @@ public class Parser {
     Token lookahead;
     Scanner scan;
     
+    // Constructor 1
+    public Parser(String fileWithPath) throws Exception {
+    	scan = new Scanner();
+    	scan.openFile(fileWithPath);
+    	lookahead = scan.getToken();
+    }
+    
     public void match(String checkString){
     	if(lookahead.getLexeme().equals(checkString)){
     		// put the token on the parse tree and get a new one
@@ -12,7 +19,7 @@ public class Parser {
     	}
     	else{
     		// parsing error
-    		System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+    		System.out.println("Parsing error while matching at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     		System.exit(-6);
     	}
     }
@@ -786,7 +793,7 @@ public class Parser {
     public void VariableIdentifier(){
         switch(lookahead.token_name){
         default:
-        System.out.println("nobody here but us chickens");
+        System.out.println("(variable parameter) nobody here but us chickens");
         // parsing error
         //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
