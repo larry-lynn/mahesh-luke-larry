@@ -11,10 +11,10 @@ public class Parser {
     	lookahead = scan.getToken();
     }
     
-    public void match(String checkString){
-    	if(lookahead.getLexeme().equals(checkString)){
+    public void match(TokenType compareTok){
+    	if(lookahead.token_name == compareTok ){
     		// put the token on the parse tree and get a new one
-    		System.out.println("putting " + checkString + " on parse tree");
+    		System.out.println("putting " + lookahead.getLexeme() + " on parse tree");
     		lookahead = scan.getToken();
     	}
     	else{
@@ -263,7 +263,7 @@ public class Parser {
     	case MP_SCOLON:
     		// 30: StatementTail      ⟶ ";" Statement StatementTail
             // 31: StatementTail      ⟶ ε
-    		match(";");
+    		match(TokenType.MP_SCOLON);
     		Statement();
     		StatementTail();
     	    break;
@@ -334,8 +334,8 @@ public class Parser {
     	// 43:ReadStatement       ⟶ "read" "(" ReadParameter ReadParameterTail ")"
         switch(lookahead.token_name){
     	case MP_READ:
-    		match("read");
-    		match("(");
+    		match(TokenType.MP_READ);
+    		match(TokenType.MP_LPAREN);
     		ReadParameter();
     		ReadParameterTail();
     		// XXX -- not sure if we can do the closing stuff without FOLLOW()
@@ -353,7 +353,7 @@ public class Parser {
     	//45:                    ⟶ ε
         switch(lookahead.token_name){
     	case MP_COMMA:
-    		match(",");
+    		match(TokenType.MP_COMMA);
     		ReadParameter();
     		ReadParameterTail();
     		break;
@@ -381,8 +381,8 @@ public class Parser {
     	// 47:WriteStatement      ⟶ "write" "(" WriteParameter WriteParameterTail ")"
         switch(lookahead.token_name){
     	case MP_WRITE:
-    		match("write");
-    		match("(");
+    		match(TokenType.MP_WRITE);
+    		match(TokenType.MP_LPAREN);
     		WriteParameter();
     		WriteParameterTail();
     		break;
@@ -398,7 +398,7 @@ public class Parser {
     	//49:                    ⟶ ε
         switch(lookahead.token_name){
     	case MP_COMMA:
-    		match(",");
+    		match(TokenType.MP_COMMA);
     		WriteParameter();
     		break;
         default:
@@ -455,7 +455,7 @@ public class Parser {
     	// 53:IfStatement         ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch(lookahead.token_name){
     	case MP_IF:
-    		match("if");
+    		match(TokenType.MP_IF);
     		BooleanExpression();
     		// XXX not sure if we can manage these without FOLLOW()
     		//match("then");
@@ -474,7 +474,7 @@ public class Parser {
     	//55:                    ⟶ ε  
         switch(lookahead.token_name){
     	case MP_ELSE:
-    		match("else");
+    		match(TokenType.MP_ELSE);
     		Statement();
     		break;
         default:
@@ -488,7 +488,7 @@ public class Parser {
     	// 56:RepeatStatement     ⟶ "repeat" StatementSequence "until" BooleanExpression
         switch(lookahead.token_name){
     	case MP_REPEAT:
-    		match("repeat");
+    		match(TokenType.MP_REPEAT);
     		StatementSequence();
     		// XXX - we may need FOLLOW() for this
     		//match("until");
@@ -505,7 +505,7 @@ public class Parser {
     	// 57:WhileStatement      ⟶ "while" BooleanExpression "do" Statement 
         switch(lookahead.token_name){
     	case MP_WHILE:
-    		match("while");
+    		match(TokenType.MP_WHILE);
     		BooleanExpression();
     		// XXX - we may need FOLLOW() for this
     		//match("do");
@@ -522,7 +522,7 @@ public class Parser {
     	// 58:ForStatement        ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
         switch(lookahead.token_name){
     	case MP_FOR:
-    		match("for");
+    		match(TokenType.MP_FOR);
     		ControlVariable();
     		// XXX - we may need FOLLOW() for this
     		//match(":=");
@@ -573,10 +573,10 @@ public class Parser {
     	// 62:                    ⟶ "downto"
         switch(lookahead.token_name){
     	case MP_TO:
-    		match("to");
+    		match(TokenType.MP_TO);
     		break;
     	case MP_DOWNTO:
-    		match("downto");
+    		match(TokenType.MP_DOWNTO);
     		break;
         default:
     		// parsing error
@@ -621,7 +621,7 @@ public class Parser {
     	// 66:                            ⟶ ε
         switch(lookahead.token_name){
         case MP_LPAREN:
-    	    match("(");
+    	    match(TokenType.MP_LPAREN);
     	    ActualParameter();
     	    // XXX we might need FOLLOW() for this
     	    // ActualParameterTail();
