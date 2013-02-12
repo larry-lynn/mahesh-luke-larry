@@ -1,123 +1,121 @@
 <project default="run">
-
-	<property name="src" location="./"/>
-	<property name="build" location="../../build"/>
-	<property name="dist" location="../../dist"/>
-	<property name="data" location="../../data"/>
-		
-    <target name="clean">
-        <delete dir="${build}"/>
-        <delete dir="${dist}"/>
-    	<delete>
-    		<fileset dir="${data}" includes="*.tok" />
-    	</delete>
-    </target>
-
-    <target name="compile">
-        <mkdir dir="${build}/classes"/>
-        <javac srcdir="${src}" destdir="${build}/classes"/>
-    </target>
-
-    <target name="jar" depends="compile">
-        <mkdir dir="${dist}/jar"/>
-        <jar destfile="${dist}/jar/mp" basedir="${build}/classes">
-            <manifest>
-                <attribute name="Main-Class" value="compiler.mp"/>
-            </manifest>
-        </jar>
-    </target>
-
-    <target name="make-executable" depends="jar">
-        <chmod file="${dist}/jar/mp" perm="755" />
-    </target>
-
-    <target name="run" depends="make-executable">
-
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-        	<arg value="./data/test1.pas" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-        	<arg value="./data/test2.pas" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-    	    <arg value="./data/test3.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-    	    <arg value="./data/test4.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-    	    <arg value="./data/test5.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-    	    <arg value="./data/test6.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-	        <arg value="./data/test7.mp" />
-        </java>
-	    <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-	        <arg value="./data/test8.mp" />
-        </java>
-	    <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-	        <arg value="./data/test9.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test10.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test12.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test13.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test14.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test15.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test16.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/literal.up" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/literal.up" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/symbol.up" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/words.up" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/error.up" />
-        </java> 
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test17.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test18.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test19.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test20.mp" />
-        </java>   
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test21.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test22.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test23.mp" />
-        </java>
-        <java jar="${dist}/jar/mp" fork="true" maxmemory="1024m" dir="../../" >
-            <arg value="./data/test24.mp" />
-        </java>
-    	
-    </target>
-
+	
+  <property location="./" name="src"/>
+  <property location="../../build" name="build"/>
+  <property location="../../dist" name="dist"/>
+  <property location="../../data" name="data"/>
+	
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete>
+      <fileset dir="${data}" includes="*.tok"/>
+    </delete>
+  </target>
+	
+  <target name="compile">
+    <mkdir dir="${build}/classes"/>
+    <javac destdir="${build}/classes" srcdir="${src}"/>
+  </target>
+	
+  <target depends="compile" name="jar">
+    <mkdir dir="${dist}/jar"/>
+    <jar basedir="${build}/classes" destfile="${dist}/jar/mp">
+      <manifest>
+        <attribute name="Main-Class" value="compiler.mp"/>
+      </manifest>
+    </jar>
+  </target>
+	
+  <target depends="jar" name="make-executable">
+    <chmod file="${dist}/jar/mp" perm="755"/>
+  </target>
+	
+  <target depends="make-executable" name="run">
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test1.pas"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test2.pas"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test3.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test4.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test5.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test6.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test7.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test8.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test9.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test10.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test12.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test13.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test14.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test15.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test16.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/literal.up"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/literal.up"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/symbol.up"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/words.up"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/error.up"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test17.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test18.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test19.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test20.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test21.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test22.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test23.mp"/>
+    </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test24.mp"/>
+    </java>
+	
+  </target>
 </project>
