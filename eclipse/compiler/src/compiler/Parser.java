@@ -659,10 +659,16 @@ public class Parser {
     // ### MAHSESHS BLOCK STARTS HERE
     public void ActualParameterTail(){
         switch(lookahead.token_name){
+	case MP_COMMA:
+	    match(TokenType.MP_COMMA);
+	    ActualParameter();
+	    ActualParameterTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //Need FOLLOW here
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -670,10 +676,14 @@ public class Parser {
 
     public void ActualParameter(){
         switch(lookahead.token_name){
+	case MP_PLUS:
+	case MP_MINUS:
+	    OrdinalExpression();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
-        // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	    //System.out.println("nobody here but us chickens");
+            // parsing error
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -681,10 +691,15 @@ public class Parser {
 
     public void Expression(){
         switch(lookahead.token_name){
-        default:
-        System.out.println("nobody here but us chickens");
+        case MP_PLUS:
+	case MP_MINUS:
+	    SimpleExpression();
+	    OptionalRelationalPart();
+	    break;
+	default:
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -692,10 +707,19 @@ public class Parser {
 
     public void OptionalRelationalPart(){
         switch(lookahead.token_name){
+	case MP_EQUAL:
+	case MP_GTHAN:
+	case MP_GEQUAL:
+	case MP_LTHAN:
+	case MP_LEQUAL:
+	case MP_NEQUAL:
+	    RelationalOperator();
+	    SimpleExpression();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -703,10 +727,28 @@ public class Parser {
 
     public void RelationalOperator(){
         switch(lookahead.token_name){
+	case MP_EQUAL:
+	    match(TokenType.MP_EQUAL);
+	    break;
+	case MP_GTHAN:
+	    match(TokenType.MP_GTHAN);
+	    break;
+	case MP_GEQUAL:
+	    match(TokenType.MP_GEQUAL);
+	    break;
+	case MP_LTHAN:
+	    match(TokenType.MP_LTHAN);
+	    break;
+	case MP_LEQUAL:
+	    match(TokenType.MP_LEQUAL);
+	    break;
+	case MP_NEQUAL:
+	    match(TokenType.MP_NEQUAL);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -714,10 +756,16 @@ public class Parser {
 
     public void SimpleExpression(){
         switch(lookahead.token_name){
+	case MP_PLUS:
+	case MP_MINUS:
+	    OptionalSign();
+	    Term();
+	    TermTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -725,10 +773,18 @@ public class Parser {
 
     public void TermTail(){
         switch(lookahead.token_name){
+	case MP_OR:
+	case MP_PLUS:
+	case MP_MINUS:
+	    AddingOperator();
+	    Term();
+	    TermTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //Need FOLLOW here
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -736,10 +792,16 @@ public class Parser {
 
     public void OptionalSign(){
         switch(lookahead.token_name){
+	case MP_PLUS:
+	    match(TokenType.MP_PLUS);
+	    break;
+	case MP_MINUS:
+	    match(TokenType.MP_MINUS);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -747,10 +809,19 @@ public class Parser {
 
     public void AddingOperator(){
         switch(lookahead.token_name){
+	case MP_OR:
+	    match(TokenType.MP_OR);
+	    break;
+	case MP_PLUS:
+	    match(TokenType.MP_PLUS);
+	    break;
+	case MP_MINUS:
+	    match(TokenType.MP_MINUS);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -758,10 +829,17 @@ public class Parser {
 
     public void Term(){
         switch(lookahead.token_name){
+	case MP_NOT:
+	case MP_IDENTIFIER:
+	case MP_INTEGER_LIT:
+	case MP_LPAREN:
+	    Factor();
+	    TermTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -769,10 +847,19 @@ public class Parser {
 
     public void FactorTail(){
         switch(lookahead.token_name){
+	case MP_AND:
+	case MP_DIV:
+	case MP_MOD:
+	case MP_TIMES:
+	    MultiplyingOperator();
+	    Factor();
+	    FactorTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //Need FOLLOW here
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -780,10 +867,22 @@ public class Parser {
 
     public void MultiplyingOperator(){
         switch(lookahead.token_name){
+	case MP_AND:
+	    match(TokenType.MP_AND);
+	    break;
+	case MP_DIV:
+	    match(TokenType.MP_DIV);//MP_DIV???
+	    break;
+	case MP_MOD:
+	    match(TokenType.MP_MOD);//MP_MOD???
+	    break;
+	case MP_TIMES:
+	    match(TokenType.MP_TIMES);//MP_TIMES???
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -791,10 +890,27 @@ public class Parser {
 
     public void Factor(){
         switch(lookahead.token_name){
+	case MP_NOT:
+	    match(TokenType.MP_NOT);
+	    Factor();
+	    break;
+	case MP_INTEGER_LIT:
+	    //UnsignedInteger();// No rule for unsignedinteger
+	    match(TokenType.MP_INTEGER_LIT);
+	    break;
+	case MP_LPAREN:
+	    match(TokenType.MP_LPAREN);
+	    Expression();
+	    match(TokenType.MP_RPAREN);
+	    break;
+	case MP_IDENTIFIER:
+	    //ambiguity
+	    //VariableIdentifier(); OR FunctionIdentifier(); OptionalParameterList();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -802,10 +918,13 @@ public class Parser {
 
     public void ProgramIdentifier(){
         switch(lookahead.token_name){
+	case MP_IDENTIFIER:
+	    match(TokenType.MP_IDENTIFIER);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -813,10 +932,13 @@ public class Parser {
 
     public void VariableIdentifier(){
         switch(lookahead.token_name){
+	case MP_IDENTIFIER:
+	    match(TokenType.MP_IDENTIFIER);
+	    break;
         default:
-        System.out.println("(variable parameter) nobody here but us chickens");
+	    //System.out.println("(variable parameter) nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -824,10 +946,13 @@ public class Parser {
 
     public void ProcedureIdentifier(){
         switch(lookahead.token_name){
+	case MP_IDENTIFIER:
+	    match(TokenType.MP_IDENTIFIER);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -835,10 +960,13 @@ public class Parser {
 
     public void FunctionIdentifier(){
         switch(lookahead.token_name){
+	case MP_IDENTIFIER:
+	    match(TokenType.MP_IDENTIFIER);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -846,10 +974,14 @@ public class Parser {
 
     public void BooleanExpression(){
         switch(lookahead.token_name){
+	case MP_PLUS:
+	case MP_MINUS:
+	    Expression();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -857,10 +989,14 @@ public class Parser {
 
     public void OrdinalExpression(){
         switch(lookahead.token_name){
+	case MP_PLUS:
+	case MP_MINUS:
+	    Expression();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -868,10 +1004,14 @@ public class Parser {
 
     public void IdentifierList(){
         switch(lookahead.token_name){
+	case MP_IDENTIFIER:
+	    match(TokenType.MP_IDENTIFIER);
+	    IdentifierTail();
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
@@ -879,10 +1019,14 @@ public class Parser {
 
     public void IdentifierTail(){
         switch(lookahead.token_name){
+	case MP_COMMA:
+	    match(TokenType.MP_COMMA);
+	    match(TokenType.MP_IDENTIFIER);
+	    break;
         default:
-        System.out.println("nobody here but us chickens");
+	    //System.out.println("nobody here but us chickens");
         // parsing error
-        //System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
     System.exit(-5);
         }
     }
