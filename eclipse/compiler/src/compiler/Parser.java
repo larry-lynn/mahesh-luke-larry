@@ -259,6 +259,7 @@ public class Parser {
     // ### LARRYS BLOCK STARTS HERE ### //
     // XXX Larry's bookmark
     public void StatementTail(){
+    	System.out.println("ZZZ : StatementTail()");
     	switch(lookahead.token_name){
     	case MP_SCOLON:
     		// 30: StatementTail      ⟶ ";" Statement StatementTail
@@ -276,6 +277,7 @@ public class Parser {
     }
 
     public void Statement(){
+    	System.out.println("ZZZ : Statement()");
     	switch(lookahead.token_name){
     	case MP_BEGIN:
     		// 33:Statement           ⟶ CompoundStatement
@@ -320,6 +322,7 @@ public class Parser {
     }  // end statement
 
     public void EmptyStatement(){
+    	System.out.println("ZZZ : EmptyStatement()");
     	// 42:EmptyStatement      ⟶ ε
         switch(lookahead.token_name){
         default:
@@ -331,6 +334,7 @@ public class Parser {
     }
 
     public void ReadStatement(){
+    	System.out.println("ZZZ : ReadStatement()");
     	// 43:ReadStatement       ⟶ "read" "(" ReadParameter ReadParameterTail ")"
         switch(lookahead.token_name){
     	case MP_READ:
@@ -349,6 +353,7 @@ public class Parser {
     }
 
     public void ReadParameterTail(){
+    	System.out.println("ZZZ : ReadStatement()");
     	//44:ReadParameterTail   ⟶ "," ReadParameter ReadParameterTail
     	//45:                    ⟶ ε
         switch(lookahead.token_name){
@@ -365,6 +370,7 @@ public class Parser {
     }
 
     public void ReadParameter(){
+    	System.out.println("ZZZ : ReadParameter()");
     	// 46:ReadParameter       ⟶ VariableIdentifier 
         switch(lookahead.token_name){
     	case MP_IDENTIFIER:
@@ -378,6 +384,7 @@ public class Parser {
     }
 
     public void WriteStatement(){
+    	System.out.println("ZZZ : WriteStatement()");
     	// 47:WriteStatement      ⟶ "write" "(" WriteParameter WriteParameterTail ")"
         switch(lookahead.token_name){
     	case MP_WRITE:
@@ -394,6 +401,7 @@ public class Parser {
     }
 
     public void WriteParameterTail(){
+    	System.out.println("ZZZ : WriteParameterTail()");
     	//48:WriteParameterTail  ⟶ "," WriteParameter
     	//49:                    ⟶ ε
         switch(lookahead.token_name){
@@ -409,6 +417,7 @@ public class Parser {
     }
 
     public void WriteParameter(){
+    	System.out.println("ZZZ : WriteParameter()");
     	//50:WriteParameter      ⟶ OrdinalExpression 
         switch(lookahead.token_name){
     	case MP_PLUS:
@@ -425,6 +434,7 @@ public class Parser {
     }
 
     public void AssignmentStatement(){
+    	System.out.println("ZZZ : AssignmentStatement()");
     	// 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
     	// 52:                    ⟶ FunctionIdentifier ":=" Expression 
         switch(lookahead.token_name){
