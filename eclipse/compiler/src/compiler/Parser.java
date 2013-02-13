@@ -259,7 +259,7 @@ public class Parser {
     // ### LARRYS BLOCK STARTS HERE ### //
     // XXX Larry's bookmark
     public void StatementTail(){
-    	System.out.println("ZZZ : StatementTail()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	switch(lookahead.token_name){
     	case MP_SCOLON:
     		// 30: StatementTail      ⟶ ";" Statement StatementTail
@@ -277,7 +277,7 @@ public class Parser {
     }
 
     public void Statement(){
-    	System.out.println("ZZZ : Statement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	switch(lookahead.token_name){
     	case MP_BEGIN:
     		// 33:Statement           ⟶ CompoundStatement
@@ -322,7 +322,7 @@ public class Parser {
     }  // end statement
 
     public void EmptyStatement(){
-    	System.out.println("ZZZ : EmptyStatement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 42:EmptyStatement      ⟶ ε
         switch(lookahead.token_name){
         default:
@@ -334,7 +334,7 @@ public class Parser {
     }
 
     public void ReadStatement(){
-    	System.out.println("ZZZ : ReadStatement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 43:ReadStatement       ⟶ "read" "(" ReadParameter ReadParameterTail ")"
         switch(lookahead.token_name){
     	case MP_READ:
@@ -353,7 +353,7 @@ public class Parser {
     }
 
     public void ReadParameterTail(){
-    	System.out.println("ZZZ : ReadStatement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	//44:ReadParameterTail   ⟶ "," ReadParameter ReadParameterTail
     	//45:                    ⟶ ε
         switch(lookahead.token_name){
@@ -370,7 +370,7 @@ public class Parser {
     }
 
     public void ReadParameter(){
-    	System.out.println("ZZZ : ReadParameter()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 46:ReadParameter       ⟶ VariableIdentifier 
         switch(lookahead.token_name){
     	case MP_IDENTIFIER:
@@ -384,7 +384,7 @@ public class Parser {
     }
 
     public void WriteStatement(){
-    	System.out.println("ZZZ : WriteStatement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 47:WriteStatement      ⟶ "write" "(" WriteParameter WriteParameterTail ")"
         switch(lookahead.token_name){
     	case MP_WRITE:
@@ -401,7 +401,7 @@ public class Parser {
     }
 
     public void WriteParameterTail(){
-    	System.out.println("ZZZ : WriteParameterTail()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	//48:WriteParameterTail  ⟶ "," WriteParameter
     	//49:                    ⟶ ε
         switch(lookahead.token_name){
@@ -417,7 +417,7 @@ public class Parser {
     }
 
     public void WriteParameter(){
-    	System.out.println("ZZZ : WriteParameter()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	//50:WriteParameter      ⟶ OrdinalExpression 
         switch(lookahead.token_name){
     	case MP_PLUS:
@@ -434,7 +434,7 @@ public class Parser {
     }
 
     public void AssignmentStatement(){
-    	System.out.println("ZZZ : AssignmentStatement()");
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
     	// 52:                    ⟶ FunctionIdentifier ":=" Expression 
         switch(lookahead.token_name){
@@ -462,6 +462,7 @@ public class Parser {
     }
 
     public void IfStatement(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 53:IfStatement         ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch(lookahead.token_name){
     	case MP_IF:
@@ -495,6 +496,7 @@ public class Parser {
     }
 
     public void RepeatStatement(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 56:RepeatStatement     ⟶ "repeat" StatementSequence "until" BooleanExpression
         switch(lookahead.token_name){
     	case MP_REPEAT:
@@ -512,6 +514,7 @@ public class Parser {
     }
 
     public void WhileStatement(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 57:WhileStatement      ⟶ "while" BooleanExpression "do" Statement 
         switch(lookahead.token_name){
     	case MP_WHILE:
@@ -529,6 +532,7 @@ public class Parser {
     }
 
     public void ForStatement(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 58:ForStatement        ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
         switch(lookahead.token_name){
     	case MP_FOR:
@@ -550,6 +554,7 @@ public class Parser {
     }
 
     public void ControlVariable(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 59:ControlVariable     ⟶ VariableIdentifier
         switch(lookahead.token_name){
     	case MP_IDENTIFIER:
@@ -579,6 +584,7 @@ public class Parser {
     }
 
     public void StepValue(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 61:StepValue           ⟶ "to"
     	// 62:                    ⟶ "downto"
         switch(lookahead.token_name){
@@ -596,6 +602,7 @@ public class Parser {
     }
 
     public void FinalValue(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 63:FinalValue          ⟶ OrdinalExpression  
         switch(lookahead.token_name){
     	case MP_PLUS:
@@ -612,6 +619,7 @@ public class Parser {
     }
 
     public void ProcedureStatement(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 64:ProcedureStatement  ⟶ ProcedureIdentifier OptionalActualParameterList
         switch(lookahead.token_name){
     	case MP_IDENTIFIER:
@@ -627,6 +635,7 @@ public class Parser {
     }
 
     public void OptionalActualParameterList(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
     	// 66:                            ⟶ ε
         switch(lookahead.token_name){
