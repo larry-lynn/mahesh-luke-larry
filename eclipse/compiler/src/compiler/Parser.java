@@ -481,6 +481,7 @@ public class Parser {
     }
 
     public void OptionalElsePart(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	//54:OptionalElsePart    ⟶ "else" Statement
     	//55:                    ⟶ ε  
         switch(lookahead.token_name){
@@ -568,6 +569,7 @@ public class Parser {
     }
 
     public void InitialValue(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 60:InitialValue        ⟶ OrdinalExpression
         switch(lookahead.token_name){
     	case MP_PLUS:
