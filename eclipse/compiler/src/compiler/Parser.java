@@ -25,232 +25,396 @@ public class Parser {
 
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 1. <Program> eof
+        switch(lookahead.token_name){
+        	case MP_PROGRAM:
+        		match(TokenType.MP_PROGRAM);
+        		Program();
+        		// Not too sure on the EOF
+        		// match(TokenType.MP_EOF);
+        		break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void Program() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//2. <ProgramHeading> ";" <Block> "."
+        switch(lookahead.token_name){
+        	case MP_PROGRAM:
+        		match(TokenType.MP_PROGRAM);
+        		match(TokenType.MP_SCOLON);
+        		match(TokenType.MP_PERIOD);
+        		ProgramHeading();
+        		Block();
+        		break;
+	        default:
+	        // parsing error
+	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	        	System.exit(-5);
         }
     }
 
     public void ProgramHeading() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 3. "program" <ProgramIdentifier>
+        switch(lookahead.token_name){
+	        case MP_IDENTIFIER:
+	        	//We are looking for the program ID so we can expand
+	        	match(TokenType.MP_PROGRAM);
+	        	ProgramIdentifier();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void Block() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 4. <VariableDeclarationPart> <ProcedureAndFunctionDeclarationPart> <StatementPart>
+        switch(lookahead.token_name){
+	        case MP_VAR:
+	        	match(TokenType.MP_VAR);
+	        	VariableDeclarationPart();
+	        	ProcedureAndFunctionDeclarationPart();
+	        	StatementPart();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void VariableDeclarationPart() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 5. "var" <VariableDeclarationPart> ";" <VariableDeclarationTail> <StatementPart>
+        switch(lookahead.token_name){
+	        //Going to be looking for an ID next
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_VAR);
+	        	match(TokenType.MP_SCOLON);
+	        	VariableDeclarationPart();
+	        	VariableDeclarationTail();
+	        	StatementPart();
+	        	break;
+	        default:
+	        	// Might need some follow here since Tail could go to nothing
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void VariableDeclarationTail() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 6. <VariableDeclaration> ";" <VariableDeclarationTail>
+    	// 7. Lamnda
+        switch(lookahead.token_name){
+	        //Lookahead should be the ID 
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_SCOLON);
+	        	VariableDeclaration();
+	        	VariableDeclarationTail();
+	        	break;
+	        default:
+	        	//XXX - Will need follow to deal with the lamnda case
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void VariableDeclaration() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 7. <Identifierlist> ";" <Type>
+        switch(lookahead.token_name){
+	        //We should be looking at IDs coming up
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_SCOLON);
+	        	IdentifierList();
+	        	Type();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void Type() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 9. 	-> "Integer"
+    	// 10. 	-> "Float"
+    	// 11.	-> "Boolean"
+        switch(lookahead.token_name){
+	        case MP_INTEGER:
+	        	match(TokenType.MP_INTEGER);
+	        	break;
+	        case MP_FLOAT:
+	        	match(TokenType.MP_FLOAT);
+	        	break;
+	        // "Boolen" -> Identifier?
+	        case MP_IDENTIFIER:
+	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
+	        	{
+	        		match(TokenType.MP_IDENTIFIER);
+	        	}
+	        	// The ID was something other than boolean, which should throw an error
+	        	else
+	        	{
+	        		 // parsing error
+			        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			        System.exit(-5);
+	        	}
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
+		        
         }
     }
 
     public void ProcedureAndFunctionDeclarationPart() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 12. <ProcedureDeclaration> <ProcedureAndFunctionDeclarationPart>
+    	// 13. <FunctionDeclaration> <ProcedureAndFunctionDeclarationPart>
+    	// 14. Lamnda
+        switch(lookahead.token_name){
+	        case MP_PROCEDURE:
+	        	ProcedureDeclaration();
+	        	ProcedureAndFunctionDeclarationPart();
+	        	break;
+	        case MP_FUNCTION:
+	        	FunctionDeclaration();
+	        	ProcedureAndFunctionDeclarationPart();
+	        	break;
+	        // Will need to handle lamnda case here
+	        
+	        default:
+	        	// parsing error
+	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	        	System.exit(-5);
         }
     }
 
     public void ProcedureDeclaration() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 15. <ProcedureHeading> ";" <Block> ";"
+        switch(lookahead.token_name){
+	        case MP_PROCEDURE:
+	        	match(TokenType.MP_SCOLON);
+	        	match(TokenType.MP_SCOLON);
+	        	ProcedureHeading();
+	        	Block();
+	        	break;
+	        default:
+	        	// parsing error
+	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	        	System.exit(-5);
         }
     }
 
     public void FunctionDeclaration() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 16. <FunctionHeading> "; <Block> ";"
+        switch(lookahead.token_name){
+	        case MP_FUNCTION:
+	        	match(TokenType.MP_SCOLON);
+	        	match(TokenType.MP_SCOLON);
+	        	FunctionHeading();
+	        	Block();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void ProcedureHeading() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 17. "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
+        switch(lookahead.token_name){
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_PROCEDURE);
+	        	ProcedureIdentifier();
+	        	OptionalFormalParameterList();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void FunctionHeading() {
-        switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 18. <FunctionHeading> "; <Block> ";"
+        switch(lookahead.token_name){
+	        case MP_FUNCTION:
+	        	match(TokenType.MP_SCOLON);
+	        	match(TokenType.MP_SCOLON);
+	        	FunctionHeading();
+	        	Block();
+	        	break;
+	        default:
+		        // parsing error
+		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		        System.exit(-5);
         }
     }
 
     public void OptionalFormalParameterList() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 19. "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
+    	// 20. Lamnda
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_LPAREN);
+	        	match(TokenType.MP_RPAREN);
+	        	FormalParameterSection();
+	        	FormalParameterSectionTail();
+	        	break;
+	        default:
+	        	// Need Follow() To deal with having Lamnda here
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void FormalParameterSectionTail() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 21. ";" <FormalParameterSection> <FormalParameterSectionTail>
+    	// 22. Lamnda
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_SCOLON);
+	        	FormalParameterSection();
+	        	FormalParameterSectionTail();
+	        	break;
+	        default:
+	        	// Need deal with lamnda with Follow();
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void FormalParameterSection() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 23. <ValueParameterSection>
+    	// 24. <VariableParameterSection>
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_IDENTIFIER:
+	        	ValueParameterSection();
+	        	break;
+	        case MP_VAR:
+	        	VariableParameterSection();
+	        	break;
+	        default:
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void ValueParameterSection() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 25. <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_COLON);
+	        	IdentifierList();
+	        	Type();
+	        	break;
+	        default:
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void VariableParameterSection() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 26. "var" <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_VAR);
+	        	IdentifierList();
+	        	Type();
+	        	break;
+	        default:
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void StatementPart() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 27. <CompoundStatement>
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_BEGIN:
+	        	CompoundStatement();
+	        	break;
+	        default:
+	            System.out.println("nobody here but us chickens");
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void CompoundStatement() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 28. "begin" <StatementSequence> "end"
         switch (lookahead.token_name) {
-        default:
-            System.out.println("nobody here but us chickens");
-            // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
-        }
+	        case MP_BEGIN:
+	        case MP_FOR:
+	        case MP_IF:
+	        case MP_READ:
+	        case MP_WRITE:
+	        case MP_REPEAT:
+	        case MP_WHILE:
+	        case MP_IDENTIFIER:
+	        	match(TokenType.MP_BEGIN);
+	        	match(TokenType.MP_END);
+	        	StatementSequence();
+	        	break;
+	        default:
+	            // parsing error
+	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	            System.exit(-5);
+	        }
     }
 
     public void StatementSequence() {
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	// 29. <Statement> <StatementTail>
         switch (lookahead.token_name) {
+        case MP_BEGIN:
+        case MP_FOR:
+        case MP_IF:
+        case MP_READ:
+        case MP_WRITE:
+        case MP_REPEAT:
+        case MP_WHILE:
+        case MP_IDENTIFIER:
+        	Statement();
+        	StatementTail();
+        	break;
         default:
-            System.out.println("nobody here but us chickens");
             // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
         }
     }
