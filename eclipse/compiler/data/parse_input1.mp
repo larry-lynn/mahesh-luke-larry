@@ -1,1 +1,1 @@
-; read ( FOOBAR
+; read ( FOOBAR, Funkytime )

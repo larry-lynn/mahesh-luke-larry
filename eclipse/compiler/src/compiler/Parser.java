@@ -440,9 +440,8 @@ public class Parser {
         switch(lookahead.token_name){
     	case MP_IDENTIFIER:
     		VariableIdentifier();
-    		// XXX - not sure if we match non firsts yet
-    		// match(":=");
-    		// Expression();
+    		match(TokenType.MP_ASSIGN);
+    		Expression();
     	// XXX - Ambiguity - not sure how to resolve this yet
     		break;
     	/*
@@ -468,10 +467,9 @@ public class Parser {
     	case MP_IF:
     		match(TokenType.MP_IF);
     		BooleanExpression();
-    		// XXX not sure if we can manage these without FOLLOW()
-    		//match("then");
-    		//Statement();
-    		//OptionalElsePart();
+    		match(TokenType.MP_THEN);
+    		Statement();
+    		OptionalElsePart();
     		break;
         default:
     		// parsing error
@@ -503,9 +501,8 @@ public class Parser {
     	case MP_REPEAT:
     		match(TokenType.MP_REPEAT);
     		StatementSequence();
-    		// XXX - we may need FOLLOW() for this
-    		//match("until");
-    		//BooleanExpression();
+    		match(TokenType.MP_UNTIL);
+    		BooleanExpression();
     		break;
         default:
     		// parsing error
@@ -690,6 +687,7 @@ public class Parser {
 
 
     public void Expression(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
         case MP_PLUS:
 	case MP_MINUS:
@@ -706,6 +704,7 @@ public class Parser {
 
 
     public void OptionalRelationalPart(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_EQUAL:
 	case MP_GTHAN:
@@ -755,6 +754,7 @@ public class Parser {
 
 
     public void SimpleExpression(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_PLUS:
 	case MP_MINUS:
@@ -772,6 +772,7 @@ public class Parser {
 
 
     public void TermTail(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_OR:
 	case MP_PLUS:
@@ -791,6 +792,7 @@ public class Parser {
 
 
     public void OptionalSign(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_PLUS:
 	    match(TokenType.MP_PLUS);
@@ -808,6 +810,7 @@ public class Parser {
 
 
     public void AddingOperator(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_OR:
 	    match(TokenType.MP_OR);
@@ -828,6 +831,7 @@ public class Parser {
 
 
     public void Term(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_NOT:
 	case MP_IDENTIFIER:
@@ -889,6 +893,7 @@ public class Parser {
 
 
     public void Factor(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_NOT:
 	    match(TokenType.MP_NOT);
@@ -931,6 +936,7 @@ public class Parser {
 
 
     public void VariableIdentifier(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_IDENTIFIER:
 	    match(TokenType.MP_IDENTIFIER);
@@ -973,6 +979,7 @@ public class Parser {
 
 
     public void BooleanExpression(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_PLUS:
 	case MP_MINUS:
@@ -988,6 +995,7 @@ public class Parser {
 
 
     public void OrdinalExpression(){
+    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	case MP_PLUS:
 	case MP_MINUS:
