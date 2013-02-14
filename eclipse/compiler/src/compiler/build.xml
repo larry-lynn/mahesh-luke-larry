@@ -116,6 +116,9 @@
     <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
       <arg value="./data/test24.mp"/>
     </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/test25.mp"/>
+    </java>
 	
   </target>
 </project>

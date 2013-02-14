@@ -386,6 +386,20 @@ public class Scanner {
 					    fsm_state = State.q3;
 					}
 					break;
+				case 'e':
+				case 'E':
+				        // Case to handle fixed or floating point numbers
+					peek = peek + 1;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+						// Terminate token FSM early if EOF reached, and return the number 1 place before current charatcer as fixed point number
+					        peek = peek - 1;
+						tokenType = TokenType.MP_FIXED_LIT;
+						fsm_state = State.q2;
+					}
+					else {
+					    fsm_state = State.q5;
+					}
+				    break;
  				default:
 					// we've scanned another character, not a digit
 				        tokenType = TokenType.MP_INTEGER_LIT;
@@ -493,33 +507,32 @@ public class Scanner {
 				case '+': 
 				case '-':
 					peek = peek + 1;
-				        switch (source_to_scan[file_pointer + peek]) {
-					    case '0':
-					    case '1':
-					    case '2':
-					    case '3':
-					    case '4':
-					    case '5':
-					    case '6':
-					    case '7':
-					    case '8':
-					    case '9':
-					        fsm_state = State.q6;
-					        break;
-					    default:
-						if ((file_pointer + peek) >= source_to_scan.length) {
-						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
-					        peek = peek - 2;
-						tokenType = TokenType.MP_FIXED_LIT;
-						fsm_state = State.q2;
-					        }
-					        else {
-						// Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
-					        peek = peek - 2;
-						tokenType = TokenType.MP_FIXED_LIT;
-						fsm_state = State.q2;
-					        }
-						break;
+					if ((file_pointer + peek) >= source_to_scan.length) {
+					    // Terminate token FSM early if EOF reached, and return the number 2 places before current character as fixed point number
+				            peek = peek - 2;
+					    tokenType = TokenType.MP_FIXED_LIT;
+					    fsm_state = State.q2;
+				        }
+				        else {
+					    switch (source_to_scan[file_pointer + peek]) {
+					        case '0':
+					        case '1':
+					        case '2':
+					        case '3':
+					        case '4':
+					        case '5':
+					        case '6':
+					        case '7':
+					        case '8':
+					        case '9':
+					            fsm_state = State.q6;
+					            break;
+					        default:
+						    peek = peek - 2;
+						    tokenType = TokenType.MP_FIXED_LIT;
+						    fsm_state = State.q2;
+						    break;
+				            }
 					}
 					break;
 				default:
