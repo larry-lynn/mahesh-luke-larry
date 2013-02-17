@@ -863,6 +863,8 @@ public class Parser {
 
     // ### MAHSESHS BLOCK STARTS HERE
     public void ActualParameterTail() {
+	//67:ActualParameterTail ⟶ "," ActualParameter ActualParameterTail
+	//68:                    ⟶ ε
         switch (lookahead.token_name) {
         case MP_COMMA:
             match(TokenType.MP_COMMA);
@@ -879,6 +881,7 @@ public class Parser {
     }
 
     public void ActualParameter() {
+	//69:ActualParameter     ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -894,6 +897,7 @@ public class Parser {
 
     public void Expression() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//70:Expression              ⟶ SimpleExpression OptionalRelationalPart
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -910,6 +914,8 @@ public class Parser {
 
     public void OptionalRelationalPart() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
+	//72:                        ⟶ ε
         switch (lookahead.token_name) {
         case MP_EQUAL:
         case MP_GTHAN:
@@ -929,6 +935,12 @@ public class Parser {
     }
 
     public void RelationalOperator() {
+	//73:RelationalOperator      ⟶ "="
+	//74:                        ⟶ "<"
+	//75:                        ⟶ ">"
+	//76:                        ⟶ "<="
+	//77:                        ⟶ ">="
+	//78:                        ⟶ "<>" 
         switch (lookahead.token_name) {
         case MP_EQUAL:
             match(TokenType.MP_EQUAL);
@@ -958,6 +970,7 @@ public class Parser {
 
     public void SimpleExpression() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//79:SimpleExpression        ⟶ OptionalSign Term TermTail
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -975,6 +988,8 @@ public class Parser {
 
     public void TermTail() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//80:TermTail                ⟶ AddingOperator Term TermTail
+	//81:                        ⟶ ε
         switch (lookahead.token_name) {
         case MP_OR:
         case MP_PLUS:
@@ -994,6 +1009,9 @@ public class Parser {
 
     public void OptionalSign() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//82:OptionalSign            ⟶ "+"
+	//83:                        ⟶ "-"
+	//84:                        ⟶ ε
         switch (lookahead.token_name) {
         case MP_PLUS:
             match(TokenType.MP_PLUS);
@@ -1011,6 +1029,9 @@ public class Parser {
 
     public void AddingOperator() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//85:AddingOperator          ⟶ "+"
+	//86:                        ⟶ "-"
+	//87:                        ⟶ "or" 
         switch (lookahead.token_name) {
         case MP_OR:
             match(TokenType.MP_OR);
@@ -1031,6 +1052,7 @@ public class Parser {
 
     public void Term() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//88:Term                    ⟶ Factor FactorTail 
         switch (lookahead.token_name) {
         case MP_NOT:
         case MP_IDENTIFIER:
@@ -1048,6 +1070,8 @@ public class Parser {
     }
 
     public void FactorTail() {
+	//89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
+	//90:                        ⟶ ε 
         switch (lookahead.token_name) {
         case MP_AND:
         case MP_DIV:
@@ -1067,6 +1091,10 @@ public class Parser {
     }
 
     public void MultiplyingOperator() {
+	//91:MultiplyingOperator     ⟶ "*"
+	//92:                        ⟶ "div"
+	//93:                        ⟶ "mod"
+	//94:                        ⟶ "and"
         switch (lookahead.token_name) {
         case MP_AND:
             match(TokenType.MP_AND);
@@ -1090,6 +1118,11 @@ public class Parser {
 
     public void Factor() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//95:Factor                  ⟶ UnsignedInteger
+	//96:                        ⟶ VariableIdentifier
+	//97:                        ⟶ "not" Factor
+	//98:                        ⟶ "(" Expression ")"
+	//99:                        ⟶ FunctionIdentifier OptionalActualParameterList
         switch (lookahead.token_name) {
         case MP_NOT:
             match(TokenType.MP_NOT);
@@ -1118,6 +1151,7 @@ public class Parser {
     }
 
     public void ProgramIdentifier() {
+	//100:ProgramIdentifier    ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             match(TokenType.MP_IDENTIFIER);
@@ -1132,6 +1166,7 @@ public class Parser {
 
     public void VariableIdentifier() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//101:VariableIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             match(TokenType.MP_IDENTIFIER);
@@ -1145,6 +1180,7 @@ public class Parser {
     }
 
     public void ProcedureIdentifier() {
+	//102:ProcedureIdentifier  ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             match(TokenType.MP_IDENTIFIER);
@@ -1158,6 +1194,7 @@ public class Parser {
     }
 
     public void FunctionIdentifier() {
+	//103:FunctionIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             match(TokenType.MP_IDENTIFIER);
@@ -1172,6 +1209,7 @@ public class Parser {
 
     public void BooleanExpression() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//104:BooleanExpression    ⟶ Expression
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1187,6 +1225,7 @@ public class Parser {
 
     public void OrdinalExpression() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//105:OrdinalExpression    ⟶ Expression 
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
