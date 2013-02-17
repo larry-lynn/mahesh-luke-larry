@@ -9,8 +9,7 @@ public class Parser {
             System.out.println("Usage: java compiler.Parser <source-code-file>");
             System.exit(-3);
         }
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
+        System.out.println("Working Directory = " +  System.getProperty("user.dir"));
         
         String infile = args[0];
         
@@ -30,11 +29,21 @@ public class Parser {
     public void match(TokenType compareTok) {
         if (lookahead.token_name == compareTok) {
             // put the token on the parse tree and get a new one
-            System.out.println("putting " + lookahead.getLexeme() + " on parse tree");
-            lookahead = scan.getToken();
+            System.out.println("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
+            // early return if we've parsed everything successfully
+            if(lookahead.token_name == TokenType.MP_EOF){
+                // XXX change this to meet specs
+                return;
+            }
+            else{
+                lookahead = scan.getToken();
+            }
         } else {
             // parsing error
-            System.out.println("Parsing error while matching at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            // XXX fixme - this block needs to be moved out of match and into a dedicated error routine
+            System.out.println("Scan Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
+            System.out.println("Expected: " + compareTok + ", but got: " + lookahead.token_name);
+            // Thread.currentThread().getStackTrace()[1].getMethodName()
             System.exit(-6);
         }
     }
@@ -42,13 +51,11 @@ public class Parser {
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 1. <Program> eof
+    	// 1:SystemGoal      ⟶ Program eof    
         switch(lookahead.token_name){
         	case MP_PROGRAM:
-        		match(TokenType.MP_PROGRAM);
         		Program();
-        		// Not too sure on the EOF
-        		// match(TokenType.MP_EOF);
+        		match(TokenType.MP_EOF);
         		break;
 	        default:
 		        // parsing error
@@ -59,14 +66,13 @@ public class Parser {
 
     public void Program() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	//2. <ProgramHeading> ";" <Block> "."
+    	// 2: Program         ⟶ ProgramHeading ";" Block "."
         switch(lookahead.token_name){
         	case MP_PROGRAM:
-        		match(TokenType.MP_PROGRAM);
+                ProgramHeading();
         		match(TokenType.MP_SCOLON);
+                Block();
         		match(TokenType.MP_PERIOD);
-        		ProgramHeading();
-        		Block();
         		break;
 	        default:
 	        // parsing error
@@ -77,9 +83,9 @@ public class Parser {
 
     public void ProgramHeading() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 3. "program" <ProgramIdentifier>
+    	// 3:ProgramHeading  ⟶ "program" ProgramIdentifier
         switch(lookahead.token_name){
-	        case MP_IDENTIFIER:
+	        case MP_PROGRAM:
 	        	//We are looking for the program ID so we can expand
 	        	match(TokenType.MP_PROGRAM);
 	        	ProgramIdentifier();
@@ -93,10 +99,9 @@ public class Parser {
 
     public void Block() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 4. <VariableDeclarationPart> <ProcedureAndFunctionDeclarationPart> <StatementPart>
+    	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
         switch(lookahead.token_name){
 	        case MP_VAR:
-	        	match(TokenType.MP_VAR);
 	        	VariableDeclarationPart();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	StatementPart();
@@ -110,15 +115,13 @@ public class Parser {
 
     public void VariableDeclarationPart() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 5. "var" <VariableDeclarationPart> ";" <VariableDeclarationTail> <StatementPart>
+    	// 5:VariableDeclarationPart  ⟶ "var" VariableDeclaration ";" VariableDeclarationTail
         switch(lookahead.token_name){
-	        //Going to be looking for an ID next
-	        case MP_IDENTIFIER:
+	        case MP_VAR:
 	        	match(TokenType.MP_VAR);
+	            VariableDeclaration();
 	        	match(TokenType.MP_SCOLON);
-	        	VariableDeclarationPart();
 	        	VariableDeclarationTail();
-	        	StatementPart();
 	        	break;
 	        default:
 	        	// Might need some follow here since Tail could go to nothing
@@ -130,15 +133,20 @@ public class Parser {
 
     public void VariableDeclarationTail() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 6. <VariableDeclaration> ";" <VariableDeclarationTail>
-    	// 7. Lamnda
+    	//6:VariableDeclarationTail  ⟶ VariableDeclaration ";" VariableDeclarationTail 
+    	//7:                         ⟶ ε
         switch(lookahead.token_name){
 	        //Lookahead should be the ID 
 	        case MP_IDENTIFIER:
-	        	match(TokenType.MP_SCOLON);
-	        	VariableDeclaration();
-	        	VariableDeclarationTail();
+	            VariableDeclaration();
+	            match(TokenType.MP_SCOLON);
+	            VariableDeclarationTail();
 	        	break;
+	        // mapping to sigma
+	        case MP_BEGIN:
+	        case MP_FUNCTION:
+	        case MP_PROCEDURE:
+	            break;
 	        default:
 	        	//XXX - Will need follow to deal with the lamnda case
 		        // parsing error
@@ -149,12 +157,12 @@ public class Parser {
 
     public void VariableDeclaration() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 7. <Identifierlist> ";" <Type>
+    	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
         switch(lookahead.token_name){
 	        //We should be looking at IDs coming up
 	        case MP_IDENTIFIER:
-	        	match(TokenType.MP_SCOLON);
 	        	IdentifierList();
+	            match(TokenType.MP_COLON);
 	        	Type();
 	        	break;
 	        default:
@@ -200,9 +208,9 @@ public class Parser {
 
     public void ProcedureAndFunctionDeclarationPart() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 12. <ProcedureDeclaration> <ProcedureAndFunctionDeclarationPart>
-    	// 13. <FunctionDeclaration> <ProcedureAndFunctionDeclarationPart>
-    	// 14. Lamnda
+    	//12:ProcedureAndFunctionDeclarationPart ⟶ ProcedureDeclaration ProcedureAndFunctionDeclarationPart
+    	//13:                                    ⟶ FunctionDeclaration ProcedureAndFunctionDeclarationPart
+    	//14:                                    ⟶ ε
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
 	        	ProcedureDeclaration();
@@ -212,7 +220,9 @@ public class Parser {
 	        	FunctionDeclaration();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
-	        // Will need to handle lamnda case here
+	        case MP_BEGIN:
+	            // go to ε
+                break;
 	        
 	        default:
 	        	// parsing error
@@ -377,13 +387,12 @@ public class Parser {
 
     public void StatementPart() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 27. <CompoundStatement>
+    	// 27:StatementPart      ⟶ CompoundStatement
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
 	        	CompoundStatement();
 	        	break;
 	        default:
-	            System.out.println("nobody here but us chickens");
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	            System.exit(-5);
@@ -392,7 +401,7 @@ public class Parser {
 
     public void CompoundStatement() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 28. "begin" <StatementSequence> "end"
+    	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
 	        case MP_FOR:
@@ -403,8 +412,8 @@ public class Parser {
 	        case MP_WHILE:
 	        case MP_IDENTIFIER:
 	        	match(TokenType.MP_BEGIN);
+	            StatementSequence();
 	        	match(TokenType.MP_END);
-	        	StatementSequence();
 	        	break;
 	        default:
 	            // parsing error
@@ -415,9 +424,10 @@ public class Parser {
 
     public void StatementSequence() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 29. <Statement> <StatementTail>
+    	// 29:StatementSequence  ⟶ Statement StatementTail
         switch (lookahead.token_name) {
         case MP_BEGIN:
+        case MP_END:
         case MP_FOR:
         case MP_IF:
         case MP_READ:
@@ -429,8 +439,9 @@ public class Parser {
         	StatementTail();
         	break;
         default:
-            // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            // parsing error    
+            System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("Lookahead token is: " + lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -449,6 +460,10 @@ public class Parser {
             Statement();
             StatementTail();
             break;
+        case MP_END:
+        case MP_UNTIL:
+            // go to ε
+            break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -460,6 +475,13 @@ public class Parser {
     public void Statement() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
+        case MP_END:
+        case MP_UNTIL:
+        case MP_SCOLON:
+            //32:Statement           ⟶ EmptyStatement
+            // XXX fixme - may be other ways to map to empty statement & epsilon
+            EmptyStatement();
+            break;
         case MP_BEGIN:
             // 33:Statement ⟶ CompoundStatement
             CompoundStatement();
@@ -498,7 +520,8 @@ public class Parser {
             break;
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("Lookahead token is: " + lookahead.token_name);
             System.exit(-5);
         }
     } // end statement
@@ -507,11 +530,15 @@ public class Parser {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         // 42:EmptyStatement ⟶ ε
         switch (lookahead.token_name) {
+        // XXX probably other ways to map to ε
+        case MP_END:
+        case MP_UNTIL:
+        case MP_SCOLON:
+            break;
         default:
-            System.out.println("nobody here but us chickens");
             // parsing error
-            // System.out.println("Parsing error at: " +
-            // Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("Lookahead token is: " + lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1174,6 +1201,8 @@ public class Parser {
     }
 
     public void IdentifierList() {
+        // 106:IdentifierList       ⟶ Identifier IdentifierTail
+        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             match(TokenType.MP_IDENTIFIER);
@@ -1188,15 +1217,22 @@ public class Parser {
     }
 
     public void IdentifierTail() {
+        //107:IdentifierTail       ⟶ "," Identifier IdentifierTail
+        //108:                     ⟶ ε        
+        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_COMMA:
             match(TokenType.MP_COMMA);
             match(TokenType.MP_IDENTIFIER);
             break;
+        case MP_COLON:
+            // apply epsilon
+            break;
         default:
             // System.out.println("nobody here but us chickens");
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("Lookahead token is: " + lookahead.token_name);
             System.exit(-5);
         }
     }
