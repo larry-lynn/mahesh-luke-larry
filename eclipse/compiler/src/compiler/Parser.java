@@ -4,6 +4,22 @@ public class Parser {
     Token lookahead;
     Scanner scan;
 
+    public static void main(String[] args) throws Exception{
+        if( (args.length == 0) || (args.length > 1) ){
+            System.out.println("Usage: java compiler.Parser <source-code-file>");
+            System.exit(-3);
+        }
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
+        
+        String infile = args[0];
+        
+        Parser parse;
+        parse = new Parser(infile);
+        parse.SystemGoal();
+        
+    }
+    
     // Constructor 1
     public Parser(String fileWithPath) throws Exception {
         scan = new Scanner();
@@ -509,8 +525,7 @@ public class Parser {
             match(TokenType.MP_LPAREN);
             ReadParameter();
             ReadParameterTail();
-            // XXX -- not sure if we can do the closing stuff without FOLLOW()
-            // match(")");
+            match(TokenType.MP_RPAREN);
             break;
         default:
             // parsing error
@@ -609,13 +624,17 @@ public class Parser {
             VariableIdentifier();
             match(TokenType.MP_ASSIGN);
             Expression();
-            // XXX - Ambiguity - not sure how to resolve this yet
+            
             break;
-        /*
-         * case MP_IDENTIFIER: VariableIdentifier(); // XXX - not sure if we
-         * match non firsts yet // match(":="); // Expression(); break;
+         // XXX - Ambiguity - not sure how to resolve this yet
+         /*   
+         case MP_IDENTIFIER: 
+             FunctionIdentifier(); 
+             match(TokenType.MP_ASSIGN); 
+             Expression(); 
+             break;
          */
-
+     
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -683,9 +702,8 @@ public class Parser {
         case MP_WHILE:
             match(TokenType.MP_WHILE);
             BooleanExpression();
-            // XXX - we may need FOLLOW() for this
-            // match("do");
-            // Statement();
+            match(TokenType.MP_DO);
+            Statement();
             break;
         default:
             // parsing error
@@ -696,19 +714,17 @@ public class Parser {
 
     public void ForStatement() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        // 58:ForStatement ⟶ "for" ControlVariable ":=" InitialValue StepValue
-        // FinalValue "do" Statement
+        // 58:ForStatement ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
         switch (lookahead.token_name) {
         case MP_FOR:
             match(TokenType.MP_FOR);
             ControlVariable();
-            // XXX - we may need FOLLOW() for this
-            // match(":=");
-            // InitialValue();
-            // StepValue();
-            // FinalValue();
-            // Match("do");
-            // Statement();
+            match(TokenType.MP_ASSIGN);
+            InitialValue();
+            StepValue();
+            FinalValue();
+            match(TokenType.MP_DO);
+            Statement();
             break;
         default:
             // parsing error
@@ -785,13 +801,11 @@ public class Parser {
 
     public void ProcedureStatement() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        // 64:ProcedureStatement ⟶ ProcedureIdentifier
-        // OptionalActualParameterList
+        // 64:ProcedureStatement ⟶ ProcedureIdentifier OptionalActualParameterList
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             ProcedureIdentifier();
-            // XXX may need FOLLOW() for this
-            // OptionalActualParameterList();
+            OptionalActualParameterList();
             break;
         default:
             // parsing error
@@ -802,16 +816,14 @@ public class Parser {
 
     public void OptionalActualParameterList() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        // 65:OptionalActualParameterList ⟶ "(" ActualParameter
-        // ActualParameterTail ")"
+        // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
         switch (lookahead.token_name) {
         case MP_LPAREN:
             match(TokenType.MP_LPAREN);
             ActualParameter();
-            // XXX we might need FOLLOW() for this
-            // ActualParameterTail();
-            // match(")");
+            ActualParameterTail();
+            match(TokenType.MP_RPAREN);
             break;
         default:
             // parsing error
