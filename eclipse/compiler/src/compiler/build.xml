@@ -125,6 +125,13 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="parse_input13.mp"/>
     </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parse_input_read.mp"/>
+    </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parse_input_read2.mp"/>
+    </java>
+  	
   </target>
 	
 </project>

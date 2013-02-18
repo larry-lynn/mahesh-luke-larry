@@ -571,6 +571,9 @@ public class Parser {
             ReadParameter();
             ReadParameterTail();
             break;
+        case MP_RPAREN:
+        	// map to ε
+        	break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -1263,6 +1266,7 @@ public class Parser {
         case MP_COMMA:
             match(TokenType.MP_COMMA);
             match(TokenType.MP_IDENTIFIER);
+            IdentifierTail();
             break;
         case MP_COLON:
             // apply epsilon
