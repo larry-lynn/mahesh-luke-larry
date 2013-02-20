@@ -233,13 +233,13 @@ public class Parser {
 
     public void ProcedureDeclaration() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 15. <ProcedureHeading> ";" <Block> ";"
+    	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
-	        	match(TokenType.MP_SCOLON);
-	        	match(TokenType.MP_SCOLON);
 	        	ProcedureHeading();
+	        	match(TokenType.MP_SCOLON);
 	        	Block();
+	        	match(TokenType.MP_SCOLON);
 	        	break;
 	        default:
 	        	// parsing error
@@ -250,13 +250,13 @@ public class Parser {
 
     public void FunctionDeclaration() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 16. <FunctionHeading> "; <Block> ";"
+    	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
-	        	match(TokenType.MP_SCOLON);
-	        	match(TokenType.MP_SCOLON);
 	        	FunctionHeading();
+	        	match(TokenType.MP_SCOLON);
 	        	Block();
+	        	match(TokenType.MP_SCOLON);
 	        	break;
 	        default:
 		        // parsing error
@@ -267,9 +267,9 @@ public class Parser {
 
     public void ProcedureHeading() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 17. "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
+    	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
         switch(lookahead.token_name){
-	        case MP_IDENTIFIER:
+	        case MP_PROCEDURE:
 	        	match(TokenType.MP_PROCEDURE);
 	        	ProcedureIdentifier();
 	        	OptionalFormalParameterList();
@@ -283,13 +283,13 @@ public class Parser {
 
     public void FunctionHeading() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 18. <FunctionHeading> "; <Block> ";"
+    	// 18. <FunctionHeading> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
-	        	match(TokenType.MP_SCOLON);
-	        	match(TokenType.MP_SCOLON);
 	        	FunctionHeading();
+	        	match(TokenType.MP_SCOLON);
 	        	Block();
+	        	match(TokenType.MP_SCOLON);
 	        	break;
 	        default:
 		        // parsing error
@@ -297,38 +297,38 @@ public class Parser {
 		        System.exit(-5);
         }
     }
-
+    
     public void OptionalFormalParameterList() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 19. "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
-    	// 20. Lamnda
+    	// 19. <OptionalFormalParameterList> -> "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
+    	// 20. <OptionalFormalParameterList> -> Sigma
         switch (lookahead.token_name) {
-	        case MP_IDENTIFIER:
+	        case MP_LPAREN:
 	        	match(TokenType.MP_LPAREN);
-	        	match(TokenType.MP_RPAREN);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
+	        	match(TokenType.MP_RPAREN);
 	        	break;
 	        default:
-	        	// Need Follow() To deal with having Lamnda here
+	        	// Need Follow() To deal with having sigma
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	            System.exit(-5);
 	        }
     }
-
+    
     public void FormalParameterSectionTail() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 21. ";" <FormalParameterSection> <FormalParameterSectionTail>
-    	// 22. Lamnda
+    	// 21. <FormalParameterSectionTail> -> ";" <FormalParameterSection> <FormalParameterSectionTail>
+    	// 22. <FormalParameterSectionTail> -> Sigma
         switch (lookahead.token_name) {
-	        case MP_IDENTIFIER:
+	        case MP_SCOLON:
 	        	match(TokenType.MP_SCOLON);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
 	        	break;
 	        default:
-	        	// Need deal with lamnda with Follow();
+	        	// Need deal with sigma with Follow();
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	            System.exit(-5);
@@ -337,8 +337,8 @@ public class Parser {
 
     public void FormalParameterSection() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 23. <ValueParameterSection>
-    	// 24. <VariableParameterSection>
+    	// 23. <FormalParameterSection> -> <ValueParameterSection>
+    	// 24. <FormalParameterSection> -> <VariableParameterSection>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
 	        	ValueParameterSection();
@@ -352,14 +352,14 @@ public class Parser {
 	            System.exit(-5);
 	        }
     }
-
+    
     public void ValueParameterSection() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 25. <IdentifierList> ":" <Type>
+    	// 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
-	        	match(TokenType.MP_COLON);
 	        	IdentifierList();
+	        	match(TokenType.MP_COLON);
 	        	Type();
 	        	break;
 	        default:
@@ -371,11 +371,12 @@ public class Parser {
 
     public void VariableParameterSection() {
     	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 26. "var" <IdentifierList> ":" <Type>
+    	// 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
-	        case MP_IDENTIFIER:
+	        case MP_VAR:
 	        	match(TokenType.MP_VAR);
 	        	IdentifierList();
+	        	match(TokenType.MP_COLON);
 	        	Type();
 	        	break;
 	        default:
@@ -404,13 +405,6 @@ public class Parser {
     	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
-	        case MP_FOR:
-	        case MP_IF:
-	        case MP_READ:
-	        case MP_WRITE:
-	        case MP_REPEAT:
-	        case MP_WHILE:
-	        case MP_IDENTIFIER:
 	        	match(TokenType.MP_BEGIN);
 	            StatementSequence();
 	        	match(TokenType.MP_END);
