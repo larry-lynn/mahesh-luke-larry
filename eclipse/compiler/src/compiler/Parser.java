@@ -309,6 +309,10 @@ public class Parser {
 	        	FormalParameterSectionTail();
 	        	match(TokenType.MP_RPAREN);
 	        	break;
+	        case MP_SCOLON:
+	        case MP_COLON:
+	        	// Mapping to sigma
+	        	break;
 	        default:
 	        	// Need Follow() To deal with having sigma
 	            // parsing error
@@ -326,6 +330,9 @@ public class Parser {
 	        	match(TokenType.MP_SCOLON);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
+	        	break;
+	        case MP_RPAREN:
+	        	// Mapping to sigma
 	        	break;
 	        default:
 	        	// Need deal with sigma with Follow();
