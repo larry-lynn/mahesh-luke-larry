@@ -637,9 +637,11 @@ public class Parser {
         // 50:WriteParameter ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-            OrdinalExpression();
-            break;
         case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
             OrdinalExpression();
             break;
         default:
@@ -1248,6 +1250,10 @@ public class Parser {
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
             Expression();
             break;
         default:
