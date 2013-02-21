@@ -622,6 +622,9 @@ public class Parser {
             match(TokenType.MP_COMMA);
             WriteParameter();
             break;
+        case MP_RPAREN:
+            // map to ε
+            break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -675,8 +678,7 @@ public class Parser {
 
     public void IfStatement() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement
-        // OptionalElsePart
+        // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch (lookahead.token_name) {
         case MP_IF:
             match(TokenType.MP_IF);
@@ -701,6 +703,11 @@ public class Parser {
             match(TokenType.MP_ELSE);
             Statement();
             break;
+        case MP_END:
+        case MP_UNTIL:
+        case MP_SCOLON:
+            // map to ε
+            break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -710,8 +717,7 @@ public class Parser {
 
     public void RepeatStatement() {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-        // 56:RepeatStatement ⟶ "repeat" StatementSequence "until"
-        // BooleanExpression
+        // 56:RepeatStatement ⟶ "repeat" StatementSequence "until" BooleanExpression
         switch (lookahead.token_name) {
         case MP_REPEAT:
             match(TokenType.MP_REPEAT);
@@ -855,6 +861,15 @@ public class Parser {
             ActualParameter();
             ActualParameterTail();
             match(TokenType.MP_RPAREN);
+            break;
+        case MP_AND:
+        case MP_DIV:
+        case MP_END:
+        case MP_MOD:
+        case MP_UNTIL:
+        case MP_SCOLON:
+        case MP_TIMES:
+            // map to ε
             break;
         default:
             // parsing error
