@@ -605,6 +605,7 @@ public class Parser {
             match(TokenType.MP_LPAREN);
             WriteParameter();
             WriteParameterTail();
+            match(TokenType.MP_RPAREN);
             break;
         default:
             // parsing error
@@ -922,6 +923,10 @@ public class Parser {
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
             SimpleExpression();
             OptionalRelationalPart();
             break;
@@ -946,6 +951,13 @@ public class Parser {
         case MP_NEQUAL:
             RelationalOperator();
             SimpleExpression();
+            break;
+        case MP_END:
+        case MP_UNTIL:
+        case MP_SCOLON:
+        case MP_COMMA:
+        case MP_RPAREN:
+            // map to ε
             break;
         default:
             // System.out.println("nobody here but us chickens");
@@ -995,6 +1007,10 @@ public class Parser {
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
             OptionalSign();
             Term();
             TermTail();
@@ -1019,10 +1035,21 @@ public class Parser {
             Term();
             TermTail();
             break;
+        case MP_END:
+        case MP_UNTIL:
+        case MP_SCOLON:
+        case MP_EQUAL:
+        case MP_GTHAN:
+        case MP_GEQUAL:
+        case MP_LTHAN:
+        case MP_LEQUAL:
+        case MP_NEQUAL:
+        case MP_COMMA:
+        case MP_RPAREN:
+            // map to ε
+            break;
+
         default:
-            // Need FOLLOW here
-            // System.out.println("nobody here but us chickens");
-            // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
         }
@@ -1040,6 +1067,12 @@ public class Parser {
         case MP_MINUS:
             match(TokenType.MP_MINUS);
             break;
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
+	    // map to ε
+            break;        
         default:
             // System.out.println("nobody here but us chickens");
             // parsing error
@@ -1080,7 +1113,7 @@ public class Parser {
         case MP_INTEGER_LIT:
         case MP_LPAREN:
             Factor();
-            TermTail();
+            FactorTail();
             break;
         default:
             // System.out.println("nobody here but us chickens");
@@ -1093,6 +1126,7 @@ public class Parser {
     public void FactorTail() {
 	//89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
 	//90:                        ⟶ ε 
+        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_AND:
         case MP_DIV:
@@ -1102,11 +1136,16 @@ public class Parser {
             Factor();
             FactorTail();
             break;
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
+        case MP_LPAREN:
+        case MP_COMMA:
+        case MP_RPAREN:
+            // map to ε
+            break;
         default:
-            // Need FOLLOW here
-            // System.out.println("nobody here but us chickens");
-            // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.exit(-5);
         }
     }
@@ -1159,10 +1198,11 @@ public class Parser {
             match(TokenType.MP_RPAREN);
             break;
         case MP_IDENTIFIER:
-            // ambiguity
-            // VariableIdentifier(); OR FunctionIdentifier();
-            // OptionalParameterList();
+            VariableIdentifier();
             break;
+            // ambiguity
+            // XXX Fixme: add in lookahead for FunctionIdentifier();
+            // Probably need symbol table for this.
         default:
             // System.out.println("nobody here but us chickens");
             // parsing error

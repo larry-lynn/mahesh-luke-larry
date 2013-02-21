@@ -6,6 +6,6 @@ zip, ZAP, zING : Boolean;
 
 BEGIN
 read(three, BLIND, mice);
-write(ZIP, zap, Zing)
+write(ZIP, zap);
 END
 .
