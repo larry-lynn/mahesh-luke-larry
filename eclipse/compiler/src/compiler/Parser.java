@@ -1116,9 +1116,9 @@ public class Parser {
             FactorTail();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("token is: " + lookahead.token_name);     
             System.exit(-5);
         }
     }
@@ -1136,16 +1136,22 @@ public class Parser {
             Factor();
             FactorTail();
             break;
+        case MP_END:
+        case MP_SCOLON:
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
         case MP_LPAREN:
         case MP_COMMA:
         case MP_RPAREN:
+        case MP_PLUS:
+        case MP_MINUS:
+        case MP_OR:
             // map to ε
             break;
         default:
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+            System.out.println("token is: " + lookahead.token_name);
             System.exit(-5);
         }
     }
