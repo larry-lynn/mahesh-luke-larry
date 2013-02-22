@@ -1230,8 +1230,7 @@ public class Scanner {
 				// skipping everything between '{' and '}'
 				switch (source_to_scan[file_pointer]) {
 				case '{':
-					System.out
-							.println("Scanner Warning: found { embedded in comment.  Possibly missing }?");
+					System.err.println("Scanner Warning: found { embedded in comment.  Possibly missing }?");
 					file_pointer = file_pointer + 1;
 					column = column + 1;
 					if (file_pointer >= source_to_scan.length) {
