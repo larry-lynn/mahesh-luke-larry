@@ -7,7 +7,7 @@ BEGIN
 x := 0;
 if(x = 0)
 then
-  y := z + 3;
+  y := z + 3 
 else
   z := y * 8;
 

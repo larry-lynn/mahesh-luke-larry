@@ -957,6 +957,8 @@ public class Parser {
         case MP_SCOLON:
         case MP_COMMA:
         case MP_RPAREN:
+        case MP_THEN:
+        case MP_ELSE:
             // map to ε
             break;
         default:
@@ -1046,6 +1048,8 @@ public class Parser {
         case MP_NEQUAL:
         case MP_COMMA:
         case MP_RPAREN:
+        case MP_THEN:
+        case MP_ELSE:
             // map to ε
             break;
 
@@ -1147,6 +1151,9 @@ public class Parser {
         case MP_PLUS:
         case MP_MINUS:
         case MP_OR:
+        case MP_EQUAL:
+        case MP_THEN:
+        case MP_ELSE:
             // map to ε
             break;
         default:
@@ -1280,6 +1287,10 @@ public class Parser {
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
             Expression();
             break;
         default:
@@ -1303,7 +1314,6 @@ public class Parser {
             Expression();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
