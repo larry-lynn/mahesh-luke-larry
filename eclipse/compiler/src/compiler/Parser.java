@@ -479,8 +479,9 @@ public class Parser {
         case MP_END:
         case MP_UNTIL:
         case MP_SCOLON:
-            //32:Statement           ⟶ EmptyStatement
-            // XXX fixme - may be other ways to map to empty statement & epsilon
+        //XXX Note: ELSE is predicted by LL1 table, may be in error
+        //case MP_ELSE:
+        //32:Statement           ⟶ EmptyStatement
             EmptyStatement();
             break;
         case MP_BEGIN:
@@ -531,10 +532,11 @@ public class Parser {
         System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         // 42:EmptyStatement ⟶ ε
         switch (lookahead.token_name) {
-        // XXX probably other ways to map to ε
         case MP_END:
         case MP_UNTIL:
         case MP_SCOLON:
+        // XXX MP_ELSE predicted by LL1 table, may be in error
+        //case MP_ELSE:
             break;
         default:
             // parsing error
@@ -709,6 +711,8 @@ public class Parser {
         case MP_END:
         case MP_UNTIL:
         case MP_SCOLON:
+        // XXX note: MP_ELSE predicted by LL(1) table - AMBIGOUS - resolving by always matching nearest MP_IF
+        //case MP_ELSE:
             // map to ε
             break;
         default:
@@ -872,6 +876,20 @@ public class Parser {
         case MP_UNTIL:
         case MP_SCOLON:
         case MP_TIMES:
+        case MP_RPAREN:
+        case MP_COMMA:
+        case MP_THEN:
+        case MP_ELSE:
+        case MP_DO:
+        case MP_EQUAL:
+        case MP_LTHAN:
+        case MP_GTHAN:
+        case MP_LEQUAL:
+        case MP_GEQUAL:
+        case MP_NEQUAL:
+        case MP_PLUS:
+        case MP_MINUS:
+        case MP_OR:      
             // map to ε
             break;
         default:
