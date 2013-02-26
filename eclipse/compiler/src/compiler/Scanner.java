@@ -284,8 +284,7 @@ public class Scanner {
 			case q7:
 				// the while terminator should intercept the flow of control
 				// such that this is unreachable
-				System.out
-						.println("Reached dispactcher state q7 in switch! This should not happen!");
+				System.out.println("Reached dispactcher state q7 in switch! This should not happen!");
 				break;
 			case q8:
 				// state q8: file pointer advanced till end of file
@@ -301,13 +300,11 @@ public class Scanner {
 				// called
 				// after the dispatcher has reached the end of file
 				tok = new Token(TokenType.MP_EOF, row, column, null);
-				System.out
-						.println("Scanner Error: Attempted to get new token after EOF reached");
+				System.out.println("Scanner Error: Attempted to get new token after EOF reached");
 				// Should this terminate things?
 				return (tok);
 			default:
-				System.out
-						.println("Default case in dispatcher FSM should be unreachable!");
+				System.out.println("Default case in dispatcher FSM should be unreachable!");
 				break;
 
 			} // end dispatcher state swtich

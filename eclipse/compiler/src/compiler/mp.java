@@ -20,8 +20,7 @@ public class mp {
         Token tok;
 
         
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         
         scan = new Scanner();
         scan.openFile(infile);

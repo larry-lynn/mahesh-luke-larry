@@ -5,32 +5,32 @@ import java.io.*;
 public class Parser {
     Token lookahead;
     Scanner scan;
+    PrintWriter logFileHandle;
+    PrintWriter ruleFileHandle;
+    Boolean debug;
 
     public static void main(String[] args) throws Exception{
         if( (args.length == 0) || (args.length > 1) ){
             System.out.println("Usage: java compiler.Parser <source-code-file>");
             System.exit(-3);
         }
-        System.out.println("Working Directory = " +  System.getProperty("user.dir"));
-
-	//Write input file name to LogFile.txt and RulesAppled.txt
-	try{
-	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
-	    writer.println("Working Directory = " + System.getProperty("user.dir"));
-	    writer.close();
-	    writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
-	    writer.println("Working Directory = " + System.getProperty("user.dir"));
-	    writer.close();
-	}
-	catch (Exception e){
-	    System.err.println("*** Error while writing to file! ***");
-	}
         
         String infile = args[0];
+        String message = "Working Directory = " +  System.getProperty("user.dir");
+        Boolean parsingOn = true;
         
         Parser parse;
-        parse = new Parser(infile);
+        
+        parse = new Parser(infile, parsingOn);
+        
+        //Write input file name to LogFile.txt and RulesAppled.txt
+        parse.infoLog(message);
+        parse.ruleLog(message);
+        
+        // Recursively create the entire parser tree
         parse.SystemGoal();
+        
+        parse.cleanup();
         
     }
     
@@ -38,55 +38,64 @@ public class Parser {
     public Parser(String fileWithPath) throws Exception {
         scan = new Scanner();
         scan.openFile(fileWithPath);
+        
         lookahead = scan.getToken();
+        logFileHandle = new PrintWriter(fileWithPath + "infolog.txt");
+        ruleFileHandle = new PrintWriter(fileWithPath + "rulelog.txt");
+    }
+    
+    // Constructor 2
+    public Parser(String fileWithPath, Boolean setDebugLevel) throws Exception {
+        // turn on verbose messages if passed as an argument to constructor
+        debug = setDebugLevel;
+        
+        scan = new Scanner();
+        scan.openFile(fileWithPath);
+        
+        lookahead = scan.getToken();
+        logFileHandle = new PrintWriter(fileWithPath + "infolog.txt");
+        ruleFileHandle = new PrintWriter(fileWithPath + "rulelog.txt");
     }
 
     //method to write the token names to file data/LogFile.txt
-    public void writeToFile(String msg){
-	try{
-	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
-	    writer.println(msg);
-	    writer.close();
-	}
-	catch (Exception e){
-	    System.err.println("*** Error while writing token name to file! ***");
-	}
+    public void infoLog(String msg){
+        logFileHandle.format("%s\n", msg);
+        if(debug){
+            System.out.println(msg);
+        }
     }
 
     //method to write the rule applied to file data/RulesApplied.txt
     public void listRule(int rulenumber){
-	try{
-	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
-	    writer.println(rulenumber);
-	    writer.close();
-	}
-	catch (Exception e){
-	    System.err.println("*** Error while writing rule number to file! ***");
-	}
+        ruleFileHandle.format("%d\n", rulenumber);
+        if(debug){
+            System.out.println(rulenumber);
+        }
+    }
+    
+    public void ruleLog(String rulemsg){
+        ruleFileHandle.format("%s\n", rulemsg);
+        System.out.println(rulemsg);    
+    }
+    
+    public void cleanup(){
+        logFileHandle.close();
+        ruleFileHandle.close();
     }
 
     public void match(TokenType compareTok) {
         if (lookahead.token_name == compareTok) {
             // put the token on the parse tree and get a new one
             //System.out.println("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
-            writeToFile("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
+            infoLog("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
             // early return if we've parsed everything successfully
             if(lookahead.token_name == TokenType.MP_EOF){
+                
+                //Write the message to LogFile.txt and RulesAppled.txt
+                String successMessage = "The input program parses!";
+                infoLog(successMessage);
+                ruleLog(successMessage);
                 // XXX change this to meet specs
-		System.out.println("The input program parses!");
-
-		//Write the message to LogFile.txt and RulesAppled.txt
-		try{
-		    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
-		    writer.println("The input program parses!");
-		    writer.close();
-		    writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
-		    writer.println("The input program parses!");
-		    writer.close();
-		}
-		catch (Exception e){
-		    System.err.println("*** Error while writing to file! ***");
-		}
 
                 return;
             }
@@ -106,7 +115,7 @@ public class Parser {
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
 	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 1:SystemGoal      ⟶ Program eof    
         switch(lookahead.token_name){
         	case MP_PROGRAM:
@@ -124,7 +133,7 @@ public class Parser {
 
     public void Program() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 2: Program         ⟶ ProgramHeading ";" Block "."
         switch(lookahead.token_name){
         	case MP_PROGRAM:
@@ -143,7 +152,7 @@ public class Parser {
 
     public void ProgramHeading() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 3:ProgramHeading  ⟶ "program" ProgramIdentifier
         switch(lookahead.token_name){
 	        case MP_PROGRAM:
@@ -161,7 +170,7 @@ public class Parser {
 
     public void Block() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
         switch(lookahead.token_name){
 	        case MP_VAR:
@@ -180,7 +189,7 @@ public class Parser {
 
     public void VariableDeclarationPart() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 5:VariableDeclarationPart  ⟶ "var" VariableDeclaration ";" VariableDeclarationTail
         switch(lookahead.token_name){
 	        case MP_VAR:
@@ -200,7 +209,7 @@ public class Parser {
 
     public void VariableDeclarationTail() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//6:VariableDeclarationTail  ⟶ VariableDeclaration ";" VariableDeclarationTail 
     	//7:                         ⟶ ε
         switch(lookahead.token_name){
@@ -227,7 +236,7 @@ public class Parser {
 
     public void VariableDeclaration() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
         switch(lookahead.token_name){
 	        //We should be looking at IDs coming up
@@ -246,7 +255,7 @@ public class Parser {
 
     public void Type() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 9. 	-> "Integer"
     	// 10. 	-> "Float"
     	// 11.	-> "Boolean"
@@ -286,7 +295,7 @@ public class Parser {
 
     public void ProcedureAndFunctionDeclarationPart() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//12:ProcedureAndFunctionDeclarationPart ⟶ ProcedureDeclaration ProcedureAndFunctionDeclarationPart
     	//13:                                    ⟶ FunctionDeclaration ProcedureAndFunctionDeclarationPart
     	//14:                                    ⟶ ε
@@ -316,7 +325,7 @@ public class Parser {
 
     public void ProcedureDeclaration() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
@@ -335,7 +344,7 @@ public class Parser {
 
     public void FunctionDeclaration() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
@@ -354,7 +363,7 @@ public class Parser {
 
     public void ProcedureHeading() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
@@ -372,7 +381,7 @@ public class Parser {
 
     public void FunctionHeading() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 18. <FunctionHeading> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
@@ -391,7 +400,7 @@ public class Parser {
     
     public void OptionalFormalParameterList() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 19. <OptionalFormalParameterList> -> "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
     	// 20. <OptionalFormalParameterList> -> Sigma
         switch (lookahead.token_name) {
@@ -417,7 +426,7 @@ public class Parser {
     
     public void FormalParameterSectionTail() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 21. <FormalParameterSectionTail> -> ";" <FormalParameterSection> <FormalParameterSectionTail>
     	// 22. <FormalParameterSectionTail> -> Sigma
         switch (lookahead.token_name) {
@@ -441,7 +450,7 @@ public class Parser {
 
     public void FormalParameterSection() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 23. <FormalParameterSection> -> <ValueParameterSection>
     	// 24. <FormalParameterSection> -> <VariableParameterSection>
         switch (lookahead.token_name) {
@@ -462,7 +471,7 @@ public class Parser {
     
     public void ValueParameterSection() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
@@ -480,7 +489,7 @@ public class Parser {
 
     public void VariableParameterSection() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_VAR:
@@ -499,7 +508,7 @@ public class Parser {
 
     public void StatementPart() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 27:StatementPart      ⟶ CompoundStatement
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
@@ -516,7 +525,7 @@ public class Parser {
 
     public void CompoundStatement() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
@@ -534,7 +543,7 @@ public class Parser {
 
     public void StatementSequence() {
     	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 29:StatementSequence  ⟶ Statement StatementTail
         switch (lookahead.token_name) {
         case MP_BEGIN:
@@ -564,7 +573,7 @@ public class Parser {
     // XXX Larry's bookmark
     public void StatementTail() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_SCOLON:
             // 30: StatementTail ⟶ ";" Statement StatementTail
@@ -589,7 +598,7 @@ public class Parser {
 
     public void Statement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_END:
         case MP_UNTIL:
@@ -654,7 +663,7 @@ public class Parser {
 
     public void EmptyStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 42:EmptyStatement ⟶ ε
         switch (lookahead.token_name) {
         case MP_END:
@@ -674,7 +683,7 @@ public class Parser {
 
     public void ReadStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 43:ReadStatement ⟶ "read" "(" ReadParameter ReadParameterTail ")"
         switch (lookahead.token_name) {
         case MP_READ:
@@ -694,7 +703,7 @@ public class Parser {
 
     public void ReadParameterTail() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 44:ReadParameterTail ⟶ "," ReadParameter ReadParameterTail
         // 45: ⟶ ε
         switch (lookahead.token_name) {
@@ -717,7 +726,7 @@ public class Parser {
 
     public void ReadParameter() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 46:ReadParameter ⟶ VariableIdentifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -734,7 +743,7 @@ public class Parser {
 
     public void WriteStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 47:WriteStatement ⟶ "write" "(" WriteParameter WriteParameterTail ")"
         switch (lookahead.token_name) {
         case MP_WRITE:
@@ -754,7 +763,7 @@ public class Parser {
 
     public void WriteParameterTail() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 48:WriteParameterTail ⟶ "," WriteParameter
         // 49: ⟶ ε
         switch (lookahead.token_name) {
@@ -776,7 +785,7 @@ public class Parser {
 
     public void WriteParameter() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 50:WriteParameter ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -797,7 +806,7 @@ public class Parser {
 
     public void AssignmentStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
         // 52: ⟶ FunctionIdentifier ":=" Expression
         switch (lookahead.token_name) {
@@ -826,7 +835,7 @@ public class Parser {
 
     public void IfStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch (lookahead.token_name) {
         case MP_IF:
@@ -846,7 +855,7 @@ public class Parser {
 
     public void OptionalElsePart() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
         switch (lookahead.token_name) {
@@ -872,7 +881,7 @@ public class Parser {
 
     public void RepeatStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 56:RepeatStatement ⟶ "repeat" StatementSequence "until" BooleanExpression
         switch (lookahead.token_name) {
         case MP_REPEAT:
@@ -891,7 +900,7 @@ public class Parser {
 
     public void WhileStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 57:WhileStatement ⟶ "while" BooleanExpression "do" Statement
         switch (lookahead.token_name) {
         case MP_WHILE:
@@ -910,7 +919,7 @@ public class Parser {
 
     public void ForStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 58:ForStatement ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
         switch (lookahead.token_name) {
         case MP_FOR:
@@ -933,7 +942,7 @@ public class Parser {
 
     public void ControlVariable() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 59:ControlVariable ⟶ VariableIdentifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -949,7 +958,7 @@ public class Parser {
 
     public void InitialValue() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 60:InitialValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -966,7 +975,7 @@ public class Parser {
 
     public void StepValue() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 61:StepValue ⟶ "to"
         // 62: ⟶ "downto"
         switch (lookahead.token_name) {
@@ -987,7 +996,7 @@ public class Parser {
 
     public void FinalValue() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1004,7 +1013,7 @@ public class Parser {
 
     public void ProcedureStatement() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 64:ProcedureStatement ⟶ ProcedureIdentifier OptionalActualParameterList
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1021,7 +1030,7 @@ public class Parser {
 
     public void OptionalActualParameterList() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
         switch (lookahead.token_name) {
@@ -1069,7 +1078,7 @@ public class Parser {
     public void ActualParameterTail() {
 	//67:ActualParameterTail ⟶ "," ActualParameter ActualParameterTail
 	//68:                    ⟶ ε
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_COMMA:
                 listRule(67); // List the rule number applied
@@ -1090,7 +1099,7 @@ public class Parser {
 
     public void ActualParameter() {
 	//69:ActualParameter     ⟶ OrdinalExpression
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1106,7 +1115,7 @@ public class Parser {
 
     public void Expression() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//70:Expression              ⟶ SimpleExpression OptionalRelationalPart
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1129,7 +1138,7 @@ public class Parser {
 
     public void OptionalRelationalPart() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
 	//72:                        ⟶ ε
         switch (lookahead.token_name) {
@@ -1162,7 +1171,7 @@ public class Parser {
     }
 
     public void RelationalOperator() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//73:RelationalOperator      ⟶ "="
 	//74:                        ⟶ "<"
 	//75:                        ⟶ ">"
@@ -1203,7 +1212,7 @@ public class Parser {
 
     public void SimpleExpression() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//79:SimpleExpression        ⟶ OptionalSign Term TermTail
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1226,7 +1235,7 @@ public class Parser {
 
     public void TermTail() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//80:TermTail                ⟶ AddingOperator Term TermTail
 	//81:                        ⟶ ε
         switch (lookahead.token_name) {
@@ -1264,7 +1273,7 @@ public class Parser {
 
     public void OptionalSign() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//82:OptionalSign            ⟶ "+"
 	//83:                        ⟶ "-"
 	//84:                        ⟶ ε
@@ -1293,7 +1302,7 @@ public class Parser {
 
     public void AddingOperator() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//85:AddingOperator          ⟶ "+"
 	//86:                        ⟶ "-"
 	//87:                        ⟶ "or" 
@@ -1319,7 +1328,7 @@ public class Parser {
 
     public void Term() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//88:Term                    ⟶ Factor FactorTail 
         switch (lookahead.token_name) {
         case MP_NOT:
@@ -1339,7 +1348,7 @@ public class Parser {
     }
 
     public void FactorTail() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
 	//90:                        ⟶ ε 
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -1385,7 +1394,7 @@ public class Parser {
     }
 
     public void MultiplyingOperator() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//91:MultiplyingOperator     ⟶ "*"
 	//92:                        ⟶ "div"
 	//93:                        ⟶ "mod"
@@ -1416,7 +1425,7 @@ public class Parser {
 
     public void Factor() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//95:Factor                  ⟶ UnsignedInteger
 	//96:                        ⟶ VariableIdentifier
 	//97:                        ⟶ "not" Factor
@@ -1454,7 +1463,7 @@ public class Parser {
     }
 
     public void ProgramIdentifier() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//100:ProgramIdentifier    ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1471,7 +1480,7 @@ public class Parser {
 
     public void VariableIdentifier() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//101:VariableIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1486,7 +1495,7 @@ public class Parser {
     }
 
     public void ProcedureIdentifier() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//102:ProcedureIdentifier  ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1501,7 +1510,7 @@ public class Parser {
     }
 
     public void FunctionIdentifier() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//103:FunctionIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1517,7 +1526,7 @@ public class Parser {
 
     public void BooleanExpression() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//104:BooleanExpression    ⟶ Expression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1538,7 +1547,7 @@ public class Parser {
 
     public void OrdinalExpression() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//105:OrdinalExpression    ⟶ Expression 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1558,7 +1567,7 @@ public class Parser {
     }
 
     public void IdentifierList() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 106:IdentifierList       ⟶ Identifier IdentifierTail
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
@@ -1575,7 +1584,7 @@ public class Parser {
     }
 
     public void IdentifierTail() {
-    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         //107:IdentifierTail       ⟶ "," Identifier IdentifierTail
         //108:                     ⟶ ε        
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
