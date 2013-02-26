@@ -75,7 +75,8 @@ public class Parser {
     
     public void ruleLog(String rulemsg){
         ruleFileHandle.format("%s\n", rulemsg);
-        System.out.println(rulemsg);    
+        // They always seem to be dups of things that are already echoed by infoLog
+        //System.out.println(rulemsg);    
     }
     
     public void cleanup(){
@@ -235,7 +236,6 @@ public class Parser {
     }
 
     public void VariableDeclaration() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
         switch(lookahead.token_name){
@@ -254,7 +254,6 @@ public class Parser {
     }
 
     public void Type() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 9. 	-> "Integer"
     	// 10. 	-> "Float"
@@ -957,13 +956,16 @@ public class Parser {
     }
 
     public void InitialValue() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 60:InitialValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	case MP_MINUS:
-                listRule(60); // List the rule number applied
+        case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
+            listRule(60); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -1000,8 +1002,12 @@ public class Parser {
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	case MP_MINUS:
-                listRule(63); // List the rule number applied
+	    case MP_MINUS:
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
+            listRule(63); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -1148,7 +1154,7 @@ public class Parser {
         case MP_LTHAN:
         case MP_LEQUAL:
         case MP_NEQUAL:
-                listRule(71); // List the rule number applied
+            listRule(71); // List the rule number applied
             RelationalOperator();
             SimpleExpression();
             break;
@@ -1159,7 +1165,9 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
-	case MP_DO:
+	    case MP_DO:
+	    case MP_TO:
+	    case MP_DOWNTO:
             // map to ε
                 listRule(72); // List the rule number applied
             break;
@@ -1261,6 +1269,8 @@ public class Parser {
         case MP_THEN:
         case MP_ELSE:
 	case MP_DO:
+	case MP_TO:
+	case MP_DOWNTO:
             // map to ε
                 listRule(81); // List the rule number applied
             break;
@@ -1383,6 +1393,8 @@ public class Parser {
         case MP_ELSE:
 	case MP_UNTIL:
 	case MP_DO:
+	case MP_TO:
+	case MP_DOWNTO:
             // map to ε
 	        listRule(90); // List the rule number applied
             break;
