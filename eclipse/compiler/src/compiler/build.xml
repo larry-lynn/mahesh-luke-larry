@@ -10,6 +10,8 @@
     <delete dir="${dist}"/>
     <delete>
       <fileset dir="${data}/scanner/" includes="*.tok"/>
+      <fileset dir="${data}/" includes="*.mpinfolog.txt"/>
+      <fileset dir="${data}/" includes="*.mprulelog.txt"/>
     </delete>
   </target>
 	

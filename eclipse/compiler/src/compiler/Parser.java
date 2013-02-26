@@ -40,8 +40,8 @@ public class Parser {
         scan.openFile(fileWithPath);
         
         lookahead = scan.getToken();
-        logFileHandle = new PrintWriter(fileWithPath + "infolog.txt");
-        ruleFileHandle = new PrintWriter(fileWithPath + "rulelog.txt");
+        logFileHandle = new PrintWriter(fileWithPath + ".infolog.txt");
+        ruleFileHandle = new PrintWriter(fileWithPath + ".rulelog.txt");
     }
     
     // Constructor 2
