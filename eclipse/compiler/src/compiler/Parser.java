@@ -1,5 +1,7 @@
 package compiler;
 
+import java.io.*;
+
 public class Parser {
     Token lookahead;
     Scanner scan;
@@ -10,6 +12,19 @@ public class Parser {
             System.exit(-3);
         }
         System.out.println("Working Directory = " +  System.getProperty("user.dir"));
+
+	//Write input file name to LogFile.txt and RulesAppled.txt
+	try{
+	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
+	    writer.println("Working Directory = " + System.getProperty("user.dir"));
+	    writer.close();
+	    writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
+	    writer.println("Working Directory = " + System.getProperty("user.dir"));
+	    writer.close();
+	}
+	catch (Exception e){
+	    System.err.println("*** Error while writing to file! ***");
+	}
         
         String infile = args[0];
         
@@ -26,13 +41,53 @@ public class Parser {
         lookahead = scan.getToken();
     }
 
+    //method to write the token names to file data/LogFile.txt
+    public void writeToFile(String msg){
+	try{
+	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
+	    writer.println(msg);
+	    writer.close();
+	}
+	catch (Exception e){
+	    System.err.println("*** Error while writing token name to file! ***");
+	}
+    }
+
+    //method to write the rule applied to file data/RulesApplied.txt
+    public void listRule(int rulenumber){
+	try{
+	    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
+	    writer.println(rulenumber);
+	    writer.close();
+	}
+	catch (Exception e){
+	    System.err.println("*** Error while writing rule number to file! ***");
+	}
+    }
+
     public void match(TokenType compareTok) {
         if (lookahead.token_name == compareTok) {
             // put the token on the parse tree and get a new one
-            System.out.println("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
+            //System.out.println("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
+            writeToFile("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
             // early return if we've parsed everything successfully
             if(lookahead.token_name == TokenType.MP_EOF){
                 // XXX change this to meet specs
+		System.out.println("The input program parses!");
+
+		//Write the message to LogFile.txt and RulesAppled.txt
+		try{
+		    PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("LogFile.txt", true)));
+		    writer.println("The input program parses!");
+		    writer.close();
+		    writer = new PrintWriter(new BufferedWriter(new FileWriter("RulesApplied.txt", true)));
+		    writer.println("The input program parses!");
+		    writer.close();
+		}
+		catch (Exception e){
+		    System.err.println("*** Error while writing to file! ***");
+		}
+
                 return;
             }
             else{
@@ -50,25 +105,30 @@ public class Parser {
 
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 1:SystemGoal      ⟶ Program eof    
         switch(lookahead.token_name){
         	case MP_PROGRAM:
+		        listRule(1); // List the rule number applied
         		Program();
         		match(TokenType.MP_EOF);
         		break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
 
     public void Program() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 2: Program         ⟶ ProgramHeading ";" Block "."
         switch(lookahead.token_name){
         	case MP_PROGRAM:
+		        listRule(2); // List the rule number applied
                 ProgramHeading();
         		match(TokenType.MP_SCOLON);
                 Block();
@@ -82,10 +142,12 @@ public class Parser {
     }
 
     public void ProgramHeading() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 3:ProgramHeading  ⟶ "program" ProgramIdentifier
         switch(lookahead.token_name){
 	        case MP_PROGRAM:
+		        listRule(3); // List the rule number applied
 	        	//We are looking for the program ID so we can expand
 	        	match(TokenType.MP_PROGRAM);
 	        	ProgramIdentifier();
@@ -98,10 +160,12 @@ public class Parser {
     }
 
     public void Block() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
         switch(lookahead.token_name){
 	        case MP_VAR:
+		        listRule(4); // List the rule number applied
 	        	VariableDeclarationPart();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	StatementPart();
@@ -109,15 +173,18 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
 
     public void VariableDeclarationPart() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 5:VariableDeclarationPart  ⟶ "var" VariableDeclaration ";" VariableDeclarationTail
         switch(lookahead.token_name){
 	        case MP_VAR:
+		        listRule(5); // List the rule number applied
 	        	match(TokenType.MP_VAR);
 	            VariableDeclaration();
 	        	match(TokenType.MP_SCOLON);
@@ -132,12 +199,14 @@ public class Parser {
     }
 
     public void VariableDeclarationTail() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//6:VariableDeclarationTail  ⟶ VariableDeclaration ";" VariableDeclarationTail 
     	//7:                         ⟶ ε
         switch(lookahead.token_name){
 	        //Lookahead should be the ID 
 	        case MP_IDENTIFIER:
+		        listRule(6); // List the rule number applied
 	            VariableDeclaration();
 	            match(TokenType.MP_SCOLON);
 	            VariableDeclarationTail();
@@ -146,6 +215,7 @@ public class Parser {
 	        case MP_BEGIN:
 	        case MP_FUNCTION:
 	        case MP_PROCEDURE:
+		        listRule(7); // List the rule number applied
 	            break;
 	        default:
 	        	//XXX - Will need follow to deal with the lamnda case
@@ -156,11 +226,13 @@ public class Parser {
     }
 
     public void VariableDeclaration() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
         switch(lookahead.token_name){
 	        //We should be looking at IDs coming up
 	        case MP_IDENTIFIER:
+		        listRule(8); // List the rule number applied
 	        	IdentifierList();
 	            match(TokenType.MP_COLON);
 	        	Type();
@@ -173,21 +245,25 @@ public class Parser {
     }
 
     public void Type() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 9. 	-> "Integer"
     	// 10. 	-> "Float"
     	// 11.	-> "Boolean"
         switch(lookahead.token_name){
 	        case MP_INTEGER:
+		        listRule(9); // List the rule number applied
 	        	match(TokenType.MP_INTEGER);
 	        	break;
 	        case MP_FLOAT:
+		        listRule(10); // List the rule number applied
 	        	match(TokenType.MP_FLOAT);
 	        	break;
 	        // "Boolen" -> Identifier?
 	        case MP_IDENTIFIER:
 	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
 	        	{
+			        listRule(11); // List the rule number applied
 	        		match(TokenType.MP_IDENTIFIER);
 	        	}
 	        	// The ID was something other than boolean, which should throw an error
@@ -195,47 +271,56 @@ public class Parser {
 	        	{
 	        		 // parsing error
 			        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected data type of variable, but found " + lookahead.token_name);
 			        System.exit(-5);
 	        	}
 	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected data type of variable, but found " + lookahead.token_name);
 		        System.exit(-5);
 		        
         }
     }
 
     public void ProcedureAndFunctionDeclarationPart() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//12:ProcedureAndFunctionDeclarationPart ⟶ ProcedureDeclaration ProcedureAndFunctionDeclarationPart
     	//13:                                    ⟶ FunctionDeclaration ProcedureAndFunctionDeclarationPart
     	//14:                                    ⟶ ε
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
+		            listRule(12); // List the rule number applied
 	        	ProcedureDeclaration();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
 	        case MP_FUNCTION:
+		            listRule(13); // List the rule number applied
 	        	FunctionDeclaration();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
 	        case MP_BEGIN:
 	            // go to ε
-                break;
+		            listRule(14); // List the rule number applied
+			break;
 	        
 	        default:
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected procedure declaration or function declaration but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
 
     public void ProcedureDeclaration() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
+		            listRule(15); // List the rule number applied
 	        	ProcedureHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
@@ -249,10 +334,12 @@ public class Parser {
     }
 
     public void FunctionDeclaration() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
+		            listRule(16); // List the rule number applied
 	        	FunctionHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
@@ -266,10 +353,12 @@ public class Parser {
     }
 
     public void ProcedureHeading() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
+		            listRule(17); // List the rule number applied
 	        	match(TokenType.MP_PROCEDURE);
 	        	ProcedureIdentifier();
 	        	OptionalFormalParameterList();
@@ -282,10 +371,12 @@ public class Parser {
     }
 
     public void FunctionHeading() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 18. <FunctionHeading> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
+		            listRule(18); // List the rule number applied
 	        	FunctionHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
@@ -299,11 +390,13 @@ public class Parser {
     }
     
     public void OptionalFormalParameterList() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 19. <OptionalFormalParameterList> -> "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
     	// 20. <OptionalFormalParameterList> -> Sigma
         switch (lookahead.token_name) {
 	        case MP_LPAREN:
+		            listRule(19); // List the rule number applied
 	        	match(TokenType.MP_LPAREN);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
@@ -312,6 +405,7 @@ public class Parser {
 	        case MP_SCOLON:
 	        case MP_COLON:
 	        	// Mapping to sigma
+		            listRule(20); // List the rule number applied
 	        	break;
 	        default:
 	        	// Need Follow() To deal with having sigma
@@ -322,17 +416,20 @@ public class Parser {
     }
     
     public void FormalParameterSectionTail() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 21. <FormalParameterSectionTail> -> ";" <FormalParameterSection> <FormalParameterSectionTail>
     	// 22. <FormalParameterSectionTail> -> Sigma
         switch (lookahead.token_name) {
 	        case MP_SCOLON:
+		            listRule(21); // List the rule number applied
 	        	match(TokenType.MP_SCOLON);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
 	        	break;
 	        case MP_RPAREN:
 	        	// Mapping to sigma
+		            listRule(22); // List the rule number applied
 	        	break;
 	        default:
 	        	// Need deal with sigma with Follow();
@@ -343,14 +440,17 @@ public class Parser {
     }
 
     public void FormalParameterSection() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 23. <FormalParameterSection> -> <ValueParameterSection>
     	// 24. <FormalParameterSection> -> <VariableParameterSection>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
+		            listRule(23); // List the rule number applied
 	        	ValueParameterSection();
 	        	break;
 	        case MP_VAR:
+		            listRule(24); // List the rule number applied
 	        	VariableParameterSection();
 	        	break;
 	        default:
@@ -361,10 +461,12 @@ public class Parser {
     }
     
     public void ValueParameterSection() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
+		            listRule(25); // List the rule number applied
 	        	IdentifierList();
 	        	match(TokenType.MP_COLON);
 	        	Type();
@@ -377,10 +479,12 @@ public class Parser {
     }
 
     public void VariableParameterSection() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_VAR:
+		            listRule(26); // List the rule number applied
 	        	match(TokenType.MP_VAR);
 	        	IdentifierList();
 	        	match(TokenType.MP_COLON);
@@ -394,24 +498,29 @@ public class Parser {
     }
 
     public void StatementPart() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 27:StatementPart      ⟶ CompoundStatement
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
+		            listRule(27); // List the rule number applied
 	        	CompoundStatement();
 	        	break;
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+		    System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
     }
 
     public void CompoundStatement() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
+		            listRule(28); // List the rule number applied
 	        	match(TokenType.MP_BEGIN);
 	            StatementSequence();
 	        	match(TokenType.MP_END);
@@ -424,7 +533,8 @@ public class Parser {
     }
 
     public void StatementSequence() {
-    	System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 29:StatementSequence  ⟶ Statement StatementTail
         switch (lookahead.token_name) {
         case MP_BEGIN:
@@ -436,6 +546,7 @@ public class Parser {
         case MP_REPEAT:
         case MP_WHILE:
         case MP_IDENTIFIER:
+	            listRule(29); // List the rule number applied
         	Statement();
         	StatementTail();
         	break;
@@ -452,11 +563,13 @@ public class Parser {
     // ### LARRYS BLOCK STARTS HERE ### //
     // XXX Larry's bookmark
     public void StatementTail() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_SCOLON:
             // 30: StatementTail ⟶ ";" Statement StatementTail
             // 31: StatementTail ⟶ ε
+                listRule(30); // List the rule number applied
             match(TokenType.MP_SCOLON);
             Statement();
             StatementTail();
@@ -464,6 +577,7 @@ public class Parser {
         case MP_END:
         case MP_UNTIL:
             // go to ε
+                listRule(31); // List the rule number applied
             break;
         default:
             // parsing error
@@ -474,7 +588,8 @@ public class Parser {
     }
 
     public void Statement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_END:
         case MP_UNTIL:
@@ -482,34 +597,42 @@ public class Parser {
         //XXX Note: ELSE is predicted by LL1 table, may be in error
         //case MP_ELSE:
         //32:Statement           ⟶ EmptyStatement
+                listRule(32); // List the rule number applied
             EmptyStatement();
             break;
         case MP_BEGIN:
             // 33:Statement ⟶ CompoundStatement
+                listRule(33); // List the rule number applied
             CompoundStatement();
             break;
         case MP_FOR:
             // 40:Statement ⟶ ForStatement
+                listRule(40); // List the rule number applied
             ForStatement();
             break;
         case MP_IF:
             // 37:Statement ⟶ IfStatement
+                listRule(37); // List the rule number applied
             IfStatement();
             break;
         case MP_READ:
             // 34:Statement ⟶ ReadStatement
+                listRule(34); // List the rule number applied
             ReadStatement();
             break;
         case MP_REPEAT:
             // 39:Statement ⟶ RepeatStatement
+                listRule(39); // List the rule number applied
             RepeatStatement();
             break;
         case MP_WHILE:
             // 38:Statement ⟶ WhileStatement
+                listRule(39); // List the rule number applied
             WhileStatement();
             break;
         case MP_WRITE:
             // 35:Statement ⟶ WriteStatement
+                listRule(35); // List the rule number applied
             WriteStatement();
             break;
         case MP_IDENTIFIER:
@@ -517,6 +640,7 @@ public class Parser {
             // 41:Statement ⟶ ProcedureStatement
             // XXX Fixme -- AMBIGUOUS!! -- don't know how to resolve this yet.
             // Commenting out for now
+                listRule(36); // List the rule number applied
             AssignmentStatement();
             // ProcedureStatement();
             break;
@@ -529,7 +653,8 @@ public class Parser {
     } // end statement
 
     public void EmptyStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 42:EmptyStatement ⟶ ε
         switch (lookahead.token_name) {
         case MP_END:
@@ -537,6 +662,7 @@ public class Parser {
         case MP_SCOLON:
         // XXX MP_ELSE predicted by LL1 table, may be in error
         //case MP_ELSE:
+                listRule(42); // List the rule number applied
             break;
         default:
             // parsing error
@@ -547,10 +673,12 @@ public class Parser {
     }
 
     public void ReadStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 43:ReadStatement ⟶ "read" "(" ReadParameter ReadParameterTail ")"
         switch (lookahead.token_name) {
         case MP_READ:
+                listRule(43); // List the rule number applied
             match(TokenType.MP_READ);
             match(TokenType.MP_LPAREN);
             ReadParameter();
@@ -565,18 +693,21 @@ public class Parser {
     }
 
     public void ReadParameterTail() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 44:ReadParameterTail ⟶ "," ReadParameter ReadParameterTail
         // 45: ⟶ ε
         switch (lookahead.token_name) {
         case MP_COMMA:
+                listRule(44); // List the rule number applied
             match(TokenType.MP_COMMA);
             ReadParameter();
             ReadParameterTail();
             break;
         case MP_RPAREN:
         	// map to ε
-        	break;
+                listRule(45); // List the rule number applied
+	    break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
@@ -585,24 +716,29 @@ public class Parser {
     }
 
     public void ReadParameter() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 46:ReadParameter ⟶ VariableIdentifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+                listRule(46); // List the rule number applied
             VariableIdentifier();
             break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	    System.out.println("Expected an identifier but found " + lookahead.token_name);
             System.exit(-5);
         }
     }
 
     public void WriteStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 47:WriteStatement ⟶ "write" "(" WriteParameter WriteParameterTail ")"
         switch (lookahead.token_name) {
         case MP_WRITE:
+                listRule(47); // List the rule number applied
             match(TokenType.MP_WRITE);
             match(TokenType.MP_LPAREN);
             WriteParameter();
@@ -617,16 +753,19 @@ public class Parser {
     }
 
     public void WriteParameterTail() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 48:WriteParameterTail ⟶ "," WriteParameter
         // 49: ⟶ ε
         switch (lookahead.token_name) {
         case MP_COMMA:
+                listRule(48); // List the rule number applied
             match(TokenType.MP_COMMA);
             WriteParameter();
             break;
         case MP_RPAREN:
             // map to ε
+                listRule(49); // List the rule number applied
             break;
         default:
             // parsing error
@@ -636,7 +775,8 @@ public class Parser {
     }
 
     public void WriteParameter() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 50:WriteParameter ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -645,6 +785,7 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+                listRule(50); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -655,11 +796,13 @@ public class Parser {
     }
 
     public void AssignmentStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
         // 52: ⟶ FunctionIdentifier ":=" Expression
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+                listRule(51); // List the rule number applied
             VariableIdentifier();
             match(TokenType.MP_ASSIGN);
             Expression();
@@ -682,10 +825,12 @@ public class Parser {
     }
 
     public void IfStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch (lookahead.token_name) {
         case MP_IF:
+                listRule(53); // List the rule number applied
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
@@ -700,11 +845,13 @@ public class Parser {
     }
 
     public void OptionalElsePart() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
         switch (lookahead.token_name) {
         case MP_ELSE:
+                listRule(54); // List the rule number applied
             match(TokenType.MP_ELSE);
             Statement();
             break;
@@ -714,6 +861,7 @@ public class Parser {
         // XXX note: MP_ELSE predicted by LL(1) table - AMBIGOUS - resolving by always matching nearest MP_IF
         //case MP_ELSE:
             // map to ε
+                listRule(55); // List the rule number applied
             break;
         default:
             // parsing error
@@ -723,10 +871,12 @@ public class Parser {
     }
 
     public void RepeatStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 56:RepeatStatement ⟶ "repeat" StatementSequence "until" BooleanExpression
         switch (lookahead.token_name) {
         case MP_REPEAT:
+                listRule(56); // List the rule number applied
             match(TokenType.MP_REPEAT);
             StatementSequence();
             match(TokenType.MP_UNTIL);
@@ -740,10 +890,12 @@ public class Parser {
     }
 
     public void WhileStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 57:WhileStatement ⟶ "while" BooleanExpression "do" Statement
         switch (lookahead.token_name) {
         case MP_WHILE:
+                listRule(57); // List the rule number applied
             match(TokenType.MP_WHILE);
             BooleanExpression();
             match(TokenType.MP_DO);
@@ -757,10 +909,12 @@ public class Parser {
     }
 
     public void ForStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 58:ForStatement ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
         switch (lookahead.token_name) {
         case MP_FOR:
+                listRule(58); // List the rule number applied
             match(TokenType.MP_FOR);
             ControlVariable();
             match(TokenType.MP_ASSIGN);
@@ -778,10 +932,12 @@ public class Parser {
     }
 
     public void ControlVariable() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 59:ControlVariable ⟶ VariableIdentifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+                listRule(59); // List the rule number applied
             VariableIdentifier();
             break;
         default:
@@ -792,13 +948,13 @@ public class Parser {
     }
 
     public void InitialValue() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 60:InitialValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-            OrdinalExpression();
-            break;
-        case MP_MINUS:
+	case MP_MINUS:
+                listRule(60); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -809,14 +965,17 @@ public class Parser {
     }
 
     public void StepValue() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 61:StepValue ⟶ "to"
         // 62: ⟶ "downto"
         switch (lookahead.token_name) {
         case MP_TO:
+                listRule(61); // List the rule number applied
             match(TokenType.MP_TO);
             break;
         case MP_DOWNTO:
+                listRule(62); // List the rule number applied
             match(TokenType.MP_DOWNTO);
             break;
         default:
@@ -827,13 +986,13 @@ public class Parser {
     }
 
     public void FinalValue() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-            OrdinalExpression();
-            break;
-        case MP_MINUS:
+	case MP_MINUS:
+                listRule(63); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -844,10 +1003,12 @@ public class Parser {
     }
 
     public void ProcedureStatement() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 64:ProcedureStatement ⟶ ProcedureIdentifier OptionalActualParameterList
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+                listRule(64); // List the rule number applied
             ProcedureIdentifier();
             OptionalActualParameterList();
             break;
@@ -859,11 +1020,13 @@ public class Parser {
     }
 
     public void OptionalActualParameterList() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
         switch (lookahead.token_name) {
         case MP_LPAREN:
+                listRule(65); // List the rule number applied
             match(TokenType.MP_LPAREN);
             ActualParameter();
             ActualParameterTail();
@@ -891,6 +1054,7 @@ public class Parser {
         case MP_MINUS:
         case MP_OR:      
             // map to ε
+                listRule(66); // List the rule number applied
             break;
         default:
             // parsing error
@@ -901,19 +1065,23 @@ public class Parser {
 
     // ### LARRYS BLOCK ENDS HERE
 
-    // ### MAHSESHS BLOCK STARTS HERE
+    // ### MAHESHS BLOCK STARTS HERE
     public void ActualParameterTail() {
 	//67:ActualParameterTail ⟶ "," ActualParameter ActualParameterTail
 	//68:                    ⟶ ε
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_COMMA:
+                listRule(67); // List the rule number applied
             match(TokenType.MP_COMMA);
             ActualParameter();
             ActualParameterTail();
             break;
+	case MP_RPAREN:
+                listRule(68); // List the rule number applied
+	    break;
         default:
             // Need FOLLOW here
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -922,13 +1090,14 @@ public class Parser {
 
     public void ActualParameter() {
 	//69:ActualParameter     ⟶ OrdinalExpression
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
+                listRule(69); // List the rule number applied
             OrdinalExpression();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -936,7 +1105,8 @@ public class Parser {
     }
 
     public void Expression() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//70:Expression              ⟶ SimpleExpression OptionalRelationalPart
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -945,6 +1115,7 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+                listRule(70); // List the rule number applied
             SimpleExpression();
             OptionalRelationalPart();
             break;
@@ -957,7 +1128,8 @@ public class Parser {
     }
 
     public void OptionalRelationalPart() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
 	//72:                        ⟶ ε
         switch (lookahead.token_name) {
@@ -967,6 +1139,7 @@ public class Parser {
         case MP_LTHAN:
         case MP_LEQUAL:
         case MP_NEQUAL:
+                listRule(71); // List the rule number applied
             RelationalOperator();
             SimpleExpression();
             break;
@@ -977,10 +1150,11 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
+	case MP_DO:
             // map to ε
+                listRule(72); // List the rule number applied
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -988,6 +1162,7 @@ public class Parser {
     }
 
     public void RelationalOperator() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//73:RelationalOperator      ⟶ "="
 	//74:                        ⟶ "<"
 	//75:                        ⟶ ">"
@@ -996,25 +1171,30 @@ public class Parser {
 	//78:                        ⟶ "<>" 
         switch (lookahead.token_name) {
         case MP_EQUAL:
+                listRule(73); // List the rule number applied
             match(TokenType.MP_EQUAL);
             break;
         case MP_GTHAN:
+                listRule(75); // List the rule number applied
             match(TokenType.MP_GTHAN);
             break;
         case MP_GEQUAL:
+                listRule(77); // List the rule number applied
             match(TokenType.MP_GEQUAL);
             break;
         case MP_LTHAN:
+                listRule(74); // List the rule number applied
             match(TokenType.MP_LTHAN);
             break;
         case MP_LEQUAL:
+                listRule(76); // List the rule number applied
             match(TokenType.MP_LEQUAL);
             break;
         case MP_NEQUAL:
+                listRule(78); // List the rule number applied
             match(TokenType.MP_NEQUAL);
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1022,7 +1202,8 @@ public class Parser {
     }
 
     public void SimpleExpression() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//79:SimpleExpression        ⟶ OptionalSign Term TermTail
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1031,12 +1212,12 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+                listRule(79); // List the rule number applied
             OptionalSign();
             Term();
             TermTail();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1044,13 +1225,15 @@ public class Parser {
     }
 
     public void TermTail() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//80:TermTail                ⟶ AddingOperator Term TermTail
 	//81:                        ⟶ ε
         switch (lookahead.token_name) {
         case MP_OR:
         case MP_PLUS:
         case MP_MINUS:
+                listRule(80); // List the rule number applied
             AddingOperator();
             Term();
             TermTail();
@@ -1068,7 +1251,9 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
+	case MP_DO:
             // map to ε
+                listRule(81); // List the rule number applied
             break;
 
         default:
@@ -1078,15 +1263,18 @@ public class Parser {
     }
 
     public void OptionalSign() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//82:OptionalSign            ⟶ "+"
 	//83:                        ⟶ "-"
 	//84:                        ⟶ ε
         switch (lookahead.token_name) {
         case MP_PLUS:
+                listRule(82); // List the rule number applied
             match(TokenType.MP_PLUS);
             break;
         case MP_MINUS:
+                listRule(83); // List the rule number applied
             match(TokenType.MP_MINUS);
             break;
         case MP_LPAREN:
@@ -1094,9 +1282,9 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
 	    // map to ε
+                listRule(84); // List the rule number applied
             break;        
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1104,22 +1292,25 @@ public class Parser {
     }
 
     public void AddingOperator() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//85:AddingOperator          ⟶ "+"
 	//86:                        ⟶ "-"
 	//87:                        ⟶ "or" 
         switch (lookahead.token_name) {
         case MP_OR:
+                listRule(87); // List the rule number applied
             match(TokenType.MP_OR);
             break;
         case MP_PLUS:
+	        listRule(85); // List the rule number applied
             match(TokenType.MP_PLUS);
             break;
         case MP_MINUS:
+	        listRule(86); // List the rule number applied
             match(TokenType.MP_MINUS);
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1127,13 +1318,15 @@ public class Parser {
     }
 
     public void Term() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//88:Term                    ⟶ Factor FactorTail 
         switch (lookahead.token_name) {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
         case MP_LPAREN:
+	        listRule(88); // List the rule number applied
             Factor();
             FactorTail();
             break;
@@ -1146,14 +1339,16 @@ public class Parser {
     }
 
     public void FactorTail() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
 	//90:                        ⟶ ε 
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_AND:
         case MP_DIV:
         case MP_MOD:
         case MP_TIMES:
+	        listRule(89); // List the rule number applied
             MultiplyingOperator();
             Factor();
             FactorTail();
@@ -1169,10 +1364,18 @@ public class Parser {
         case MP_PLUS:
         case MP_MINUS:
         case MP_OR:
+	case MP_LTHAN:
+	case MP_GTHAN:
+	case MP_LEQUAL:
+	case MP_GEQUAL:
+	case MP_NEQUAL:
         case MP_EQUAL:
         case MP_THEN:
         case MP_ELSE:
+	case MP_UNTIL:
+	case MP_DO:
             // map to ε
+	        listRule(90); // List the rule number applied
             break;
         default:
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -1182,25 +1385,29 @@ public class Parser {
     }
 
     public void MultiplyingOperator() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//91:MultiplyingOperator     ⟶ "*"
 	//92:                        ⟶ "div"
 	//93:                        ⟶ "mod"
 	//94:                        ⟶ "and"
         switch (lookahead.token_name) {
         case MP_AND:
+	        listRule(94); // List the rule number applied
             match(TokenType.MP_AND);
             break;
         case MP_DIV:
+	        listRule(92); // List the rule number applied
             match(TokenType.MP_DIV);// MP_DIV???
             break;
         case MP_MOD:
+	        listRule(93); // List the rule number applied
             match(TokenType.MP_MOD);// MP_MOD???
             break;
         case MP_TIMES:
+	        listRule(91); // List the rule number applied
             match(TokenType.MP_TIMES);// MP_TIMES???
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1208,7 +1415,8 @@ public class Parser {
     }
 
     public void Factor() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//95:Factor                  ⟶ UnsignedInteger
 	//96:                        ⟶ VariableIdentifier
 	//97:                        ⟶ "not" Factor
@@ -1216,26 +1424,29 @@ public class Parser {
 	//99:                        ⟶ FunctionIdentifier OptionalActualParameterList
         switch (lookahead.token_name) {
         case MP_NOT:
+	        listRule(97); // List the rule number applied
             match(TokenType.MP_NOT);
             Factor();
             break;
         case MP_INTEGER_LIT:
             // UnsignedInteger();// No rule for unsignedinteger
+	        listRule(95); // List the rule number applied
             match(TokenType.MP_INTEGER_LIT);
             break;
         case MP_LPAREN:
+	        listRule(98); // List the rule number applied
             match(TokenType.MP_LPAREN);
             Expression();
             match(TokenType.MP_RPAREN);
             break;
         case MP_IDENTIFIER:
+	        listRule(96); // List the rule number applied
             VariableIdentifier();
             break;
             // ambiguity
             // XXX Fixme: add in lookahead for FunctionIdentifier();
             // Probably need symbol table for this.
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1243,28 +1454,31 @@ public class Parser {
     }
 
     public void ProgramIdentifier() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//100:ProgramIdentifier    ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+	        listRule(100); // List the rule number applied
             match(TokenType.MP_IDENTIFIER);
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+	    System.out.println("Expected program identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
 
     public void VariableIdentifier() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//101:VariableIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+	        listRule(101); // List the rule number applied
             match(TokenType.MP_IDENTIFIER);
             break;
         default:
-            // System.out.println("(variable parameter) nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1272,13 +1486,14 @@ public class Parser {
     }
 
     public void ProcedureIdentifier() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//102:ProcedureIdentifier  ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+	        listRule(102); // List the rule number applied
             match(TokenType.MP_IDENTIFIER);
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1286,13 +1501,14 @@ public class Parser {
     }
 
     public void FunctionIdentifier() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//103:FunctionIdentifier   ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+	        listRule(103); // List the rule number applied
             match(TokenType.MP_IDENTIFIER);
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1300,7 +1516,8 @@ public class Parser {
     }
 
     public void BooleanExpression() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//104:BooleanExpression    ⟶ Expression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1309,10 +1526,10 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	        listRule(104); // List the rule number applied
             Expression();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1320,7 +1537,8 @@ public class Parser {
     }
 
     public void OrdinalExpression() {
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//105:OrdinalExpression    ⟶ Expression 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1329,6 +1547,7 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	        listRule(105); // List the rule number applied
             Expression();
             break;
         default:
@@ -1339,15 +1558,16 @@ public class Parser {
     }
 
     public void IdentifierList() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 106:IdentifierList       ⟶ Identifier IdentifierTail
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
+	        listRule(106); // List the rule number applied
             match(TokenType.MP_IDENTIFIER);
             IdentifierTail();
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.exit(-5);
@@ -1355,20 +1575,22 @@ public class Parser {
     }
 
     public void IdentifierTail() {
+    	writeToFile(Thread.currentThread().getStackTrace()[1].getMethodName());
         //107:IdentifierTail       ⟶ "," Identifier IdentifierTail
         //108:                     ⟶ ε        
-        System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
         switch (lookahead.token_name) {
         case MP_COMMA:
+	        listRule(107); // List the rule number applied
             match(TokenType.MP_COMMA);
             match(TokenType.MP_IDENTIFIER);
             IdentifierTail();
             break;
         case MP_COLON:
             // apply epsilon
+	        listRule(108); // List the rule number applied
             break;
         default:
-            // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.out.println("Lookahead token is: " + lookahead.token_name);
@@ -1376,5 +1598,4 @@ public class Parser {
         }
     }
     // MAHESHS BLOCK ENDS HERE
-
 }
