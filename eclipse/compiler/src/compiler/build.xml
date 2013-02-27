@@ -154,6 +154,12 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="parse_input_procedure.mp"/>
     </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parse_input_function.mp"/>
+    </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parse_input_function2.mp"/>
+    </java>
 
 
   	

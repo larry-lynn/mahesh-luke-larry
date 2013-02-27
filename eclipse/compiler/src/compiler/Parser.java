@@ -133,7 +133,6 @@ public class Parser {
     }
 
     public void Program() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 2: Program         ⟶ ProgramHeading ";" Block "."
         switch(lookahead.token_name){
@@ -152,7 +151,6 @@ public class Parser {
     }
 
     public void ProgramHeading() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 3:ProgramHeading  ⟶ "program" ProgramIdentifier
         switch(lookahead.token_name){
@@ -170,7 +168,6 @@ public class Parser {
     }
 
     public void Block() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
         switch(lookahead.token_name){
@@ -189,7 +186,6 @@ public class Parser {
     }
 
     public void VariableDeclarationPart() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 5:VariableDeclarationPart  ⟶ "var" VariableDeclaration ";" VariableDeclarationTail
         switch(lookahead.token_name){
@@ -209,7 +205,6 @@ public class Parser {
     }
 
     public void VariableDeclarationTail() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//6:VariableDeclarationTail  ⟶ VariableDeclaration ";" VariableDeclarationTail 
     	//7:                         ⟶ ε
@@ -246,7 +241,7 @@ public class Parser {
 	            match(TokenType.MP_COLON);
 	        	Type();
 	        	break;
-	        default:
+	        default:       //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 		        System.exit(-5);
@@ -293,14 +288,13 @@ public class Parser {
     }
 
     public void ProcedureAndFunctionDeclarationPart() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	//12:ProcedureAndFunctionDeclarationPart ⟶ ProcedureDeclaration ProcedureAndFunctionDeclarationPart
     	//13:                                    ⟶ FunctionDeclaration ProcedureAndFunctionDeclarationPart
     	//14:                                    ⟶ ε
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
-		            listRule(12); // List the rule number applied
+		        listRule(12); // List the rule number applied
 	        	ProcedureDeclaration();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
@@ -311,7 +305,7 @@ public class Parser {
 	        	break;
 	        case MP_BEGIN:
 	            // go to ε
-		            listRule(14); // List the rule number applied
+		        listRule(14); // List the rule number applied
 			break;
 	        
 	        default:
@@ -323,7 +317,6 @@ public class Parser {
     }
 
     public void ProcedureDeclaration() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
         switch(lookahead.token_name){
@@ -342,7 +335,6 @@ public class Parser {
     }
 
     public void FunctionDeclaration() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
@@ -361,7 +353,6 @@ public class Parser {
     }
 
     public void ProcedureHeading() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
         switch(lookahead.token_name){
@@ -379,16 +370,16 @@ public class Parser {
     }
 
     public void FunctionHeading() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 18. <FunctionHeading> -> <FunctionHeading> ";" <Block> ";"
+    	// 18. FunctionHeading                     ⟶ "function" functionIdentifier OptionalFormalParameterList ":" Type
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
-		            listRule(18); // List the rule number applied
-	        	FunctionHeading();
-	        	match(TokenType.MP_SCOLON);
-	        	Block();
-	        	match(TokenType.MP_SCOLON);
+		        listRule(18); // List the rule number applied
+	        	match(TokenType.MP_FUNCTION);
+	        	FunctionIdentifier();
+	        	OptionalFormalParameterList();
+	        	match(TokenType.MP_COLON);
+	        	Type();
 	        	break;
 	        default:
 		        // parsing error
