@@ -321,7 +321,7 @@ public class Parser {
     	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
-		            listRule(15); // List the rule number applied
+		        listRule(15); // List the rule number applied
 	        	ProcedureHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
@@ -339,7 +339,7 @@ public class Parser {
     	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
-		            listRule(16); // List the rule number applied
+		        listRule(16); // List the rule number applied
 	        	FunctionHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
@@ -357,7 +357,7 @@ public class Parser {
     	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
-		            listRule(17); // List the rule number applied
+		        listRule(17); // List the rule number applied
 	        	match(TokenType.MP_PROCEDURE);
 	        	ProcedureIdentifier();
 	        	OptionalFormalParameterList();
@@ -395,7 +395,7 @@ public class Parser {
     	// 20. <OptionalFormalParameterList> -> Sigma
         switch (lookahead.token_name) {
 	        case MP_LPAREN:
-		            listRule(19); // List the rule number applied
+		        listRule(19); // List the rule number applied
 	        	match(TokenType.MP_LPAREN);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
@@ -404,10 +404,9 @@ public class Parser {
 	        case MP_SCOLON:
 	        case MP_COLON:
 	        	// Mapping to sigma
-		            listRule(20); // List the rule number applied
+		        listRule(20); // List the rule number applied
 	        	break;
 	        default:
-	        	// Need Follow() To deal with having sigma
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	            System.exit(-5);
@@ -421,17 +420,16 @@ public class Parser {
     	// 22. <FormalParameterSectionTail> -> Sigma
         switch (lookahead.token_name) {
 	        case MP_SCOLON:
-		            listRule(21); // List the rule number applied
+		        listRule(21); // List the rule number applied
 	        	match(TokenType.MP_SCOLON);
 	        	FormalParameterSection();
 	        	FormalParameterSectionTail();
 	        	break;
 	        case MP_RPAREN:
 	        	// Mapping to sigma
-		            listRule(22); // List the rule number applied
+		        listRule(22); // List the rule number applied
 	        	break;
 	        default:
-	        	// Need deal with sigma with Follow();
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	            System.exit(-5);
@@ -445,11 +443,11 @@ public class Parser {
     	// 24. <FormalParameterSection> -> <VariableParameterSection>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
-		            listRule(23); // List the rule number applied
+		        listRule(23); // List the rule number applied
 	        	ValueParameterSection();
 	        	break;
 	        case MP_VAR:
-		            listRule(24); // List the rule number applied
+		        listRule(24); // List the rule number applied
 	        	VariableParameterSection();
 	        	break;
 	        default:
@@ -465,7 +463,7 @@ public class Parser {
     	// 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
-		            listRule(25); // List the rule number applied
+		        listRule(25); // List the rule number applied
 	        	IdentifierList();
 	        	match(TokenType.MP_COLON);
 	        	Type();
@@ -483,7 +481,7 @@ public class Parser {
     	// 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
         switch (lookahead.token_name) {
 	        case MP_VAR:
-		            listRule(26); // List the rule number applied
+		        listRule(26); // List the rule number applied
 	        	match(TokenType.MP_VAR);
 	        	IdentifierList();
 	        	match(TokenType.MP_COLON);
@@ -502,7 +500,7 @@ public class Parser {
     	// 27:StatementPart      ⟶ CompoundStatement
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
-		            listRule(27); // List the rule number applied
+		        listRule(27); // List the rule number applied
 	        	CompoundStatement();
 	        	break;
 	        default:
@@ -519,7 +517,7 @@ public class Parser {
     	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
-		            listRule(28); // List the rule number applied
+		        listRule(28); // List the rule number applied
 	        	match(TokenType.MP_BEGIN);
 	            StatementSequence();
 	        	match(TokenType.MP_END);
@@ -540,12 +538,15 @@ public class Parser {
         case MP_END:
         case MP_FOR:
         case MP_IF:
+        case MP_ELSE:
         case MP_READ:
         case MP_WRITE:
         case MP_REPEAT:
         case MP_WHILE:
         case MP_IDENTIFIER:
-	            listRule(29); // List the rule number applied
+        case MP_SCOLON:
+        case MP_UNTIL:
+	        listRule(29); // List the rule number applied
         	Statement();
         	StatementTail();
         	break;
