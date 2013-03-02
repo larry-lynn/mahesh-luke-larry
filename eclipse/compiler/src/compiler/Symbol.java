@@ -4,36 +4,14 @@ import java.util.*;
 
 public class Symbol {
 
-    public enum Data_type {
-	variable_identifier, arguments, function_identifier, procedure_identifier
-    }
-
     String lexeme;
     int offset;
-    Data_type data_type;
+    ParserSymbol data_type;
     
     // Constructor
-    public Symbol(String lex, String type ){
+    public Symbol(String lex, ParserSymbol type ){
         lexeme = lex;
-
-	switch(type){
-	case "variable_identifier":
-	    data_type = Data_type.variable_identifier;
-	    break;
-
-	case "arguments":
-	    data_type = Data_type.arguments;
-	    break;
-
-	case "function_identifier":
-	    data_type = Data_type.function_identifier;
-	    break;
-
-	case "procedure_identifier":
-	    data_type = Data_type.procedure_identifier;
-	    break;	 
-	}
-
+	data_type = type;
     }
     
     
@@ -43,6 +21,14 @@ public class Symbol {
     
     public Enum getDataType(){
     	return(this.data_type);
+    }
+
+    public void setOffset(int lastOffset){
+	offset = lastOffset + 1;
+    }
+
+    public int getOffset(){
+	return offset;
     }
 	
 }
