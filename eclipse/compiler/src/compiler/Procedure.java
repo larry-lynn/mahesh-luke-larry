@@ -7,8 +7,8 @@ public class Procedure extends Symbol{
     List<SubProcArgs> args = new ArrayList<SubProcArgs>();
 
     // Constructor
-    public Procedure(String lex, String[] arrayOfArgs){
-	super(lex, "procedure_identifier");
+    public Procedure(String lex, SubProcArgs[] arrayOfArgs){
+	super(lex, ParserSymbol.MP_SYMBOL_PROCEDURE);
 	args = Arrays.asList(arrayOfArgs);
     }
     
