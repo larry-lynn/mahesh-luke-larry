@@ -28,5 +28,18 @@ public class SymbolTable {
 	boolean ret_val = root.insert(newNode);
         return ret_val;
     }
-	
+
+    public void dump(){
+        root.traverse();
+    }	
+   
+    public String lookup(String needle){
+        Symbol possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return possible_hit.getLexeme();
+        }
+        else{
+            return("NOT FOUND");
+        }
+    }
 }

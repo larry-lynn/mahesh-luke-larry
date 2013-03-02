@@ -37,12 +37,44 @@ public class SymbolTreeNode {
         // case 4 - the new symbol is lexicographically HIGHER
         //        - go deeper down the right hand side of the tree
         else{
-            if(left == null){
-                left = new SymbolTreeNode();
+            if(right == null){
+                right = new SymbolTreeNode();
             }
-            return(left.insert(newNode));
+            return(right.insert(newNode));
         }
+    }  // end insert
 
-    }
+    public void traverse(){
+	if (left != null){
+            left.traverse();
+        }
+        if (payload != null){
+            System.out.println(payload.getLexeme() );
+        }
+        if (right != null){
+            right.traverse();
+	}
+    } // end traverse
+
+    public Symbol search(String lexeme){
+        if(payload == null){
+            return null;
+        }
+        else if(lexeme.equals( payload.getLexeme() ) ){
+            return(payload);
+        }
+        else if( (lexeme.compareTo(payload.getLexeme() )) < 0){
+            if(left == null){
+                return null;
+            }
+            return(left.search(lexeme));
+        }
+        else {
+            if(right == null){
+                return null;
+            }
+            return(right.search(lexeme));
+        }
+    }  // end search
 	
 }
