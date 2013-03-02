@@ -127,7 +127,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -146,6 +146,7 @@ public class Parser {
 	        default:
 	        // parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
@@ -163,6 +164,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -180,7 +182,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
+				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -200,6 +202,7 @@ public class Parser {
 	        	// Might need some follow here since Tail could go to nothing
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -226,6 +229,7 @@ public class Parser {
 	        	//XXX - Will need follow to deal with the lamnda case
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected variable name OR procedure declaration or function declaration or keyword 'BEGIN' but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -244,6 +248,7 @@ public class Parser {
 	        default:       //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected variable name but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -274,14 +279,14 @@ public class Parser {
 	        	{
 	        		 // parsing error
 			        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected data type of variable, but found " + lookahead.token_name);
+					System.out.println("Expected data type of variable, but found " + lookahead.token_name);
 			        System.exit(-5);
 	        	}
 	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected data type of variable, but found " + lookahead.token_name);
+				System.out.println("Expected data type of variable, but found " + lookahead.token_name);
 		        System.exit(-5);
 		        
         }
@@ -311,7 +316,7 @@ public class Parser {
 	        default:
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected procedure declaration or function declaration but found "+ lookahead.token_name);
+				System.out.println("Expected procedure declaration or function declaration or keyword 'BEGIN' but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
@@ -330,6 +335,7 @@ public class Parser {
 	        default:
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
@@ -348,6 +354,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected function declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
     }
@@ -365,6 +372,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
     }
@@ -384,6 +392,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -409,6 +418,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected parameter list or ':' [for functions] or ';' [for procedures] but found "+ lookahead.token_name);				
 	            System.exit(-5);
 	        }
     }
@@ -432,6 +442,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected ';' or ')' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
     }
@@ -453,6 +464,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected variable name or kyword 'VAR' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
     }
@@ -471,6 +483,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected variable name but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
     }
@@ -490,6 +503,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);				
 	            System.exit(-5);
 	        }
     }
@@ -506,7 +520,7 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-		    System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);
+				System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
     }
@@ -525,7 +539,8 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-	            System.exit(-5);
+				System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);	            
+				System.exit(-5);
 	        }
     }
 
@@ -553,7 +568,7 @@ public class Parser {
         default:
             // parsing error    
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("Lookahead token is: " + lookahead.token_name);
+            System.out.println("Expected start of statement but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -582,6 +597,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
             System.exit(-5);
 
         }
@@ -647,7 +663,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("Lookahead token is: " + lookahead.token_name);
+            System.out.println("Expected start of statement but found "+ lookahead.token_name);
             System.exit(-5);
         }
     } // end statement
@@ -667,7 +683,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("Lookahead token is: " + lookahead.token_name);
+            System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -688,6 +704,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'READ' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -711,6 +728,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -727,7 +745,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-	    System.out.println("Expected an identifier but found " + lookahead.token_name);
+			System.out.println("Expected an identifier but found " + lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -748,6 +766,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'WRITE' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -770,6 +789,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -791,6 +811,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -820,6 +841,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected an identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -840,6 +862,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'IF' but found "+ lookahead.token_name);			
             System.exit(-5);
         }
     }
@@ -866,6 +889,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -885,6 +909,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'REPEAT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -904,6 +929,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'WHILE' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -927,6 +953,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'FOR' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -943,6 +970,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected an identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -963,6 +991,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -984,6 +1013,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'TO' or 'DOWNTO' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1005,6 +1035,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1022,6 +1053,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected an identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1066,6 +1098,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected '(' or end of statement or multiplying operator but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1084,14 +1117,15 @@ public class Parser {
             ActualParameter();
             ActualParameterTail();
             break;
-	case MP_RPAREN:
+		case MP_RPAREN:
                 listRule(68); // List the rule number applied
 	    break;
         default:
             // Need FOLLOW here
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);            
+			System.exit(-5);
         }
     }
 
@@ -1107,6 +1141,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
     }
@@ -1130,6 +1165,7 @@ public class Parser {
             // System.out.println("nobody here but us chickens");
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected start of expression but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
     }
@@ -1166,6 +1202,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected relational operator or end of statement but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
     }
@@ -1206,7 +1243,8 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+			System.out.println("Expected relational operator but found "+ lookahead.token_name);                        
+			System.exit(-5);
         }
     }
 
@@ -1229,6 +1267,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1260,15 +1299,16 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
-	case MP_DO:
-	case MP_TO:
-	case MP_DOWNTO:
+		case MP_DO:
+		case MP_TO:
+		case MP_DOWNTO:
             // map to ε
                 listRule(81); // List the rule number applied
             break;
 
         default:
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected adding operator or *** but found "+ lookahead.token_name);            
             System.exit(-5);
         }
     }
@@ -1298,6 +1338,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1324,6 +1365,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected keyword 'OR' or '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
     }
@@ -1344,7 +1386,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("token is: " + lookahead.token_name);     
+			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1375,24 +1417,24 @@ public class Parser {
         case MP_PLUS:
         case MP_MINUS:
         case MP_OR:
-	case MP_LTHAN:
-	case MP_GTHAN:
-	case MP_LEQUAL:
-	case MP_GEQUAL:
-	case MP_NEQUAL:
+		case MP_LTHAN:
+		case MP_GTHAN:
+		case MP_LEQUAL:
+		case MP_GEQUAL:
+		case MP_NEQUAL:
         case MP_EQUAL:
         case MP_THEN:
         case MP_ELSE:
-	case MP_UNTIL:
-	case MP_DO:
-	case MP_TO:
-	case MP_DOWNTO:
+		case MP_UNTIL:
+		case MP_DO:
+		case MP_TO:
+		case MP_DOWNTO:
             // map to ε
 	        listRule(90); // List the rule number applied
             break;
         default:
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("token is: " + lookahead.token_name);
+            System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' or *** but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1423,6 +1465,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected  multiplying operator but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1462,6 +1505,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1477,7 +1521,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-	    System.out.println("Expected program identifier but found "+ lookahead.token_name);
+			System.out.println("Expected identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1494,6 +1538,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1509,6 +1554,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1524,7 +1570,8 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-            System.exit(-5);
+			System.out.println("Expected identifier but found "+ lookahead.token_name);            
+			System.exit(-5);
         }
     }
 
@@ -1545,6 +1592,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1566,6 +1614,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
@@ -1583,6 +1632,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+			System.out.println("Expected identifier but found "+ lookahead.token_name);			
             System.exit(-5);
         }
     }
@@ -1606,7 +1656,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
-            System.out.println("Lookahead token is: " + lookahead.token_name);
+			System.out.println("Expected ',' or ':' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
