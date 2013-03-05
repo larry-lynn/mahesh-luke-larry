@@ -4,9 +4,9 @@ public class SymbolDriver {
     public static void main(String args[]){
         Token tok = new Token(TokenType.MP_PROGRAM, "test");
         SymbolTable table = new SymbolTable(tok);
-        Symbol sym1 = new Symbol("some_name_here", "variable_identifier");
-        Symbol sym2 = new Symbol("aaa_I_should_go_first", "variable_identifier");
-        Symbol sym3 = new Symbol("zzz_I_should_go_last", "variable_identifier");
+        Symbol sym1 = new Symbol("some_name_here", ParserSymbol.MP_SYMBOL_VAR);
+        Symbol sym2 = new Symbol("aaa_I_should_go_first", ParserSymbol.MP_SYMBOL_VAR);
+        Symbol sym3 = new Symbol("zzz_I_should_go_last", ParserSymbol.MP_SYMBOL_VAR);
 
         table.insert(sym1);
         table.insert(sym2);
