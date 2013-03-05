@@ -10,8 +10,8 @@
     <delete dir="${dist}"/>
     <delete>
       <fileset dir="${data}/scanner/" includes="*.tok"/>
-      <fileset dir="${data}/" includes="*.mpinfolog.txt"/>
-      <fileset dir="${data}/" includes="*.mprulelog.txt"/>
+      <fileset dir="${data}/" includes="*.infolog.txt"/>
+      <fileset dir="${data}/" includes="*.rulelog.txt"/>
     </delete>
   </target>
 	
@@ -166,7 +166,6 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="program3.up"/>
     </java>
-
 
   	
   </target>
