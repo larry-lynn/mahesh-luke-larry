@@ -19,7 +19,7 @@ public class Symbol {
     	return(this.lexeme);
     }
     
-    public Enum getDataType(){
+    public ParserSymbol getDataType(){
     	return(this.data_type);
     }
 

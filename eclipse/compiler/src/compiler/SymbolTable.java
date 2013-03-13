@@ -6,10 +6,10 @@ public class SymbolTable {
     // class variables go here
 
     // constructor
-    public SymbolTable(Token programIdentifierRec){
+    public SymbolTable(String programIdentifierRec){
         
         root = new SymbolTreeNode();
-        name = programIdentifierRec.lexeme;
+        name = programIdentifierRec;
 
     }
 
@@ -30,6 +30,10 @@ public class SymbolTable {
     }
 
     public void dump(){
+    	String outputLine;
+    	System.out.println("SYMBOL TABLE NAME: " + name);
+    	outputLine = String.format("%-20s%-20s%-7s%s\n", "Symbol Name", "Sym. Type  ", "Res. 1", "Res. 2");
+    	System.out.println(outputLine);
         root.traverse();
     }	
    

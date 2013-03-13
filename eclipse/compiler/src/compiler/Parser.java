@@ -1,6 +1,7 @@
 package compiler;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Parser {
     Token lookahead;
@@ -8,6 +9,7 @@ public class Parser {
     PrintWriter logFileHandle;
     PrintWriter ruleFileHandle;
     Boolean debug;
+    SymbolTable masterTable;
 
     public static void main(String[] args) throws Exception{
         if( (args.length == 0) || (args.length > 1) ){
@@ -84,11 +86,12 @@ public class Parser {
         ruleFileHandle.close();
     }
 
-    public void match(TokenType compareTok) {
+    public String match(TokenType compareTok) {
+    	String processedLexeme = "";
         if (lookahead.token_name == compareTok) {
             // put the token on the parse tree and get a new one
-            //System.out.println("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
             infoLog("putting token: " + lookahead.token_name + ", lexeme: " + lookahead.getLexeme() + " on parse tree");
+            processedLexeme = lookahead.getLexeme();
             // early return if we've parsed everything successfully
             if(lookahead.token_name == TokenType.MP_EOF){
                 
@@ -96,9 +99,8 @@ public class Parser {
                 String successMessage = "The input program parses!";
                 infoLog(successMessage);
                 ruleLog(successMessage);
-                // XXX change this to meet specs
 
-                return;
+                return(processedLexeme);
             }
             else{
                 lookahead = scan.getToken();
@@ -111,6 +113,7 @@ public class Parser {
             // Thread.currentThread().getStackTrace()[1].getMethodName()
             System.exit(-6);
         }
+        return(processedLexeme);
     }
 
     // ### LUKES BLOCK STARTS HERE ### //
@@ -123,6 +126,7 @@ public class Parser {
 		        listRule(1); // List the rule number applied
         		Program();
         		match(TokenType.MP_EOF);
+                masterTable.dump();
         		break;
 	        default:
 		        // parsing error
@@ -235,15 +239,17 @@ public class Parser {
     }
 
     public void VariableDeclaration() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
+    	ArrayList<String> lexemes = new ArrayList<String>();
+    	ParserSymbol varType = null;
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	        //We should be looking at IDs coming up
 	        case MP_IDENTIFIER:
 		        listRule(8); // List the rule number applied
-	        	IdentifierList();
+	        	lexemes = IdentifierList();
 	            match(TokenType.MP_COLON);
-	        	Type();
+	        	varType = Type();
 	        	break;
 	        default:       //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
 		        // parsing error
@@ -251,21 +257,28 @@ public class Parser {
 				System.out.println("Expected variable name but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
+        for(String lexeme: lexemes){
+        	Var newVar = new Var(lexeme, varType);
+        	masterTable.insert(newVar);
+        }
     }
 
-    public void Type() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ParserSymbol Type() {
+    	ParserSymbol symbolType = null;
     	// 9. 	-> "Integer"
     	// 10. 	-> "Float"
     	// 11.	-> "Boolean"
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	        case MP_INTEGER:
 		        listRule(9); // List the rule number applied
 	        	match(TokenType.MP_INTEGER);
+	        	symbolType = ParserSymbol.MP_SYMBOL_INTEGER;
 	        	break;
 	        case MP_FLOAT:
 		        listRule(10); // List the rule number applied
 	        	match(TokenType.MP_FLOAT);
+	        	symbolType = ParserSymbol.MP_SYMBOL_FLOAT;
 	        	break;
 	        // "Boolen" -> Identifier?
 	        case MP_IDENTIFIER:
@@ -273,6 +286,7 @@ public class Parser {
 	        	{
 			        listRule(11); // List the rule number applied
 	        		match(TokenType.MP_IDENTIFIER);
+	        		symbolType = ParserSymbol.MP_SYMBOL_BOOLEAN;
 	        	}
 	        	// The ID was something other than boolean, which should throw an error
 	        	else
@@ -290,6 +304,7 @@ public class Parser {
 		        System.exit(-5);
 		        
         }
+        return(symbolType);
     }
 
     public void ProcedureAndFunctionDeclarationPart() {
@@ -1511,12 +1526,15 @@ public class Parser {
     }
 
     public void ProgramIdentifier() {
+    	String tableName = "";
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//100:ProgramIdentifier    ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
 	        listRule(100); // List the rule number applied
-            match(TokenType.MP_IDENTIFIER);
+            tableName = match(TokenType.MP_IDENTIFIER);
+            // YYY create symbol table 
+            masterTable = new SymbolTable(tableName);
             break;
         default:
             // parsing error
@@ -1619,15 +1637,19 @@ public class Parser {
         }
     }
 
-    public void IdentifierList() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<String> IdentifierList() {
         // 106:IdentifierList       ⟶ Identifier IdentifierTail
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	ArrayList<String> lexemes = new ArrayList<String>();
+    	ArrayList<String> moreLexemes = new ArrayList<String>();
+    	String singleLexeme = "";
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
 	        listRule(106); // List the rule number applied
-            match(TokenType.MP_IDENTIFIER);
-            IdentifierTail();
+	        singleLexeme = match(TokenType.MP_IDENTIFIER);
+            lexemes.add(singleLexeme);
+            moreLexemes = IdentifierTail();
+            lexemes.addAll(moreLexemes);
             break;
         default:
             // parsing error
@@ -1635,19 +1657,24 @@ public class Parser {
 			System.out.println("Expected identifier but found "+ lookahead.token_name);			
             System.exit(-5);
         }
+        return(lexemes);
     }
 
-    public void IdentifierTail() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<String> IdentifierTail() {
         //107:IdentifierTail       ⟶ "," Identifier IdentifierTail
         //108:                     ⟶ ε        
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	ArrayList<String> lexemes = new ArrayList<String>();
+    	ArrayList<String> moreLexemes = new ArrayList<String>();
+    	String singleLexeme = "";
         switch (lookahead.token_name) {
         case MP_COMMA:
 	        listRule(107); // List the rule number applied
             match(TokenType.MP_COMMA);
-            match(TokenType.MP_IDENTIFIER);
-            IdentifierTail();
+            singleLexeme = match(TokenType.MP_IDENTIFIER);
+            lexemes.add(singleLexeme);
+            moreLexemes = IdentifierTail();
+            lexemes.addAll(moreLexemes);
             break;
         case MP_COLON:
             // apply epsilon
@@ -1659,6 +1686,7 @@ public class Parser {
 			System.out.println("Expected ',' or ':' but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(lexemes);
     }
     // MAHESHS BLOCK ENDS HERE
 }

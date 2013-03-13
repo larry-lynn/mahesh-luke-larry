@@ -45,11 +45,13 @@ public class SymbolTreeNode {
     }  // end insert
 
     public void traverse(){
+    	String outputLine;
 	if (left != null){
             left.traverse();
         }
         if (payload != null){
-            System.out.println(payload.getLexeme() );
+        	outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), "", "");
+            System.out.println(outputLine );
         }
         if (right != null){
             right.traverse();
