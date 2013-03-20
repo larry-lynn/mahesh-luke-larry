@@ -2,6 +2,7 @@ package compiler;
 
 public class SymbolTable {
     String name;
+    int symbolCount;
     SymbolTreeNode root;
     // class variables go here
 
@@ -10,6 +11,7 @@ public class SymbolTable {
         
         root = new SymbolTreeNode();
         name = programIdentifierRec;
+        symbolCount = 0;
 
     }
 
@@ -26,14 +28,18 @@ public class SymbolTable {
 
     public boolean insert(Symbol newNode){
 	boolean ret_val = root.insert(newNode);
+        if(ret_val){
+	    symbolCount++;
+        }
         return ret_val;
     }
 
     public void dump(){
     	String outputLine;
     	System.out.println("SYMBOL TABLE NAME: " + name);
+        System.out.println("Symbol Count: " + symbolCount);
     	outputLine = String.format("%-20s%-20s%-7s%s\n", "Symbol Name", "Sym. Type  ", "Res. 1", "Res. 2");
-    	System.out.println(outputLine);
+    	System.out.print(outputLine);
         root.traverse();
     }	
    

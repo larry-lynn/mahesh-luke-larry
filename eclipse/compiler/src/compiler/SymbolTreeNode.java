@@ -75,7 +75,7 @@ public class SymbolTreeNode {
                 break;
             }
         	
-            System.out.println(outputLine );
+            System.out.print(outputLine );
         }
         if (right != null){
             right.traverse();
