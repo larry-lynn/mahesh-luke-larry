@@ -2,6 +2,9 @@ package compiler;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Stack;
+
+import compiler.Args.Call_Method;
 
 public class Parser {
     Token lookahead;
@@ -9,7 +12,9 @@ public class Parser {
     PrintWriter logFileHandle;
     PrintWriter ruleFileHandle;
     Boolean debug;
-    SymbolTable masterTable;
+    //SymbolTable masterTable;
+    Stack<SymbolTable> SymbolTableStack;
+    SymbolTable currentTable;
 
     public static void main(String[] args) throws Exception{
         if( (args.length == 0) || (args.length > 1) ){
@@ -44,6 +49,8 @@ public class Parser {
         lookahead = scan.getToken();
         logFileHandle = new PrintWriter(fileWithPath + ".infolog.txt");
         ruleFileHandle = new PrintWriter(fileWithPath + ".rulelog.txt");
+        
+        SymbolTableStack = new Stack<SymbolTable>();
     }
     
     // Constructor 2
@@ -57,6 +64,8 @@ public class Parser {
         lookahead = scan.getToken();
         logFileHandle = new PrintWriter(fileWithPath + ".infolog.txt");
         ruleFileHandle = new PrintWriter(fileWithPath + ".rulelog.txt");
+        
+        SymbolTableStack = new Stack<SymbolTable>();
     }
 
     //method to write the token names to file data/LogFile.txt
@@ -126,7 +135,7 @@ public class Parser {
 		        listRule(1); // List the rule number applied
         		Program();
         		match(TokenType.MP_EOF);
-                masterTable.dump();
+                currentTable.dump();
         		break;
 	        default:
 		        // parsing error
@@ -259,7 +268,7 @@ public class Parser {
         }
         for(String lexeme: lexemes){
         	Var newVar = new Var(lexeme, varType);
-        	masterTable.insert(newVar);
+        	currentTable.insert(newVar);
         }
     }
 
@@ -375,14 +384,19 @@ public class Parser {
     }
 
     public void ProcedureHeading() {
+        // 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
+
+    	String procedureName = "";
+        ArrayList<Args> argList = new ArrayList<Args>();
+        Procedure procSym;
+    	
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
 		        listRule(17); // List the rule number applied
 	        	match(TokenType.MP_PROCEDURE);
-	        	ProcedureIdentifier();
-	        	OptionalFormalParameterList();
+	        	procedureName = ProcedureIdentifier();
+	        	argList = OptionalFormalParameterList();
 	        	break;
 	        default:
 		        // parsing error
@@ -390,6 +404,8 @@ public class Parser {
 				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
+        procSym = new Procedure(procedureName, argList);
+        currentTable.insert(procSym);
     }
 
     public void FunctionHeading() {
@@ -412,17 +428,20 @@ public class Parser {
         }
     }
     
-    public void OptionalFormalParameterList() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<Args> OptionalFormalParameterList() {
+        // 19. <OptionalFormalParameterList> -> "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
+        // 20. <OptionalFormalParameterList> -> Sigma
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 19. <OptionalFormalParameterList> -> "(" <FormalParameterSection> <FormalParameterSectionTail> ")"
-    	// 20. <OptionalFormalParameterList> -> Sigma
+
+        ArrayList<Args> argList = new ArrayList<Args>();
+        ArrayList<Args> moreArgs = new ArrayList<Args>();
+    	
         switch (lookahead.token_name) {
 	        case MP_LPAREN:
 		        listRule(19); // List the rule number applied
 	        	match(TokenType.MP_LPAREN);
-	        	FormalParameterSection();
-	        	FormalParameterSectionTail();
+	        	argList = FormalParameterSection();
+	        	moreArgs = FormalParameterSectionTail();
 	        	match(TokenType.MP_RPAREN);
 	        	break;
 	        case MP_SCOLON:
@@ -436,19 +455,25 @@ public class Parser {
 				System.out.println("Expected parameter list or ':' [for functions] or ';' [for procedures] but found "+ lookahead.token_name);				
 	            System.exit(-5);
 	        }
+        argList.addAll(moreArgs);
+        return(argList);
+        
     }
     
-    public void FormalParameterSectionTail() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<Args> FormalParameterSectionTail() {
+        // 21. <FormalParameterSectionTail> -> ";" <FormalParameterSection> <FormalParameterSectionTail>
+        // 22. <FormalParameterSectionTail> -> Sigma
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 21. <FormalParameterSectionTail> -> ";" <FormalParameterSection> <FormalParameterSectionTail>
-    	// 22. <FormalParameterSectionTail> -> Sigma
+    	
+        ArrayList<Args> argList = new ArrayList<Args>();
+        ArrayList<Args> moreArgs = new ArrayList<Args>();
+
         switch (lookahead.token_name) {
 	        case MP_SCOLON:
 		        listRule(21); // List the rule number applied
 	        	match(TokenType.MP_SCOLON);
-	        	FormalParameterSection();
-	        	FormalParameterSectionTail();
+	        	argList = FormalParameterSection();
+	        	moreArgs = FormalParameterSectionTail();
 	        	break;
 	        case MP_RPAREN:
 	        	// Mapping to sigma
@@ -460,21 +485,25 @@ public class Parser {
 				System.out.println("Expected ';' or ')' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
+        argList.addAll(moreArgs);
+        return(argList);
     }
 
-    public void FormalParameterSection() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<Args> FormalParameterSection() {
+        // 23. <FormalParameterSection> -> <ValueParameterSection>
+        // 24. <FormalParameterSection> -> <VariableParameterSection>
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 23. <FormalParameterSection> -> <ValueParameterSection>
-    	// 24. <FormalParameterSection> -> <VariableParameterSection>
+    	
+        ArrayList<Args> argList = null;
+
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
 		        listRule(23); // List the rule number applied
-	        	ValueParameterSection();
+	        	argList = ValueParameterSection();
 	        	break;
 	        case MP_VAR:
 		        listRule(24); // List the rule number applied
-	        	VariableParameterSection();
+		        argList = VariableParameterSection();
 	        	break;
 	        default:
 	            // parsing error
@@ -482,18 +511,25 @@ public class Parser {
 				System.out.println("Expected variable name or kyword 'VAR' but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
+        
+        return(argList);
     }
     
-    public void ValueParameterSection() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<Args> ValueParameterSection() {
+        // 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 25. <ValueParameterSection> -> <IdentifierList> ":" <Type>
+
+        ArrayList<String> lexemes = new ArrayList<String>();
+        ArrayList<Args> argList = new ArrayList<Args>();
+        ParserSymbol symbolType = null;
+        Args singleArg = null;
+        
         switch (lookahead.token_name) {
 	        case MP_IDENTIFIER:
 		        listRule(25); // List the rule number applied
-	        	IdentifierList();
+	        	lexemes = IdentifierList();
 	        	match(TokenType.MP_COLON);
-	        	Type();
+	        	symbolType = Type();
 	        	break;
 	        default:
 	            // parsing error
@@ -501,19 +537,32 @@ public class Parser {
 				System.out.println("Expected variable name but found "+ lookahead.token_name);
 	            System.exit(-5);
 	        }
+        
+        // prepare semantic records for return
+        for(String lexeme : lexemes ){
+            singleArg = new Args(lexeme, symbolType, Call_Method.MP_SYMBOL_VALUE);
+            argList.add(singleArg);
+        }
+        return(argList);
+        
     }
 
-    public void VariableParameterSection() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<Args> VariableParameterSection() {
+        // 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 26. <VariableParameterSection> -> "var" <IdentifierList> ":" <Type>
+
+        ArrayList<String> lexemes = new ArrayList<String>();
+        ArrayList<Args> argList = new ArrayList<Args>();
+        ParserSymbol symbolType = null;
+        Args singleArg = null;
+    	
         switch (lookahead.token_name) {
 	        case MP_VAR:
 		        listRule(26); // List the rule number applied
 	        	match(TokenType.MP_VAR);
-	        	IdentifierList();
+	        	lexemes = IdentifierList();
 	        	match(TokenType.MP_COLON);
-	        	Type();
+	        	symbolType = Type();
 	        	break;
 	        default:
 	            // parsing error
@@ -521,6 +570,12 @@ public class Parser {
 				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);				
 	            System.exit(-5);
 	        }
+        // prepare semantic records for return
+        for(String lexeme : lexemes ){
+            singleArg = new Args(lexeme, symbolType, Call_Method.MP_SYMBOL_REFERENCE);
+            argList.add(singleArg);
+        }
+        return(argList);
     }
 
     public void StatementPart() {
@@ -836,7 +891,7 @@ public class Parser {
         // 52: ⟶ FunctionIdentifier ":=" Expression
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-            Boolean declared = masterTable.varHasBeenDeclared(lookahead.getLexeme());
+            Boolean declared = currentTable.varHasBeenDeclared(lookahead.getLexeme());
             if(!declared){
                 // XXX : move this into a better error handler
                 System.out.println("Symbol error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
@@ -1539,7 +1594,7 @@ public class Parser {
 	        listRule(100); // List the rule number applied
             tableName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table 
-            masterTable = new SymbolTable(tableName);
+            currentTable = new SymbolTable(tableName);
             break;
         default:
             // parsing error
@@ -1566,13 +1621,15 @@ public class Parser {
         }
     }
 
-    public void ProcedureIdentifier() {
+    public String ProcedureIdentifier() {
+        //102:ProcedureIdentifier  ⟶ Identifier
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-	//102:ProcedureIdentifier  ⟶ Identifier
+    	String procedureName = "";
+    	
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
 	        listRule(102); // List the rule number applied
-            match(TokenType.MP_IDENTIFIER);
+            procedureName = match(TokenType.MP_IDENTIFIER);
             break;
         default:
             // parsing error
@@ -1580,6 +1637,7 @@ public class Parser {
 			System.out.println("Expected identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(procedureName);
     }
 
     public void FunctionIdentifier() {
@@ -1599,9 +1657,8 @@ public class Parser {
     }
 
     public void BooleanExpression() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+        //104:BooleanExpression    ⟶ Expression
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-	//104:BooleanExpression    ⟶ Expression
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:

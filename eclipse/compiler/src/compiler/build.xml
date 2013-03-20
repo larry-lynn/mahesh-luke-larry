@@ -169,6 +169,9 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="symbol_undeclared_var.mp"/>
     </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="symbol_declare_procedure.mp"/>
+    </java>
 
   	
   </target>

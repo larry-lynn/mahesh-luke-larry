@@ -1,5 +1,8 @@
 package compiler;
 
+
+// do we need this class?  When we indicate sub-proc-args, we need
+// lexeme, type AND rev/val - which makes them just like Args
 public class SubProcArgs {
     private String name;
     private ParserSymbol data_type;
