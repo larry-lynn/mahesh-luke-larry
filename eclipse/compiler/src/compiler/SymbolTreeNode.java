@@ -46,11 +46,35 @@ public class SymbolTreeNode {
 
     public void traverse(){
     	String outputLine;
-	if (left != null){
+    	ParserSymbol symbolType;
+    	
+	    if (left != null){
             left.traverse();
         }
         if (payload != null){
-        	outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), "", "");
+            symbolType = payload.getDataType();
+            switch(symbolType){
+            case MP_SYMBOL_PROCEDURE:
+
+                StringBuilder argList = new StringBuilder();
+                Procedure proc = (Procedure) payload;
+                argList.append("(");
+                Boolean first = true;
+                for(Args a : proc.getArgs() ){
+                    if(first){first = false;}
+                    else{argList.append(", ");}
+                    argList.append(a.getLexeme());
+                }
+                argList.append(")");
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), argList.toString(), "");
+                
+                break;
+                
+            default:
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), "", "");
+                break;
+            }
+        	
             System.out.println(outputLine );
         }
         if (right != null){

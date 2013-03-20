@@ -26,7 +26,7 @@ public class Procedure extends Symbol{
         args = argList;
     }
     
-    public ArrayList getArgs(){
+    public ArrayList<Args> getArgs(){
         return(this.args);
     }
 	
