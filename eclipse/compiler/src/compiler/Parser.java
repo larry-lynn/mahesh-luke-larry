@@ -108,7 +108,7 @@ public class Parser {
         } else {
             // parsing error
             // XXX fixme - this block needs to be moved out of match and into a dedicated error routine
-            System.out.println("Scan Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
+            System.out.println("Parse Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
             System.out.println("Expected: " + compareTok + ", but got: " + lookahead.token_name);
             // Thread.currentThread().getStackTrace()[1].getMethodName()
             System.exit(-6);
@@ -810,7 +810,6 @@ public class Parser {
     }
 
     public void WriteParameter() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 50:WriteParameter ⟶ OrdinalExpression
         switch (lookahead.token_name) {
@@ -832,13 +831,19 @@ public class Parser {
     }
 
     public void AssignmentStatement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
         // 52: ⟶ FunctionIdentifier ":=" Expression
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-                listRule(51); // List the rule number applied
+            Boolean declared = masterTable.varHasBeenDeclared(lookahead.getLexeme());
+            if(!declared){
+                // XXX : move this into a better error handler
+                System.out.println("Symbol error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
+                System.out.println("Attempted to assign a value to an undeclared variable: "+ lookahead.getLexeme() );
+                System.exit(-6);
+            }
+            listRule(51); // List the rule number applied
             VariableIdentifier();
             match(TokenType.MP_ASSIGN);
             Expression();

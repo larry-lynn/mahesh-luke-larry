@@ -37,6 +37,7 @@ public class SymbolTable {
         root.traverse();
     }	
    
+    // not sure if this is the right way to do a lookup.  consider retiring
     public String lookup(String needle){
         Symbol possible_hit = root.search(needle);
         if(possible_hit != null){
@@ -46,4 +47,15 @@ public class SymbolTable {
             return("NOT FOUND");
         }
     }
+    
+    public Boolean varHasBeenDeclared(String needle){
+        Symbol possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return(true);
+        }
+        else{
+            return(false);
+        }
+    }
+    
 }
