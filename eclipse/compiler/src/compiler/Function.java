@@ -5,14 +5,15 @@ import java.util.*;
 public class Function extends Symbol{
 
     ParserSymbol return_type;
-    List<SubProcArgs> args = new ArrayList<SubProcArgs>();
+    ArrayList<Args> args;
+    //List<SubProcArgs> args = new ArrayList<SubProcArgs>();
 
     // Constructor
-    public Function(String lex, ParserSymbol rtype, SubProcArgs[] arrayOfArgs){
+    public Function(String lex, ParserSymbol rtype, ArrayList<Args> argList){
 	super(lex, ParserSymbol.MP_SYMBOL_FUNCTION);
-
 	return_type = rtype;
-	args = Arrays.asList(arrayOfArgs);
+        args = argList;
+
     }
     
     
@@ -20,7 +21,7 @@ public class Function extends Symbol{
     	return(this.return_type);
     }
 
-    public List getArgs(){
+    public ArrayList<Args> getArgs(){
 	return(this.args);
     }
 	

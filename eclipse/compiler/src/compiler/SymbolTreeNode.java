@@ -47,20 +47,38 @@ public class SymbolTreeNode {
     public void traverse(){
     	String outputLine;
     	ParserSymbol symbolType;
-    	
-	    if (left != null){
+        StringBuilder argList = null;
+        Procedure proc = null;
+        Function func = null;
+        Boolean first = true;
+
+        if (left != null){
             left.traverse();
         }
         if (payload != null){
             symbolType = payload.getDataType();
             switch(symbolType){
-            case MP_SYMBOL_PROCEDURE:
 
-                StringBuilder argList = new StringBuilder();
-                Procedure proc = (Procedure) payload;
+            case MP_SYMBOL_PROCEDURE:
+                argList = new StringBuilder();
+                proc = (Procedure) payload;
                 argList.append("(");
-                Boolean first = true;
+                first = true;
                 for(Args a : proc.getArgs() ){
+                    if(first){first = false;}
+                    else{argList.append(", ");}
+                    argList.append(a.getLexeme());
+                }
+                argList.append(")");
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), argList.toString(), "");
+                
+                break;
+            case MP_SYMBOL_FUNCTION:
+                argList = new StringBuilder();
+                func = (Function) payload;
+                argList.append("(");
+                first = true;
+                for(Args a : func.getArgs() ){
                     if(first){first = false;}
                     else{argList.append(", ");}
                     argList.append(a.getLexeme());

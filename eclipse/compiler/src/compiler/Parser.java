@@ -260,10 +260,10 @@ public class Parser {
 	            match(TokenType.MP_COLON);
 	        	varType = Type();
 	        	break;
-	        default:       //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+	        default: 
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected variable name but found "+ lookahead.token_name);
+			System.out.println("Expected variable name but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
         for(String lexeme: lexemes){
@@ -359,7 +359,7 @@ public class Parser {
 	        default:
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
+			System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
@@ -378,7 +378,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected function declaration but found "+ lookahead.token_name);				
+			System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -409,23 +409,31 @@ public class Parser {
     }
 
     public void FunctionHeading() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 18. FunctionHeading                     ⟶ "function" functionIdentifier OptionalFormalParameterList ":" Type
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	String functionName = "";
+        ArrayList<Args> argList = new ArrayList<Args>();
+        ParserSymbol funcRetType = null;
+        Function funcSym;
+
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
 		        listRule(18); // List the rule number applied
 	        	match(TokenType.MP_FUNCTION);
-	        	FunctionIdentifier();
-	        	OptionalFormalParameterList();
+	        	functionName = FunctionIdentifier();
+	        	argList = OptionalFormalParameterList();
 	        	match(TokenType.MP_COLON);
-	        	Type();
+	                funcRetType = Type();
 	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected function declaration but found "+ lookahead.token_name);
+			System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
+        funcSym = new Function(functionName, funcRetType, argList);
+        currentTable.insert(funcSym);
     }
     
     public ArrayList<Args> OptionalFormalParameterList() {
@@ -1640,13 +1648,15 @@ public class Parser {
         return(procedureName);
     }
 
-    public void FunctionIdentifier() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public String FunctionIdentifier() {
 	//103:FunctionIdentifier   ⟶ Identifier
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+        String functionName = "";
+
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-	        listRule(103); // List the rule number applied
-            match(TokenType.MP_IDENTIFIER);
+	    listRule(103); // List the rule number applied
+            functionName = match(TokenType.MP_IDENTIFIER);
             break;
         default:
             // parsing error
@@ -1654,6 +1664,7 @@ public class Parser {
 			System.out.println("Expected identifier but found "+ lookahead.token_name);            
 			System.exit(-5);
         }
+        return(functionName);
     }
 
     public void BooleanExpression() {
