@@ -4,7 +4,7 @@ def checksum(st):
     return reduce(lambda x,y:x+y, map(ord, st)) 
 
 def simple_variant(k):
-  m = 137
+  m = 149
   return ( k % m )
 
 def knuth_variant(k):
@@ -12,7 +12,7 @@ def knuth_variant(k):
   m = 239
   return ( (k * (k + 3)) % m)
 
-the_list =["and","begin","div","do","downto","else","end","fixed","float","for","function","if","integer","mod","not","or","procedure","program","read","repeat","then","to","until","var","while","write"]
+the_list =["and","begin","div","do","downto","else","end","fixed","float","for","function","if","integer","mod","not","or","procedure","program","read","repeat","then","to","until","var","while","write","writeln","boolean","string"]
 
 #the_list = ["do"]
 
