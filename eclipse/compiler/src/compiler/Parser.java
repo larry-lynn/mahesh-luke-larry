@@ -89,6 +89,11 @@ public class Parser {
         // They always seem to be dups of things that are already echoed by infoLog
         //System.out.println(rulemsg);    
     }
+
+    public String genStdInfoMsg(){
+        String logMessage = String.format("Non-Terminal: %s --- Lookahead: %s ",Thread.currentThread().getStackTrace()[2].getMethodName(), lookahead.getLexeme() );
+        return(logMessage);
+    }
     
     public void cleanup(){
         logFileHandle.close();
@@ -623,9 +628,9 @@ public class Parser {
     }
 
     public void StatementSequence() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 29:StatementSequence  ⟶ Statement StatementTail
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
         switch (lookahead.token_name) {
         case MP_BEGIN:
         case MP_END:
@@ -654,10 +659,9 @@ public class Parser {
     // ### LUKES BLOCK ENDS HERE ### //
 
     // ### LARRYS BLOCK STARTS HERE ### //
-    // XXX Larry's bookmark
     public void StatementTail() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog( genStdInfoMsg() );
+
         switch (lookahead.token_name) {
         case MP_SCOLON:
             // 30: StatementTail ⟶ ";" Statement StatementTail
@@ -675,28 +679,29 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
+            System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
             System.exit(-5);
 
         }
     }
 
     public void Statement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog( genStdInfoMsg() );
+
         switch (lookahead.token_name) {
         case MP_END:
         case MP_UNTIL:
         case MP_SCOLON:
+        case MP_ELSE:
         //XXX Note: ELSE is predicted by LL1 table, may be in error
         //case MP_ELSE:
         //32:Statement           ⟶ EmptyStatement
-                listRule(32); // List the rule number applied
+            listRule(32); // List the rule number applied
             EmptyStatement();
             break;
         case MP_BEGIN:
             // 33:Statement ⟶ CompoundStatement
-                listRule(33); // List the rule number applied
+            listRule(33); // List the rule number applied
             CompoundStatement();
             break;
         case MP_FOR:
@@ -951,10 +956,10 @@ public class Parser {
     }
 
     public void OptionalElsePart() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
+    	infoLog( genStdInfoMsg() );
+
         switch (lookahead.token_name) {
         case MP_ELSE:
                 listRule(54); // List the rule number applied
@@ -1255,7 +1260,7 @@ public class Parser {
 
     public void OptionalRelationalPart() {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog( genStdInfoMsg() );
 	//71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
 	//72:                        ⟶ ε
         switch (lookahead.token_name) {
@@ -1356,10 +1361,10 @@ public class Parser {
     }
 
     public void TermTail() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//80:TermTail                ⟶ AddingOperator Term TermTail
 	//81:                        ⟶ ε
+    	infoLog(genStdInfoMsg());
+
         switch (lookahead.token_name) {
         case MP_OR:
         case MP_PLUS:
@@ -1475,7 +1480,7 @@ public class Parser {
     }
 
     public void FactorTail() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog(genStdInfoMsg() );
 	//89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
 	//90:                        ⟶ ε 
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -1500,20 +1505,20 @@ public class Parser {
         case MP_PLUS:
         case MP_MINUS:
         case MP_OR:
-		case MP_LTHAN:
-		case MP_GTHAN:
-		case MP_LEQUAL:
-		case MP_GEQUAL:
-		case MP_NEQUAL:
+        case MP_LTHAN:
+        case MP_GTHAN:
+        case MP_LEQUAL:
+        case MP_GEQUAL:
+        case MP_NEQUAL:
         case MP_EQUAL:
         case MP_THEN:
         case MP_ELSE:
-		case MP_UNTIL:
-		case MP_DO:
-		case MP_TO:
-		case MP_DOWNTO:
+        case MP_UNTIL:
+        case MP_DO:
+        case MP_TO:
+        case MP_DOWNTO:
             // map to ε
-	        listRule(90); // List the rule number applied
+            listRule(90); // List the rule number applied
             break;
         default:
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
