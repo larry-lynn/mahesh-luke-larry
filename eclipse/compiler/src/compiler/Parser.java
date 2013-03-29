@@ -255,7 +255,7 @@ public class Parser {
     public void VariableDeclaration() {
     	// 8:VariableDeclaration      ⟶ Identifierlist ":" Type 
     	ArrayList<String> lexemes = new ArrayList<String>();
-    	ParserSymbol varType = null;
+    	SymbolType varType = null;
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
 	        //We should be looking at IDs coming up
@@ -277,8 +277,8 @@ public class Parser {
         }
     }
 
-    public ParserSymbol Type() {
-    	ParserSymbol symbolType = null;
+    public SymbolType Type() {
+    	SymbolType symbolType = null;
     	// 9. 	-> "Integer"
     	// 10. 	-> "Float"
     	// 11.	-> "Boolean"
@@ -287,20 +287,21 @@ public class Parser {
 	        case MP_INTEGER:
 		        listRule(9); // List the rule number applied
 	        	match(TokenType.MP_INTEGER);
-	        	symbolType = ParserSymbol.MP_SYMBOL_INTEGER;
+	        	symbolType = SymbolType.MP_SYMBOL_INTEGER;
 	        	break;
 	        case MP_FLOAT:
 		        listRule(10); // List the rule number applied
 	        	match(TokenType.MP_FLOAT);
-	        	symbolType = ParserSymbol.MP_SYMBOL_FLOAT;
+	        	symbolType = SymbolType.MP_SYMBOL_FLOAT;
 	        	break;
 	        // "Boolen" -> Identifier?
+                // XXX Fixme - we need to switch off of a new boolean token
 	        case MP_IDENTIFIER:
 	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
 	        	{
 			        listRule(11); // List the rule number applied
 	        		match(TokenType.MP_IDENTIFIER);
-	        		symbolType = ParserSymbol.MP_SYMBOL_BOOLEAN;
+	        		symbolType = SymbolType.MP_SYMBOL_BOOLEAN;
 	        	}
 	        	// The ID was something other than boolean, which should throw an error
 	        	else
@@ -419,7 +420,7 @@ public class Parser {
 
     	String functionName = "";
         ArrayList<Args> argList = new ArrayList<Args>();
-        ParserSymbol funcRetType = null;
+        SymbolType funcRetType = null;
         Function funcSym;
 
         switch(lookahead.token_name){
@@ -534,7 +535,7 @@ public class Parser {
 
         ArrayList<String> lexemes = new ArrayList<String>();
         ArrayList<Args> argList = new ArrayList<Args>();
-        ParserSymbol symbolType = null;
+        SymbolType symbolType = null;
         Args singleArg = null;
         
         switch (lookahead.token_name) {
@@ -566,7 +567,7 @@ public class Parser {
 
         ArrayList<String> lexemes = new ArrayList<String>();
         ArrayList<Args> argList = new ArrayList<Args>();
-        ParserSymbol symbolType = null;
+        SymbolType symbolType = null;
         Args singleArg = null;
     	
         switch (lookahead.token_name) {
@@ -899,9 +900,10 @@ public class Parser {
     }
 
     public void AssignmentStatement() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
         // 52: ⟶ FunctionIdentifier ":=" Expression
+
+    	infoLog( genStdInfoMsg() );
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             Boolean declared = currentTable.varHasBeenDeclared(lookahead.getLexeme());

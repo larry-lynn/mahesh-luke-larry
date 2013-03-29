@@ -1,5 +1,7 @@
 package compiler;
 
+// I think this is wrong - mixes kinds and types
+// this should probably be removed after refactoring -- Larry
 public enum ParserSymbol {
     // Symbol types so far
     MP_SYMBOL_INTEGER,

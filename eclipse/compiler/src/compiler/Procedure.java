@@ -22,7 +22,7 @@ public class Procedure extends Symbol{
 
     // Constructor
     public Procedure(String lex, ArrayList<Args> argList){
-        super(lex, ParserSymbol.MP_SYMBOL_PROCEDURE);
+        super(lex, SymbolKind.MP_SYMBOL_PROCEDURE);
         args = argList;
     }
     

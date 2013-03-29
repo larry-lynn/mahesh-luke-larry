@@ -1,22 +1,22 @@
 package compiler;
 
 public class Var extends Symbol {
-    private ParserSymbol var_data_type;
+    private SymbolType var_data_type;
        
        // Constructor if the input is known
-       public Var(ParserSymbol input){
-	   super("",input);
+       public Var(SymbolType input){
+	   super("", SymbolKind.MP_SYMBOL_VAR);
        	   this.var_data_type = input;
        }
        
        // Constructor if name & type are known
-       public Var(String lexeme, ParserSymbol input){
-	   super(lexeme ,input);
+       public Var(String lexeme, SymbolType input){
+	   super(lexeme, SymbolKind.MP_SYMBOL_VAR);
        	   this.setType(input);
        }
 
        // Set the var_data_type
-       public void setType(ParserSymbol input){
+       public void setType(SymbolType input){
        	      this.var_data_type = input;
        }
 }

@@ -6,12 +6,12 @@ public class Symbol {
 
     String lexeme;
     int offset;
-    ParserSymbol data_type;
+    SymbolKind kind;
     
     // Constructor
-    public Symbol(String lex, ParserSymbol type ){
+    public Symbol(String lex, SymbolKind symKind ){
         lexeme = lex;
-	data_type = type;
+	kind = symKind;
     }
     
     
@@ -19,10 +19,11 @@ public class Symbol {
     	return(this.lexeme);
     }
     
-    public ParserSymbol getDataType(){
-    	return(this.data_type);
+    public SymbolKind getKind(){
+    	return(this.kind);
     }
 
+    // XXX I don't think this is right -- Larry
     public void setOffset(int lastOffset){
 	offset = lastOffset + 1;
     }

@@ -46,7 +46,7 @@ public class SymbolTreeNode {
 
     public void traverse(){
     	String outputLine;
-    	ParserSymbol symbolType;
+    	SymbolKind symbolKind;
         StringBuilder argList = null;
         Procedure proc = null;
         Function func = null;
@@ -56,8 +56,8 @@ public class SymbolTreeNode {
             left.traverse();
         }
         if (payload != null){
-            symbolType = payload.getDataType();
-            switch(symbolType){
+            symbolKind = payload.getKind();
+            switch(symbolKind){
 
             case MP_SYMBOL_PROCEDURE:
                 argList = new StringBuilder();
@@ -70,7 +70,7 @@ public class SymbolTreeNode {
                     argList.append(a.getLexeme());
                 }
                 argList.append(")");
-                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), argList.toString(), "");
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getKind(), argList.toString(), "");
                 
                 break;
             case MP_SYMBOL_FUNCTION:
@@ -84,12 +84,12 @@ public class SymbolTreeNode {
                     argList.append(a.getLexeme());
                 }
                 argList.append(")");
-                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), argList.toString(), "");
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getKind(), argList.toString(), "");
                 
                 break;
                 
             default:
-                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getDataType(), "", "");
+                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getKind(), "", "");
                 break;
             }
         	
