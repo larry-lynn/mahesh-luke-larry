@@ -10,6 +10,8 @@
     <delete dir="${dist}"/>
     <delete>
       <fileset dir="${data}/scanner/" includes="*.tok"/>
+      <fileset dir="${data}/parser/" includes="*.infolog.txt"/>
+      <fileset dir="${data}/parser/" includes="*.rulelog.txt"/>    	
       <fileset dir="${data}/" includes="*.infolog.txt"/>
       <fileset dir="${data}/" includes="*.rulelog.txt"/>
     </delete>
@@ -123,59 +125,62 @@
     </java>
   </target>
 	
-  <target depends="compile" name="run">
+  <target depends="compile" name="run-parser">
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input13.mp"/>
+      <arg value="parser/parse_input13.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_read.mp"/>
+      <arg value="parser/parse_input_read.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_read2.mp"/>
+      <arg value="parser/parse_input_read2.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_write.mp"/>
+      <arg value="parser/parse_input_write.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_assign.mp"/>
+      <arg value="parser/parse_input_assign.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_if.mp"/>
+      <arg value="parser/parse_input_if.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_for.mp"/>
+      <arg value="parser/parse_input_for.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_while.mp"/>
+      <arg value="parser/parse_input_while.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_repeat.mp"/>
+      <arg value="parser/parse_input_repeat.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_procedure.mp"/>
+      <arg value="parser/parse_input_procedure.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_function.mp"/>
+      <arg value="parser/parse_input_function.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="parse_input_function2.mp"/>
+      <arg value="parser/parse_input_function2.mp"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="program2.up"/>
+      <arg value="parser/program2.up"/>
     </java>
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="program3.up"/>
-    </java>
-    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="symbol_undeclared_var.mp"/>
-    </java>
-    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="symbol_declare_procedure.mp"/>
-    </java>
-    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-      <arg value="symbol_declare_function.mp"/>
+      <arg value="parser/program3.up"/>
     </java>
 
+  </target>
+  	
+    <target depends="compile" name="run">
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="symbol_undeclared_var.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="symbol_declare_procedure.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="symbol_declare_function.mp"/>
+      </java>
   	
   </target>
 	
