@@ -762,6 +762,7 @@ public class Parser {
             switch(idKind){
             case MP_SYMBOL_VAR:
             case MP_SYMBOL_FUNCTION:
+            case MP_SYMBOL_PARAMETER:
                 // 36:Statement ⟶ AssignmentStatement
                 listRule(36); // List the rule number applied
                 AssignmentStatement();      
@@ -774,7 +775,7 @@ public class Parser {
             // parsing error
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
                 System.out.println("Found Identifier token: " + lookahead.getLexeme()
-                    + ", of kind: " + idKind + ", looking for variable, function or procedure");
+                    + ", of kind: " + idKind + ", looking for variable, function, parameter or procedure");
                 System.exit(-7);         
             }
             // 36:Statement ⟶ AssignmentStatement
@@ -963,6 +964,8 @@ public class Parser {
 
             switch(idKind){
             case MP_SYMBOL_VAR:
+	    // XXX double check this, and see if this is legal
+            case MP_SYMBOL_PARAMETER:
                 listRule(51); // List the rule number applied
                 VariableIdentifier();
                 match(TokenType.MP_ASSIGN);
@@ -979,7 +982,7 @@ public class Parser {
             // parsing error
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
                 System.out.println("Found Identifier token: " + lookahead.getLexeme()
-                    + ", of kind: " + idKind + ", looking for variable or function");
+                    + ", of kind: " + idKind + ", looking for variable, parameter or function");
                 System.exit(-7);         
             }
             

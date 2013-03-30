@@ -1,4 +1,4 @@
-Program foo;
+Program parse_input_procedure;
 
 var 
 Three, Blind, Mice : integer;
