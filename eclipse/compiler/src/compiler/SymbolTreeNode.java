@@ -23,12 +23,12 @@ public class SymbolTreeNode {
             return true;
         }
         // case 2 - matching lexems - collision
-        else if( (newNode.getLexeme().compareTo(payload.getLexeme() )) == 0){
+        else if( (newNode.getLexeme().compareToIgnoreCase(payload.getLexeme() )) == 0){
             return false;
         }
         // case 3 - the new symbol is lexicographically lower
         //        - go deeper down the left hand side of the tree
-        else if( (newNode.getLexeme().compareTo(payload.getLexeme() )) < 0){
+        else if( (newNode.getLexeme().compareToIgnoreCase(payload.getLexeme() )) < 0){
             if(left == null){
                 left = new SymbolTreeNode();
             }
@@ -104,10 +104,10 @@ public class SymbolTreeNode {
         if(payload == null){
             return null;
         }
-        else if(lexeme.equals( payload.getLexeme() ) ){
+        else if(lexeme.equalsIgnoreCase( payload.getLexeme() ) ){
             return(payload);
         }
-        else if( (lexeme.compareTo(payload.getLexeme() )) < 0){
+        else if( (lexeme.compareToIgnoreCase(payload.getLexeme() )) < 0){
             if(left == null){
                 return null;
             }
@@ -120,5 +120,36 @@ public class SymbolTreeNode {
             return(right.search(lexeme));
         }
     }  // end search
+
+    /*
+    public Symbol iSearch(String lexeme){
+        System.out.println("Searching for " + lexeme);
+        
+        String lexLower = lexeme.toLowerCase();
+        if(payload == null){
+            return null;
+        }
+        String payloadLex = payload.getLexeme();
+        System.out.println("Current nod payload is: " + payloadLex);
+        String payloadLexLower = payloadLex.toLowerCase();      
+      
+
+        if(lexLower.equals( payloadLexLower ) ){
+            return(payload);
+        }
+        else if( (lexLower.compareTo( payloadLexLower )) < 0){
+            if(left == null){
+                return null;
+            }
+            return(left.iSearch( lexLower ));
+        }
+        else {
+            if(right == null){
+                return null;
+            }
+            return(right.iSearch( lexLower ));
+        }
+    }  // end search
+    */
 	
 }

@@ -24,11 +24,11 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean parsingOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
-        parse = new Parser(infile, parsingOn);
+        parse = new Parser(infile, debugOn);
         
         //Write input file name to LogFile.txt and RulesAppled.txt
         parse.infoLog(message);
@@ -54,9 +54,9 @@ public class Parser {
     }
     
     // Constructor 2
-    public Parser(String fileWithPath, Boolean setDebugLevel) throws Exception {
+    public Parser(String fileWithPath, Boolean enableDebug) throws Exception {
         // turn on verbose messages if passed as an argument to constructor
-        debug = setDebugLevel;
+        debug = enableDebug;
         
         scan = new Scanner();
         scan.openFile(fileWithPath);
@@ -412,6 +412,11 @@ public class Parser {
         }
         procSym = new Procedure(procedureName, argList);
         currentTable.insert(procSym);
+        // XXX fixme - we need to make a new sub-symbol table here
+        for(Args argument : argList){
+            currentTable.insert(argument);
+        }
+
     }
 
     public void FunctionHeading() {
@@ -440,6 +445,11 @@ public class Parser {
         }
         funcSym = new Function(functionName, funcRetType, argList);
         currentTable.insert(funcSym);
+        // XXX fixme - we need to make a new sub-symbol table here
+        for(Args argument : argList){
+            currentTable.insert(argument);
+        }
+        
     }
     
     public ArrayList<Args> OptionalFormalParameterList() {
@@ -689,6 +699,9 @@ public class Parser {
     public void Statement() {
     	infoLog( genStdInfoMsg() );
 
+        SymbolKind idKind = null;
+        String lex = "";
+
         switch (lookahead.token_name) {
         case MP_END:
         case MP_UNTIL:
@@ -736,13 +749,40 @@ public class Parser {
             WriteStatement();
             break;
         case MP_IDENTIFIER:
+            // use symbol table to dis-ambiguate different kinds of identifiers
+            lex = lookahead.getLexeme();
+            idKind = currentTable.getKindByLexeme( lex );
+
+            if(idKind == null){
+                System.out.println("Attempted to look up an undeclared variable: "+ lex);
+                currentTable.dump();
+                System.exit(-8);
+            }
+
+            switch(idKind){
+            case MP_SYMBOL_VAR:
+            case MP_SYMBOL_FUNCTION:
+                // 36:Statement ⟶ AssignmentStatement
+                listRule(36); // List the rule number applied
+                AssignmentStatement();      
+                break;            
+            case MP_SYMBOL_PROCEDURE:
+                // 41:Statement ⟶ ProcedureStatement
+                listRule(41);
+                ProcedureStatement();    
+            default:
+            // parsing error
+                System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+                System.out.println("Found Identifier token: " + lookahead.getLexeme()
+                    + ", of kind: " + idKind + ", looking for variable, function or procedure");
+                System.exit(-7);         
+            }
             // 36:Statement ⟶ AssignmentStatement
             // 41:Statement ⟶ ProcedureStatement
             // XXX Fixme -- AMBIGUOUS!! -- don't know how to resolve this yet.
             // Commenting out for now
-                listRule(36); // List the rule number applied
-            AssignmentStatement();
-            // ProcedureStatement();
+
+
             break;
         default:
             // parsing error
@@ -902,8 +942,11 @@ public class Parser {
     public void AssignmentStatement() {
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
         // 52: ⟶ FunctionIdentifier ":=" Expression
-
     	infoLog( genStdInfoMsg() );
+
+        SymbolKind idKind = null;
+        String lex = "";
+
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             Boolean declared = currentTable.varHasBeenDeclared(lookahead.getLexeme());
@@ -913,10 +956,32 @@ public class Parser {
                 System.out.println("Attempted to assign a value to an undeclared variable: "+ lookahead.getLexeme() );
                 System.exit(-6);
             }
-            listRule(51); // List the rule number applied
-            VariableIdentifier();
-            match(TokenType.MP_ASSIGN);
-            Expression();
+
+            // use symbol table to resolve ambiguity in language
+            lex = lookahead.getLexeme();
+            idKind = currentTable.getKindByLexeme( lex );
+
+            switch(idKind){
+            case MP_SYMBOL_VAR:
+                listRule(51); // List the rule number applied
+                VariableIdentifier();
+                match(TokenType.MP_ASSIGN);
+                Expression();
+                break;
+            case MP_SYMBOL_FUNCTION:
+                listRule(52); // List the rule number applied
+                FunctionIdentifier(); 
+                match(TokenType.MP_ASSIGN); 
+                Expression(); 
+                break;
+
+            default:
+            // parsing error
+                System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+                System.out.println("Found Identifier token: " + lookahead.getLexeme()
+                    + ", of kind: " + idKind + ", looking for variable or function");
+                System.exit(-7);         
+            }
             
             break;
          // XXX - Ambiguity - not sure how to resolve this yet
@@ -1225,7 +1290,11 @@ public class Parser {
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
-                listRule(69); // List the rule number applied
+        case MP_LPAREN:
+        case MP_NOT:
+        case MP_IDENTIFIER:
+        case MP_INTEGER_LIT:
+            listRule(69); // List the rule number applied
             OrdinalExpression();
             break;
         default:
@@ -1461,9 +1530,9 @@ public class Parser {
     }
 
     public void Term() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//88:Term                    ⟶ Factor FactorTail 
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
         switch (lookahead.token_name) {
         case MP_NOT:
         case MP_IDENTIFIER:
@@ -1561,13 +1630,16 @@ public class Parser {
     }
 
     public void Factor() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//95:Factor                  ⟶ UnsignedInteger
 	//96:                        ⟶ VariableIdentifier
 	//97:                        ⟶ "not" Factor
 	//98:                        ⟶ "(" Expression ")"
 	//99:                        ⟶ FunctionIdentifier OptionalActualParameterList
+    	infoLog( genStdInfoMsg() );
+
+        SymbolKind idKind = null;
+        String lex = "";
+
         switch (lookahead.token_name) {
         case MP_NOT:
 	        listRule(97); // List the rule number applied
@@ -1586,15 +1658,42 @@ public class Parser {
             match(TokenType.MP_RPAREN);
             break;
         case MP_IDENTIFIER:
-	        listRule(96); // List the rule number applied
-            VariableIdentifier();
-            break;
+
+            // use symbol table to resolve ambiguity in language
+            lex = lookahead.getLexeme();
+            idKind = currentTable.getKindByLexeme( lex );
+            if(idKind == null){
+                System.out.println("Attempted to look up an undeclared variable: "+ lex);
+                currentTable.dump();
+                System.exit(-9);
+            }
+
+            switch(idKind){
+            case MP_SYMBOL_VAR:
+            case MP_SYMBOL_PARAMETER:
+                listRule(96); // List the rule number applied
+                VariableIdentifier();
+                break;
+            case MP_SYMBOL_FUNCTION:
+                listRule(99); // List the rule number applied
+                FunctionIdentifier(); 
+                OptionalActualParameterList(); 
+                break;
+
+            default:
+            // parsing error
+                System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
+                System.out.println("Found Identifier token: " + lookahead.getLexeme()
+                    + ", of kind: " + idKind + ", looking for variable or function");
+                System.exit(-7);         
+            }
+	break;
             // ambiguity
             // XXX Fixme: add in lookahead for FunctionIdentifier();
             // Probably need symbol table for this.
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getMethodName() );
 			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }

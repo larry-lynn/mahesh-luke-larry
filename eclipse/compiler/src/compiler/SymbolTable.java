@@ -63,5 +63,20 @@ public class SymbolTable {
             return(false);
         }
     }
+
+    public SymbolKind getKindByLexeme(String needle){
+        Symbol possible_hit;
+        SymbolKind kind = null;
+
+        possible_hit = root.search(needle);
+        if(possible_hit != null){
+            kind = possible_hit.getKind();
+            return(kind);
+        }
+        else{
+            return(null);
+        }
+    }
+
     
 }

@@ -10,11 +10,14 @@ FUNCTION fibonacci( a : integer) : integer;
     Begin
         Y := a - 1;
         Z := a - 2;
-        if ( a < 2 )
-        THEN
-            fibonacci := a {dont terminate with ';' - statement, not stat seq}
+        if (a < 1)
+        then
+            fibonacci := 0
+        else if (a = 1)
+        then
+            fibonacci := 1
         ELSE
-            fibonacci := fibonacci( Y ) + fibonacci( Z ) {again no ';'}
+            fibonacci := fibonacci( Y ) + fibonacci( Z ) 
     End
     ;
 
