@@ -295,7 +295,13 @@ public class Parser {
 	        	symbolType = SymbolType.MP_SYMBOL_FLOAT;
 	        	break;
 	        // "Boolen" -> Identifier?
-                // XXX Fixme - we need to switch off of a new boolean token
+            // XXX Fixme - we need to switch off of a new boolean token
+	        // -- Updated with new reserved word of MP_BOOLEAN on 3/31/13
+	        case MP_BOOLEAN:
+	        	listRule(11); // List the rule number applied
+	        	match(TokenType.MP_BOOLEAN);
+	        	symbolType = SymbolType.MP_SYMBOL_BOOLEAN;
+	        	break;
 	        case MP_IDENTIFIER:
 	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
 	        	{

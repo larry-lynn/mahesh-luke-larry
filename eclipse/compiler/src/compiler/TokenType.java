@@ -28,6 +28,12 @@ public enum TokenType {
 	MP_VAR,
 	MP_WHILE,
 	MP_WRITE,
+	// New MP words added
+	MP_WRITELN,
+	MP_STRING,
+	MP_BOOLEAN,
+	MP_TRUE,
+	MP_FALSE,
 	
 	// Identifiers and Literals
     MP_IDENTIFIER,
