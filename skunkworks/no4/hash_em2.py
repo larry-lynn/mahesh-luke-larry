@@ -18,7 +18,7 @@ def knuth_variant(k):
 
 the_list =["and","begin","div","do","downto","else","end","fixed","float","for","function","if","integer","mod","not","or","procedure","program","read","repeat","then","to","until","var","while","write"]
 
-the_other_list = ["and","begin","div","do","downto","else","end","fixed","float","for","function","if","integer","mod","not","or","procedure","program","read","repeat","then","to","until","var","while","write","writeln","boolean","string",]
+the_other_list = ["and","begin","div","do","downto","else","end","fixed","float","for","function","if","integer","mod","not","or","procedure","program","read","repeat","then","to","until","var","while","write","string","boolean","writeln","true","false"]
 
 #the_list = ["do"]
 
