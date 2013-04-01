@@ -59,6 +59,8 @@ public enum TokenType {
     MP_MINUS,
     MP_TIMES,
     MP_COLON,
+	// Another new Symbol
+	MP_DIVIDE,
     
     // End of File
     MP_EOF,
