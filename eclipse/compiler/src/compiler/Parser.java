@@ -100,6 +100,19 @@ public class Parser {
         ruleFileHandle.close();
     }
 
+    // Method to create new symbol table
+    public void createNewSymbolTable(String newSymbolTableName){
+	SymbolTableStack.push(new SymbolTable(newSymbolTableName));
+	currentTable = SymbolTableStack.peek();
+    }
+
+    // Method to destroy a symbol table
+    public void destroySymbolTable(){
+	// Generate code for symbol table here
+	SymbolTableStack.pop();
+	currentTable = SymbolTableStack.peek();
+    }
+
     public String match(TokenType compareTok) {
     	String processedLexeme = "";
         if (lookahead.token_name == compareTok) {
@@ -635,6 +648,8 @@ public class Parser {
 	        	match(TokenType.MP_BEGIN);
 	            StatementSequence();
 	        	match(TokenType.MP_END);
+			// End of procedure/function/program. Destroy the symbol table here.
+			destroySymbolTable();
 	        	break;
 	        default:
 	            // parsing error
@@ -1717,7 +1732,8 @@ public class Parser {
 	        listRule(100); // List the rule number applied
             tableName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table 
-            currentTable = new SymbolTable(tableName);
+            // currentTable = new SymbolTable(tableName);
+	    createNewSymbolTable(tableName);
             break;
         default:
             // parsing error
@@ -1753,6 +1769,11 @@ public class Parser {
         case MP_IDENTIFIER:
 	        listRule(102); // List the rule number applied
             procedureName = match(TokenType.MP_IDENTIFIER);
+            // YYY create symbol table for new procedure -- Mahesh
+	    String tableName = "";
+            tableName = match(TokenType.MP_IDENTIFIER);
+            //currentTable = new SymbolTable(tableName);
+	    createNewSymbolTable(tableName);
             break;
         default:
             // parsing error
@@ -1772,6 +1793,11 @@ public class Parser {
         case MP_IDENTIFIER:
 	    listRule(103); // List the rule number applied
             functionName = match(TokenType.MP_IDENTIFIER);
+            // YYY create symbol table for new function -- Mahesh
+	    String tableName = "";
+            tableName = match(TokenType.MP_IDENTIFIER);
+            //currentTable = new SymbolTable(tableName);
+	    createNewSymbolTable(tableName);
             break;
         default:
             // parsing error
