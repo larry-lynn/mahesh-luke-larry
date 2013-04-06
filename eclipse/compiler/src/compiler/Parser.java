@@ -110,7 +110,40 @@ public class Parser {
     public void destroySymbolTable(){
 	// Generate code for symbol table here
 	SymbolTableStack.pop();
+	if(!SymbolTableStack.empty()){
+	    currentTable = SymbolTableStack.peek();
+	}
+    }
+
+    public boolean searchSymbolTableStack( String lexemeToSearch){
+	boolean symbolFound = false;
+	Stack<SymbolTable> TempStack = new Stack<SymbolTable>();
+	SymbolTable table = new SymbolTable("TemporaryTable");
+	
+	while(!SymbolTableStack.empty()){
+	    table = SymbolTableStack.peek();
+	    String found = table.lookup(lexemeToSearch);
+	    if(found.equalsIgnoreCase("Not Found")){
+		TempStack.push(table);
+		SymbolTableStack.pop();
+		symbolFound = false;
+	    }
+	    else{
+		//System.out.println("Symbol found: " + found);
+		symbolFound = true;
+		break;
+	    }
+	}
+
+	while(!TempStack.empty()){
+	    SymbolTableStack.push(TempStack.pop());
+	}
 	currentTable = SymbolTableStack.peek();
+
+	//if(symbolFound == false)
+	//System.out.println("Symbol not found");
+
+	return symbolFound;
     }
 
     public String match(TokenType compareTok) {
@@ -286,7 +319,9 @@ public class Parser {
         }
         for(String lexeme: lexemes){
         	Var newVar = new Var(lexeme, varType);
-        	currentTable.insert(newVar);
+		if(!searchSymbolTableStack(lexeme)){
+		    currentTable.insert(newVar);
+		}
         }
     }
 
@@ -1771,7 +1806,7 @@ public class Parser {
             procedureName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table for new procedure -- Mahesh
 	    String tableName = "";
-            tableName = match(TokenType.MP_IDENTIFIER);
+            tableName = procedureName;
             //currentTable = new SymbolTable(tableName);
 	    createNewSymbolTable(tableName);
             break;
@@ -1795,7 +1830,7 @@ public class Parser {
             functionName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table for new function -- Mahesh
 	    String tableName = "";
-            tableName = match(TokenType.MP_IDENTIFIER);
+            tableName = functionName;
             //currentTable = new SymbolTable(tableName);
 	    createNewSymbolTable(tableName);
             break;
