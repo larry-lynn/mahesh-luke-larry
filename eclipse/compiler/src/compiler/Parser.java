@@ -12,6 +12,7 @@ public class Parser {
     PrintWriter logFileHandle;
     PrintWriter ruleFileHandle;
     Boolean debug;
+	int newBlockStarted = 0;	//Used for checking start and end of a procedure block or function block
     //SymbolTable masterTable;
     Stack<SymbolTable> SymbolTableStack;
     SymbolTable currentTable;
@@ -681,10 +682,13 @@ public class Parser {
 	        case MP_BEGIN:
 		        listRule(28); // List the rule number applied
 	        	match(TokenType.MP_BEGIN);
+				newBlockStarted--;	//To check the start and end of procedure and function block
 	            StatementSequence();
 	        	match(TokenType.MP_END);
-			// End of procedure/function/program. Destroy the symbol table here.
-			destroySymbolTable();
+				// End of procedure/function/program. Destroy the symbol table if variable 'newBlockStarted' is 0
+				if (newBlockStarted == 0)
+					destroySymbolTable();
+				newBlockStarted++;	//To check the start and end of procedure and function block
 	        	break;
 	        default:
 	            // parsing error
@@ -1761,14 +1765,15 @@ public class Parser {
     public void ProgramIdentifier() {
     	String tableName = "";
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-	//100:ProgramIdentifier    ⟶ Identifier
+		//100:ProgramIdentifier    ⟶ Identifier
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
 	        listRule(100); // List the rule number applied
             tableName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table 
             // currentTable = new SymbolTable(tableName);
-	    createNewSymbolTable(tableName);
+			createNewSymbolTable(tableName);
+			newBlockStarted++;	// To check the start of a block
             break;
         default:
             // parsing error
@@ -1805,10 +1810,11 @@ public class Parser {
 	        listRule(102); // List the rule number applied
             procedureName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table for new procedure -- Mahesh
-	    String tableName = "";
+			String tableName = "";
             tableName = procedureName;
             //currentTable = new SymbolTable(tableName);
-	    createNewSymbolTable(tableName);
+			createNewSymbolTable(tableName);
+			newBlockStarted++;	// To check the start of a block
             break;
         default:
             // parsing error
@@ -1829,10 +1835,11 @@ public class Parser {
 	    listRule(103); // List the rule number applied
             functionName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table for new function -- Mahesh
-	    String tableName = "";
+			String tableName = "";
             tableName = functionName;
             //currentTable = new SymbolTable(tableName);
-	    createNewSymbolTable(tableName);
+			createNewSymbolTable(tableName);
+			newBlockStarted++;
             break;
         default:
             // parsing error
