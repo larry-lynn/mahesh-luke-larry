@@ -2,7 +2,6 @@ package compiler;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Stack;
 
 import compiler.Args.Call_Method;
 
@@ -133,15 +132,16 @@ public class Parser {
 
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
-	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 1:SystemGoal      ⟶ Program eof    
+        // 1:SystemGoal      ⟶ Program eof    
+        infoLog( genStdInfoMsg());
+
         switch(lookahead.token_name){
         	case MP_PROGRAM:
 		        listRule(1); // List the rule number applied
         		Program();
         		match(TokenType.MP_EOF);
-                symbolTableHandle.dump();
+        		// XXX this might always be the same as dumpTop() in this context
+                symbolTableHandle.dumpAll();
         		break;
 	        default:
 		        // parsing error
@@ -341,7 +341,7 @@ public class Parser {
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
 	        case MP_FUNCTION:
-		            listRule(13); // List the rule number applied
+		        listRule(13); // List the rule number applied
 	        	FunctionDeclaration();
 	        	ProcedureAndFunctionDeclarationPart();
 	        	break;
@@ -368,6 +368,9 @@ public class Parser {
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
 	        	match(TokenType.MP_SCOLON);
+	              // XXX should we do this just in debug mode?
+                symbolTableHandle.dumpTop();
+                symbolTableHandle.ascendContextDestroyTable();
 	        	break;
 	        default:
 	        	// parsing error
@@ -387,6 +390,9 @@ public class Parser {
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
 	        	match(TokenType.MP_SCOLON);
+	        	// XXX should we do this just in debug mode?
+	        	symbolTableHandle.dumpTop();
+	        	symbolTableHandle.ascendContextDestroyTable();
 	        	break;
 	        default:
 		        // parsing error
@@ -419,7 +425,8 @@ public class Parser {
         }
         procSym = new Procedure(procedureName, argList);
         symbolTableHandle.insert(procSym);
-        // XXX fixme - we need to make a new sub-symbol table here
+
+        symbolTableHandle.newSymbolTableForNewContext(procedureName);
         for(Args argument : argList){
             symbolTableHandle.insert(argument);
         }
@@ -452,7 +459,8 @@ public class Parser {
         }
         funcSym = new Function(functionName, funcRetType, argList);
         symbolTableHandle.insert(funcSym);
-        // XXX fixme - we need to make a new sub-symbol table here
+
+        symbolTableHandle.newSymbolTableForNewContext(functionName);
         for(Args argument : argList){
             symbolTableHandle.insert(argument);
         }
@@ -762,7 +770,7 @@ public class Parser {
 
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
-                symbolTableHandle.dump();
+                symbolTableHandle.dumpAll();
                 System.exit(-8);
             }
 
@@ -1674,7 +1682,7 @@ public class Parser {
             idKind = symbolTableHandle.getKindByLexeme( lex );
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
-                symbolTableHandle.dump();
+                symbolTableHandle.dumpAll();
                 System.exit(-9);
             }
 

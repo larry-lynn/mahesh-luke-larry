@@ -24,19 +24,24 @@ public class SymbolTableMaster {
         }
     }
     
-    public void dump(){
-        // XXX needs to be fixed to dump all tables
+    public void dumpAll(){
         SymbolTable currentTable;
         while(!symbolTableStack.empty() ){
             currentTable = popAndSave();
             currentTable.dump();
         }
-        // XXX needs to be fixed to re-wind
         rewind();
     }
     
+    public void dumpTop(){
+        SymbolTable currentTable;
+        if(!symbolTableStack.empty()){
+            currentTable = symbolTableStack.peek();
+            currentTable.dump();
+        }
+    }
+    
     public SymbolKind getKindByLexeme(String needle){
-        // XXX needs to change to search multiple tables
         SymbolTable currentTable;
         SymbolKind retVal = null;
         while(!symbolTableStack.empty() ){
@@ -54,7 +59,6 @@ public class SymbolTableMaster {
     }
     
     public Boolean varHasBeenDeclared(String needle){
-         // XXX needs to change to search multiple tables
         SymbolTable currentTable;
         Boolean retVal = false;
         while(!symbolTableStack.empty() ){
@@ -70,9 +74,14 @@ public class SymbolTableMaster {
     }
     
     public void newSymbolTableForNewContext(String tableName){
-        // XXX needs massive rework
         SymbolTable tmpTable = new SymbolTable(tableName);
         symbolTableStack.push(tmpTable);
+    }
+    
+    public void ascendContextDestroyTable(){
+        // pop a symbol table and just throw it away
+        symbolTableStack.pop();
+        return;
     }
     
     private void rewind(){
