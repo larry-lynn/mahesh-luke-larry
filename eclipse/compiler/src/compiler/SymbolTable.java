@@ -29,7 +29,7 @@ public class SymbolTable {
     public boolean insert(Symbol newNode){
 	boolean ret_val = root.insert(newNode);
         if(ret_val){
-	    symbolCount++;
+	        symbolCount++;
         }
         return ret_val;
     }

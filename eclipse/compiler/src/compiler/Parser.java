@@ -13,8 +13,9 @@ public class Parser {
     PrintWriter ruleFileHandle;
     Boolean debug;
     //SymbolTable masterTable;
-    Stack<SymbolTable> SymbolTableStack;
-    SymbolTable currentTable;
+    
+    //SymbolTable symbolTableHandle;
+    SymbolTableMaster symbolTableHandle;
 
     public static void main(String[] args) throws Exception{
         if( (args.length == 0) || (args.length > 1) ){
@@ -49,8 +50,8 @@ public class Parser {
         lookahead = scan.getToken();
         logFileHandle = new PrintWriter(fileWithPath + ".infolog.txt");
         ruleFileHandle = new PrintWriter(fileWithPath + ".rulelog.txt");
+        symbolTableHandle = new SymbolTableMaster();
         
-        SymbolTableStack = new Stack<SymbolTable>();
     }
     
     // Constructor 2
@@ -64,8 +65,8 @@ public class Parser {
         lookahead = scan.getToken();
         logFileHandle = new PrintWriter(fileWithPath + ".infolog.txt");
         ruleFileHandle = new PrintWriter(fileWithPath + ".rulelog.txt");
+        symbolTableHandle = new SymbolTableMaster();
         
-        SymbolTableStack = new Stack<SymbolTable>();
     }
 
     //method to write the token names to file data/LogFile.txt
@@ -140,7 +141,7 @@ public class Parser {
 		        listRule(1); // List the rule number applied
         		Program();
         		match(TokenType.MP_EOF);
-                currentTable.dump();
+                symbolTableHandle.dump();
         		break;
 	        default:
 		        // parsing error
@@ -273,7 +274,7 @@ public class Parser {
         }
         for(String lexeme: lexemes){
         	Var newVar = new Var(lexeme, varType);
-        	currentTable.insert(newVar);
+        	symbolTableHandle.insert(newVar);
         }
     }
 
@@ -417,10 +418,10 @@ public class Parser {
 		        System.exit(-5);
         }
         procSym = new Procedure(procedureName, argList);
-        currentTable.insert(procSym);
+        symbolTableHandle.insert(procSym);
         // XXX fixme - we need to make a new sub-symbol table here
         for(Args argument : argList){
-            currentTable.insert(argument);
+            symbolTableHandle.insert(argument);
         }
 
     }
@@ -450,10 +451,10 @@ public class Parser {
 		        System.exit(-5);
         }
         funcSym = new Function(functionName, funcRetType, argList);
-        currentTable.insert(funcSym);
+        symbolTableHandle.insert(funcSym);
         // XXX fixme - we need to make a new sub-symbol table here
         for(Args argument : argList){
-            currentTable.insert(argument);
+            symbolTableHandle.insert(argument);
         }
         
     }
@@ -757,11 +758,11 @@ public class Parser {
         case MP_IDENTIFIER:
             // use symbol table to dis-ambiguate different kinds of identifiers
             lex = lookahead.getLexeme();
-            idKind = currentTable.getKindByLexeme( lex );
+            idKind = symbolTableHandle.getKindByLexeme( lex );
 
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
-                currentTable.dump();
+                symbolTableHandle.dump();
                 System.exit(-8);
             }
 
@@ -956,7 +957,7 @@ public class Parser {
 
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-            Boolean declared = currentTable.varHasBeenDeclared(lookahead.getLexeme());
+            Boolean declared = symbolTableHandle.varHasBeenDeclared(lookahead.getLexeme());
             if(!declared){
                 // XXX : move this into a better error handler
                 System.out.println("Symbol error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
@@ -966,7 +967,7 @@ public class Parser {
 
             // use symbol table to resolve ambiguity in language
             lex = lookahead.getLexeme();
-            idKind = currentTable.getKindByLexeme( lex );
+            idKind = symbolTableHandle.getKindByLexeme( lex );
 
             switch(idKind){
             case MP_SYMBOL_VAR:
@@ -1670,10 +1671,10 @@ public class Parser {
 
             // use symbol table to resolve ambiguity in language
             lex = lookahead.getLexeme();
-            idKind = currentTable.getKindByLexeme( lex );
+            idKind = symbolTableHandle.getKindByLexeme( lex );
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
-                currentTable.dump();
+                symbolTableHandle.dump();
                 System.exit(-9);
             }
 
@@ -1717,7 +1718,7 @@ public class Parser {
 	        listRule(100); // List the rule number applied
             tableName = match(TokenType.MP_IDENTIFIER);
             // YYY create symbol table 
-            currentTable = new SymbolTable(tableName);
+            symbolTableHandle.newSymbolTableForNewContext(tableName);
             break;
         default:
             // parsing error
