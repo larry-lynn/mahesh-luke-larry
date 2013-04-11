@@ -123,6 +123,9 @@
     <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
       <arg value="./data/scanner/test25.mp"/>
     </java>
+    <java dir="../../" fork="true" jar="${dist}/jar/mp" maxmemory="1024m">
+      <arg value="./data/scanner/test_div.mp"/>
+    </java>
   </target>
 	
   <target depends="compile" name="run-parser">
