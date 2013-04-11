@@ -193,6 +193,9 @@ public class Parser {
     	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
         switch(lookahead.token_name){
 	        case MP_VAR:
+			case MP_BEGIN:
+			case MP_PROCEDURE:
+			case MP_FUNCTION:
 		        listRule(4); // List the rule number applied
 	        	VariableDeclarationPart();
 	        	ProcedureAndFunctionDeclarationPart();
@@ -217,7 +220,7 @@ public class Parser {
 	        	match(TokenType.MP_SCOLON);
 	        	VariableDeclarationTail();
 	        	break;
-	        case MP_BEGIN:
+			case MP_BEGIN:
 			case MP_PROCEDURE:
 			case MP_FUNCTION:
 				listRule(107);
@@ -770,6 +773,7 @@ public class Parser {
             WhileStatement();
             break;
         case MP_WRITE:
+		case MP_WRITELN:
             // 35:Statement ⟶ WriteStatement
                 listRule(35); // List the rule number applied
             WriteStatement();
@@ -1351,6 +1355,7 @@ public class Parser {
         case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
+	case MP_STRING_LIT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
                 listRule(70); // List the rule number applied
@@ -1454,6 +1459,7 @@ public class Parser {
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
+		case MP_STRING_LIT:
         case MP_INTEGER_LIT:
                 listRule(79); // List the rule number applied
             OptionalSign();
@@ -1527,6 +1533,7 @@ public class Parser {
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
+		case MP_STRING_LIT:
         case MP_INTEGER_LIT:
 	    // map to ε
                 listRule(84); // List the rule number applied
@@ -1574,6 +1581,7 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+		case MP_STRING_LIT:
         case MP_LPAREN:
 	        listRule(88); // List the rule number applied
             Factor();
