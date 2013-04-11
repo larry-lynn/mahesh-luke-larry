@@ -218,8 +218,10 @@ public class Parser {
 	        	VariableDeclarationTail();
 	        	break;
 	        case MP_BEGIN:
-		    listRule(107);
-		    break;
+			case MP_PROCEDURE:
+			case MP_FUNCTION:
+				listRule(107);
+				break;
 	        default:
 	        	// Might need some follow here since Tail could go to nothing
 		        // parsing error
