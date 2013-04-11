@@ -172,6 +172,12 @@ public class Scanner {
 					tok = MPTimesFSM();
 					dispatcherState = State.q7;
 					break;
+
+				// Dispatch to the Division FSM
+				case '/':
+				        tok = MPDivisionFSM();
+					dispatcherState = State.q7;
+					break;
 					
 				//Falling through switch statements to check for a-z,A-Z which will test for valid tokens
 				case 'a':
@@ -1465,11 +1471,56 @@ public class Scanner {
 		file_pointer += peek;
 		return coin;
 	}
+
+        //Method:               Determine Divison
+        //Input:                Takes the current pointer of the file
+        //Output:               Returns a Token containing the information
+        //Procedure:            Determines whether or not the file pointer is looking at a "/?
+        public Token MPDivisionFSM()    {
+        //Token coin containing the information                                                                                                               
+	Token coin = new Token(TokenType.MP_DIVISION,"/");
+	//State object for the times fsm                                                                                                                      
+	State t_fsm = State.q0;
+	//Int object peek to look ahead of the file pointer                                                                                                   
+	int peek = 0;
+
+	//while checker                                                                                                                                       
+	while(t_fsm != State.q1)
+	    {
+		char ch = source_to_scan[file_pointer + peek];
+		if(source_to_scan.length > peek)
+		    {
+			switch(ch)
+			    {
+			    case '/':
+				t_fsm = State.q1;
+				peek += 1;
+				break;
+			    case ' ':
+				peek += 1;
+				break;
+			    default:
+				System.exit(-1);
+			    }
+		    }
+					  
+	    }
+	    //update the coin information                                                                                                                         
+	    coin.column_number = column + peek;
+	    coin.line_number = row;
+	    //update the file_pointer & column                                                                                                                    
+	    column += peek;
+	    file_pointer += peek;
+	    return coin;
+	}
+
+
+ 
 	//Method:		Determine Identifier
 	//Input: 		Takes the current pointer of the file 
 	//Output:		Returns a Token containing the information
-	//Procedure:	Determines whether or not the string obtained is a valid identifier following
-	//				The syntax of (letter | "_"(letter | digit)) {["_"](letter | digit)}
+	//Procedure: 	        Determines whether or not the string obtained is a valid identifier following
+	//			The syntax of (letter | "_"(letter | digit)) {["_"](letter | digit)}
 	
 	public Token MPIdentifierFSM()
 	{
@@ -1479,7 +1530,8 @@ public class Scanner {
 		Token coin = new Token(TokenType.MP_IDENTIFIER,row,column,id.toString());
 		//State object for the ID fsm
 		State id_fsm = State.q0;
-		//int peek to look ahead of the file pointer
+	
+	//int peek to look ahead of the file pointer
 		int peek = 0;
 		TokenType possibleReservedWord = null;
 

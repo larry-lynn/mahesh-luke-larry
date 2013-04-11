@@ -60,7 +60,7 @@ public enum TokenType {
     MP_TIMES,
     MP_COLON,
 	// Another new Symbol
-	MP_DIVIDE,
+	MP_DIVISION,
     
     // End of File
     MP_EOF,
