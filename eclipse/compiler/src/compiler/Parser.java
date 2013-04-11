@@ -24,7 +24,7 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = false;
+        Boolean debugOn = true;
         
         Parser parse;
         

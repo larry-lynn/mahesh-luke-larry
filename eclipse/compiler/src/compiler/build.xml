@@ -171,6 +171,9 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="parser/program3.up"/>
     </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parser/parse_no_vardecl.mp"/>
+    </java>
 
   </target>
   	
