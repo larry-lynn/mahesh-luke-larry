@@ -1499,41 +1499,20 @@ public class Scanner {
 			    case ' ':
 				peek += 1;
 				break;
-				//State object for the division fsm                                                                                                  
-				State t_fsm = State.q0;
-				//Int object peek to look ahead of the file pointer                                                                                  
-				int peek = 0;
-				//while checker                                                                                                                      
-				while(t_fsm != State.q1)
-				    {
-					char ch = source_to_scan[file_pointer + peek];
-					if(source_to_scan.length > peek)
-					    {
-						switch(ch)
-						    {
-						    case '/':
-							t_fsm = State.q1;
-							peek += 1;
-							break;
-						    case ' ':
-							peek += 1;
-							break;
-						    default:
-							System.exit(-1);
-						    }
-					    }
-				    }
-
-				//update the coin information
-				coin.column_number = column + peek;
-				coin.line_number = row;
-				//update the file_pointer & column
-				column += peek;
-				file_pointer += peek;
-				return coin;
-
+			    default:
+				System.exit(-1);
+			    }
+		    }
+					  
+	    }
+	    //update the coin information                                                                                                                         
+	    coin.column_number = column + peek;
+	    coin.line_number = row;
+	    //update the file_pointer & column                                                                                                                    
+	    column += peek;
+	    file_pointer += peek;
+	    return coin;
 	}
-
 
 
  
