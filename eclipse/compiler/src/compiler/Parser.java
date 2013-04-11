@@ -217,6 +217,9 @@ public class Parser {
 	        	match(TokenType.MP_SCOLON);
 	        	VariableDeclarationTail();
 	        	break;
+	        case MP_BEGIN:
+		    listRule(107);
+		    break;
 	        default:
 	        	// Might need some follow here since Tail could go to nothing
 		        // parsing error
@@ -303,6 +306,11 @@ public class Parser {
 	        	match(TokenType.MP_BOOLEAN);
 	        	symbolType = SymbolType.MP_SYMBOL_BOOLEAN;
 	        	break;
+	        case MP_STRING:
+	        	listRule(109); // List the rule number applied
+	        	match(TokenType.MP_STRING);
+	        	symbolType = SymbolType.MP_SYMBOL_STRING;
+	        	break;
 	        case MP_IDENTIFIER:
 	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
 	        	{
@@ -317,6 +325,7 @@ public class Parser {
 			        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 					System.out.println("Expected data type of variable, but found " + lookahead.token_name);
 			        System.exit(-5);
+
 	        	}
 	        	break;
 	        default:
@@ -898,6 +907,14 @@ public class Parser {
         case MP_WRITE:
                 listRule(47); // List the rule number applied
             match(TokenType.MP_WRITE);
+            match(TokenType.MP_LPAREN);
+            WriteParameter();
+            WriteParameterTail();
+            match(TokenType.MP_RPAREN);
+            break;
+		case MP_WRITELN:
+			listRule(111); // List the rule number applied
+            match(TokenType.MP_WRITELN);
             match(TokenType.MP_LPAREN);
             WriteParameter();
             WriteParameterTail();
@@ -1631,6 +1648,10 @@ public class Parser {
 	        listRule(92); // List the rule number applied
             match(TokenType.MP_DIV);// MP_DIV???
             break;
+	case MP_DIVISION:
+	    listRule(112); //List the rule number applied
+	    match(TokenType.MP_DIVISION);
+	    break;
         case MP_MOD:
 	        listRule(93); // List the rule number applied
             match(TokenType.MP_MOD);// MP_MOD???
@@ -1668,6 +1689,22 @@ public class Parser {
             // UnsignedInteger();// No rule for unsignedinteger
 	        listRule(95); // List the rule number applied
             match(TokenType.MP_INTEGER_LIT);
+            break;
+        case MP_FLOAT_LIT:
+	        listRule(113); // List the rule number applied
+            match(TokenType.MP_FLOAT_LIT);
+            break;
+        case MP_STRING_LIT:
+	        listRule(114); // List the rule number applied
+            match(TokenType.MP_STRING_LIT);
+            break;
+		case MP_TRUE:
+	        listRule(115); // List the rule number applied
+            match(TokenType.MP_TRUE);
+            break;
+		case MP_FALSE:
+	        listRule(116); // List the rule number applied
+            match(TokenType.MP_FALSE);
             break;
         case MP_LPAREN:
 	        listRule(98); // List the rule number applied
