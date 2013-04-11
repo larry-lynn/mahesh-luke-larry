@@ -177,6 +177,10 @@
     <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
       <arg value="parser/parse_writeln_string.mp"/>
     </java>
+    <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+      <arg value="parser/parse_float_factor.mp"/>
+    </java>
+
 
   </target>
   	
