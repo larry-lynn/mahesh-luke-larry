@@ -1,36 +1,48 @@
 package compiler;
 
-public class Args extends Symbol {
+public class Args extends SymbolWithType {
     
-    public enum Call_Method{MP_SYMBOL_REFERENCE, MP_SYMBOL_VALUE}
-    private Call_Method args_call_method;
-    private SymbolType type;
+    private SymbolMode mode;
+    //private SymbolType type;
 
     // Public constructor when one input is known, the args type
-    public Args(SymbolType input) {
-	    super("", SymbolKind.MP_SYMBOL_PARAMETER);
-	    this.type = input;
+    public Args(SymbolType sType) {
+	    //super("", SymbolKind.MP_SYMBOL_PARAMETER);
+    	super("", sType);
+	    this.kind = SymbolKind.MP_SYMBOL_PARAMETER;
     }
     // Constructor if name & type are known
-    public Args(String lexeme, SymbolType input){
-    super(lexeme , SymbolKind.MP_SYMBOL_PARAMETER);
-        this.setType(input);
+    public Args(String lexeme, SymbolType sType){
+        super(lexeme , sType);
+        this.kind = SymbolKind.MP_SYMBOL_PARAMETER;
     }
     // Constructor if name, type & call method are known
-    public Args(String lexeme, SymbolType input, Call_Method passType){
-    super(lexeme , SymbolKind.MP_SYMBOL_PARAMETER);
-        this.setType(input);
-        this.setCall(passType);
+    public Args(String lexeme, SymbolType sType, SymbolMode sMode){
+    	super(lexeme , sType);
+    	this.kind = SymbolKind.MP_SYMBOL_PARAMETER;
+        this.mode = sMode;
     }
     
+    /*
     public Call_Method getCall() {
 	    return this.args_call_method;
     }
+    */
+    
+    public SymbolMode getMode(){
+    	return(mode);	
+    }
+    
+    public void setMode(SymbolMode sMode){
+    	this.mode = sMode;
+    }
+    
     // Public set method
+    // setType now inherited from parent class
+    /*
     public void setType(SymbolType input) {
 	    this.type = input;
     }
-    public void setCall(Call_Method input) {
-	    this.args_call_method = input;
-    }
+    */
+    
 }

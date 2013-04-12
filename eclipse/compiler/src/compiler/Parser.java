@@ -3,8 +3,6 @@ package compiler;
 import java.io.*;
 import java.util.ArrayList;
 
-import compiler.Args.Call_Method;
-
 public class Parser {
     Token lookahead;
     Scanner scan;
@@ -593,7 +591,7 @@ public class Parser {
         
         // prepare semantic records for return
         for(String lexeme : lexemes ){
-            singleArg = new Args(lexeme, symbolType, Call_Method.MP_SYMBOL_VALUE);
+            singleArg = new Args(lexeme, symbolType, SymbolMode.MP_SYMBOL_VALUE);
             argList.add(singleArg);
         }
         return(argList);
@@ -625,7 +623,7 @@ public class Parser {
 	        }
         // prepare semantic records for return
         for(String lexeme : lexemes ){
-            singleArg = new Args(lexeme, symbolType, Call_Method.MP_SYMBOL_REFERENCE);
+            singleArg = new Args(lexeme, symbolType, SymbolMode.MP_SYMBOL_REFERENCE);
             argList.add(singleArg);
         }
         return(argList);
