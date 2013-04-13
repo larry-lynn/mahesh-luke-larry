@@ -22,7 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = true;
+        //Boolean debugOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
@@ -313,23 +314,6 @@ public class Parser {
 	        	listRule(109); // List the rule number applied
 	        	match(TokenType.MP_STRING);
 	        	symbolType = SymbolType.MP_SYMBOL_STRING;
-	        	break;
-	        case MP_IDENTIFIER:
-	        	if(lookahead.lexeme.toLowerCase().equals("boolean"))
-	        	{
-			        listRule(11); // List the rule number applied
-	        		match(TokenType.MP_IDENTIFIER);
-	        		symbolType = SymbolType.MP_SYMBOL_BOOLEAN;
-	        	}
-	        	// The ID was something other than boolean, which should throw an error
-	        	else
-	        	{
-	        		 // parsing error
-			        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-					System.out.println("Expected data type of variable, but found " + lookahead.token_name);
-			        System.exit(-5);
-
-	        	}
 	        	break;
 	        default:
 		        // parsing error

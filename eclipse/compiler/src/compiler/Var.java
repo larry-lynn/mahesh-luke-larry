@@ -17,7 +17,7 @@ public class Var extends SymbolWithType {
        
        // Constructor if name & type are known
        public Var(String lexeme, SymbolType sType){
-	   super(lexeme, sType);
+	       super(lexeme, sType);
 	       this.kind = SymbolKind.MP_SYMBOL_VAR;
        }
        /*

@@ -62,8 +62,8 @@ public class SymbolTreeNode {
             	symbolType = null;
             }
             else{
-            	SymbolWithType sType = (SymbolWithType) payload;
-            	symbolType = sType.getType();
+            	SymbolWithType swType = (SymbolWithType) payload;
+            	symbolType = swType.getType();
             }
             
             switch(symbolKind){
@@ -97,7 +97,7 @@ public class SymbolTreeNode {
                 break;
                 
             default:
-                outputLine = String.format("%-20s%-20s%-7s%s\n", payload.getLexeme(), payload.getKind(), "", "");
+                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, "", "");
                 break;
             }
         	
