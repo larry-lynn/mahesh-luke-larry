@@ -4,6 +4,7 @@
   <property location="../../build" name="build"/>
   <property location="../../dist" name="dist"/>
   <property location="../../data" name="data"/>
+  <property location="../../../../virtual-machine/micro-vm" name="vm-code" />
 	
   <target name="clean">
     <delete dir="${build}"/>
@@ -17,10 +18,26 @@
     </delete>
   </target>
 	
+  <target name="clean-all" depends="clean-vm,clean">
+	<echo>Cleaned out java compiled files</echo>
+	<echo>Cleaned out VM compiled files too</echo>
+  </target>
+	
   <target name="compile">
     <mkdir dir="${build}/classes"/>
     <javac destdir="${build}/classes" srcdir="${src}"/>
   </target>
+	
+  <target name="compile-vm">
+    <exec dir="${vm-code}" executable="/usr/bin/make">   
+	</exec>
+  </target>
+	
+  <target name="clean-vm">
+    <exec dir="${vm-code}" executable="/usr/bin/make">
+      <arg value="clean"/> 
+    </exec>
+  </target>	
 	
   <target depends="compile" name="jar">
     <mkdir dir="${dist}/jar"/>
