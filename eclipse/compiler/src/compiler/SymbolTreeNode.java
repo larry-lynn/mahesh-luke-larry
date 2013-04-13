@@ -48,10 +48,6 @@ public class SymbolTreeNode {
     	String outputLine;
     	SymbolKind symbolKind;
     	SymbolType symbolType;
-        StringBuilder argList = null;
-        Procedure proc = null;
-        Function func = null;
-        Boolean first = true;
 
         if (left != null){
             left.traverse();
@@ -68,32 +64,8 @@ public class SymbolTreeNode {
             
             switch(symbolKind){
             case MP_SYMBOL_PROCEDURE:
-                argList = new StringBuilder();
-                proc = (Procedure) payload;
-                argList.append("(");
-                first = true;
-                for(Args a : proc.getArgs() ){
-                    if(first){first = false;}
-                    else{argList.append(", ");}
-                    argList.append(a.getLexeme());
-                }
-                argList.append(")");
-                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, argList.toString(), "");
-                
-                break;
             case MP_SYMBOL_FUNCTION:
-                argList = new StringBuilder();
-                func = (Function) payload;
-                argList.append("(");
-                first = true;
-                for(Args a : func.getArgs() ){
-                    if(first){first = false;}
-                    else{argList.append(", ");}
-                    argList.append(a.getLexeme());
-                }
-                argList.append(")");
-                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, argList.toString(), "");
-                
+                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, "", Args.formatArglist(payload) );    
                 break;
                 
             default:
@@ -105,7 +77,7 @@ public class SymbolTreeNode {
         }
         if (right != null){
             right.traverse();
-	}
+	    }
     } // end traverse
 
     public Symbol search(String lexeme){

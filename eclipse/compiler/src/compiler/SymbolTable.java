@@ -38,7 +38,7 @@ public class SymbolTable {
     	String outputLine;
     	System.out.println("SYMBOL TABLE NAME: " + name);
         System.out.println("Symbol Count: " + symbolCount);
-    	outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", "Symbol lexeme", "Sym. Kind", "Data Type", "Extra", "Arguments");
+    	outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", "Symbol lexeme", "Sym. Kind", "Data Type", "Extra", "Args [lex:type:mode]");
     	System.out.print(outputLine);
         root.traverse();
     }	
