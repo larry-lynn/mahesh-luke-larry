@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class Args extends SymbolWithType {
     
     private SymbolMode mode;
-    //private SymbolType type;
 
     // Public constructor when one input is known, the args type
     public Args(SymbolType sType) {
@@ -64,9 +63,35 @@ public class Args extends SymbolWithType {
             argListStringB.append("[");
             argListStringB.append(a.getLexeme());
             argListStringB.append(":");
-            argListStringB.append(a.getType());
+            switch(a.getType()){
+            case MP_SYMBOL_INTEGER:
+                argListStringB.append("int");
+                break;
+            case MP_SYMBOL_BOOLEAN:
+                argListStringB.append("bool");
+                break;
+            case MP_SYMBOL_FLOAT:
+                argListStringB.append("flt");
+                break;
+            case MP_SYMBOL_STRING:
+                argListStringB.append("str");
+                break;
+            default:
+                System.out.println("code in arglist formatting that should be unreachable.  Error!");
+                System.exit(-10);
+            }
             argListStringB.append(":");
-            argListStringB.append(a.getMode());
+            switch(a.getMode() ){
+            case MP_SYMBOL_VALUE:
+                argListStringB.append("val");
+                break;
+            case MP_SYMBOL_REFERENCE:
+                argListStringB.append("ref");
+                break;
+            default:
+                System.out.println("code in arglist formatting that should be unreachable.  Error!");
+                System.exit(-10);              
+            }
             argListStringB.append("]");
             
         }
