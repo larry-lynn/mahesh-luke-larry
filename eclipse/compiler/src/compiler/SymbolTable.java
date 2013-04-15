@@ -3,33 +3,30 @@ package compiler;
 public class SymbolTable {
     String name;
     int symbolCount;
+    int depth;
+    int offsetRelativeToDepth;
     SymbolTreeNode root;
     // class variables go here
 
     // constructor
-    public SymbolTable(String programIdentifierRec){
+    public SymbolTable(String programIdentifierRec, int depthVal){
         
         root = new SymbolTreeNode();
         name = programIdentifierRec;
         symbolCount = 0;
+        offsetRelativeToDepth = 0;
+        depth = depthVal;
 
     }
 
     // methods    
-    /*
-    public Symbol search(){
-
-    }
-
-    public void list(){
-
-    }
-    */
 
     public boolean insert(Symbol newNode){
-	boolean ret_val = root.insert(newNode);
+        newNode.offset = genOffsetString();
+	    boolean ret_val = root.insert(newNode);
         if(ret_val){
 	        symbolCount++;
+	        offsetRelativeToDepth++;
         }
         return ret_val;
     }
@@ -38,7 +35,7 @@ public class SymbolTable {
     	String outputLine;
     	System.out.println("SYMBOL TABLE NAME: " + name);
         System.out.println("Symbol Count: " + symbolCount);
-    	outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", "Symbol lexeme", "Sym. Kind", "Data Type", "Extra", "Args [lex:type:mode]");
+    	outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", "Symbol lexeme", "Sym. Kind", "Data Type", "Offset", "Args [lex:type:mode]");
     	System.out.print(outputLine);
         root.traverse();
     }	
@@ -76,6 +73,16 @@ public class SymbolTable {
         else{
             return(null);
         }
+    }
+    
+    public String genOffsetString(){
+        StringBuilder offsetString = new StringBuilder();
+        offsetString.append(offsetRelativeToDepth);
+        offsetString.append("(");
+        offsetString.append("D");
+        offsetString.append(depth);
+        offsetString.append(")");
+        return(offsetString.toString());
     }
 
     

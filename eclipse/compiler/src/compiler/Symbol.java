@@ -3,7 +3,7 @@ package compiler;
 public class Symbol {
 
     String lexeme;
-    int offset;
+    String offset;
     SymbolKind kind;
     
     // Constructor
@@ -32,12 +32,14 @@ public class Symbol {
     }
     
     // XXX I don't think this is right -- Larry
+    /*
     public void setOffset(int lastOffset){
 	offset = lastOffset + 1;
     }
+    */
 
-    public int getOffset(){
-	return offset;
+    public String getOffset(){
+	    return offset;
     }
 	
 }

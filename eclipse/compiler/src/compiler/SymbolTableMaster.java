@@ -5,11 +5,13 @@ import java.util.Stack;
 public class SymbolTableMaster {
     Stack<SymbolTable> symbolTableStack;
     Stack<SymbolTable> restoreStack;
+    int currentDepth;
     //SymbolTable currentTable;
     
     public SymbolTableMaster(){
         symbolTableStack = new  Stack<SymbolTable>();
         restoreStack = new  Stack<SymbolTable>();
+        currentDepth = 0;
         //currentTable = null;
     }
     
@@ -74,13 +76,15 @@ public class SymbolTableMaster {
     }
     
     public void newSymbolTableForNewContext(String tableName){
-        SymbolTable tmpTable = new SymbolTable(tableName);
+        SymbolTable tmpTable = new SymbolTable(tableName, currentDepth);
         symbolTableStack.push(tmpTable);
+        currentDepth++;
     }
     
     public void ascendContextDestroyTable(){
         // pop a symbol table and just throw it away
         symbolTableStack.pop();
+        currentDepth--;
         return;
     }
     

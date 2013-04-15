@@ -65,11 +65,11 @@ public class SymbolTreeNode {
             switch(symbolKind){
             case MP_SYMBOL_PROCEDURE:
             case MP_SYMBOL_FUNCTION:
-                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, "", Args.formatArglist(payload) );    
+                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, payload.getOffset(), Args.formatArglist(payload) );    
                 break;
                 
             default:
-                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, "", "");
+                outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", payload.getLexeme(), symbolKind, symbolType, payload.getOffset(), "");
                 break;
             }
         	
@@ -100,36 +100,5 @@ public class SymbolTreeNode {
             return(right.search(lexeme));
         }
     }  // end search
-
-    /*
-    public Symbol iSearch(String lexeme){
-        System.out.println("Searching for " + lexeme);
-        
-        String lexLower = lexeme.toLowerCase();
-        if(payload == null){
-            return null;
-        }
-        String payloadLex = payload.getLexeme();
-        System.out.println("Current nod payload is: " + payloadLex);
-        String payloadLexLower = payloadLex.toLowerCase();      
-      
-
-        if(lexLower.equals( payloadLexLower ) ){
-            return(payload);
-        }
-        else if( (lexLower.compareTo( payloadLexLower )) < 0){
-            if(left == null){
-                return null;
-            }
-            return(left.iSearch( lexLower ));
-        }
-        else {
-            if(right == null){
-                return null;
-            }
-            return(right.iSearch( lexLower ));
-        }
-    }  // end search
-    */
 	
 }

@@ -2,7 +2,7 @@ package compiler;
 
 public class SymbolDriver {
     public static void main(String args[]){
-        SymbolTable table = new SymbolTable("test");
+        SymbolTable table = new SymbolTable("test", 0);
         Symbol sym1 = new Symbol("some_name_here", SymbolKind.MP_SYMBOL_VAR);
         Symbol sym2 = new Symbol("aaa_I_should_go_first", SymbolKind.MP_SYMBOL_VAR);
         Symbol sym3 = new Symbol("zzz_I_should_go_last", SymbolKind.MP_SYMBOL_VAR);
