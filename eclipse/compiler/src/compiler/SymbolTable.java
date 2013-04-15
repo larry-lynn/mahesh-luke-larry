@@ -75,6 +75,17 @@ public class SymbolTable {
         }
     }
     
+    public Symbol fetchSymbolByLexeme(String needle){
+        Symbol possible_hit;
+        possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return(possible_hit);
+        }
+        else{
+            return(null);
+        }
+    }
+    
     public String genOffsetString(){
         StringBuilder offsetString = new StringBuilder();
         offsetString.append(offsetRelativeToDepth);
@@ -85,5 +96,11 @@ public class SymbolTable {
         return(offsetString.toString());
     }
 
+    public String genDepthString(){
+        StringBuilder depthString = new StringBuilder();
+        depthString.append("D");
+        depthString.append(depth);
+        return(depthString.toString());
+    }
     
 }

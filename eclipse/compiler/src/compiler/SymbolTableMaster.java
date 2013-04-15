@@ -43,6 +43,25 @@ public class SymbolTableMaster {
         }
     }
     
+    // XXX consider consolidating the search functions into 1 worker function
+    // with multiple think wrappers as front-ends
+    public Symbol fetchSymbolByLexeme(String needle){
+        SymbolTable currentTable;
+        Symbol retVal = null;
+        while(!symbolTableStack.empty() ){
+            currentTable = popAndSave();
+            retVal = currentTable.fetchSymbolByLexeme(needle);
+            if(retVal != null){
+                // we found the token in the current stack
+                rewind();
+                return(retVal);
+            }
+        }
+        // we searched all the symbol tables and we didn't find the needle
+        rewind();
+        return(null);
+    }
+    
     public SymbolKind getKindByLexeme(String needle){
         SymbolTable currentTable;
         SymbolKind retVal = null;
@@ -100,5 +119,15 @@ public class SymbolTableMaster {
         SymbolTable tmpTable = symbolTableStack.pop();
         restoreStack.push(tmpTable);
         return(tmpTable);
+    }
+    
+    public String getDepthAsString(){
+        SymbolTable currentTable;
+        String depthString = "";
+        if(!symbolTableStack.empty()){
+            currentTable = symbolTableStack.peek();
+            depthString = currentTable.genDepthString();
+        }
+        return(depthString);
     }
 }
