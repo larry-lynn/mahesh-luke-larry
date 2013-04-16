@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
+        //Boolean debugOn = false;
         
         Parser parse;
         
@@ -950,7 +950,7 @@ public class Parser {
     }
 
     public void WriteParameter() {
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	infoLog( genStdInfoMsg() );
         // 50:WriteParameter ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1349,13 +1349,14 @@ public class Parser {
 	    case MP_STRING_LIT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+        case MP_FLOAT_LIT:
             listRule(70); // List the rule number applied
             type = SimpleExpression();
             OptionalRelationalPart();
             break;
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parse Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
@@ -1455,6 +1456,7 @@ public class Parser {
         case MP_IDENTIFIER:
 		case MP_STRING_LIT:
         case MP_INTEGER_LIT:
+        case MP_FLOAT_LIT:
             listRule(79); // List the rule number applied
             OptionalSign();
             type = Term();
@@ -1530,6 +1532,7 @@ public class Parser {
         case MP_IDENTIFIER:
 		case MP_STRING_LIT:
         case MP_INTEGER_LIT:
+        case MP_FLOAT_LIT:
 	    // map to ε
                 listRule(84); // List the rule number applied
             break;        
@@ -1579,6 +1582,7 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
 		case MP_STRING_LIT:
+		case MP_FLOAT_LIT:
         case MP_LPAREN:
 	        listRule(88); // List the rule number applied
 	        type = Factor();
@@ -1603,6 +1607,7 @@ public class Parser {
         case MP_DIV:
         case MP_MOD:
         case MP_TIMES:
+        case MP_DIVISION:
 	        listRule(89); // List the rule number applied
             MultiplyingOperator();
             Factor();

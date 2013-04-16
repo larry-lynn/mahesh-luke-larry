@@ -4,8 +4,8 @@ var
 fpu, out_put : float;
 
 BEGIN
-fpu := 3.8;
-out_put := (fpu * 2.1) / 0.7;
+fpu := 3.8e1;
+out_put := (fpu * 2.1e1) / 0.7e1;
 
 write(out_put);
 END
