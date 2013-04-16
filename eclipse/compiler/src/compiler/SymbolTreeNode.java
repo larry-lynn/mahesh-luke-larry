@@ -1,5 +1,7 @@
 package compiler;
 
+import java.util.ArrayList;
+
 public class SymbolTreeNode {
     SymbolTreeNode left;
     SymbolTreeNode right;
@@ -100,5 +102,17 @@ public class SymbolTreeNode {
             return(right.search(lexeme));
         }
     }  // end search
+    
+    public void traverseGenList(ArrayList<Symbol> TreeAsList){
+        if (left != null){
+            left.traverseGenList(TreeAsList);
+        }
+        if (payload != null){
+            TreeAsList.add(payload);
+        }
+        if (right != null){
+        	right.traverseGenList(TreeAsList);
+        }
+    }
 	
 }

@@ -1,6 +1,7 @@
 package compiler;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 public class SemanticAnalyzer {
     PrintWriter irOutputFileHandle;
@@ -9,6 +10,27 @@ public class SemanticAnalyzer {
     public SemanticAnalyzer(String fileWithPath, SymbolTableMaster stHandle) throws Exception{        
         irOutputFileHandle = new PrintWriter(fileWithPath + ".ir");
         symbolTableHandle = stHandle;
+    }
+    
+    public void genCreateActivationRecordIR(){
+    	String depth;
+    	int symCount;
+    	int i;
+    	symCount = symbolTableHandle.getSymbolCountForCurrentTable();
+    	depth = symbolTableHandle.getDepthAsString();
+    	
+    	irOutputFileHandle.format(";backup SP so we can restore it later\n");
+    	irOutputFileHandle.format("MOV\tSP\t%s\n", depth);
+    	for(i = 0; i < symCount; ++i){
+    		irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
+    		irOutputFileHandle.format("PUSH\t%s\n", depth);
+    	}
+    	/*
+    	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+        for(Symbol s : topTableAsList){
+        	System.out.println("AAA: " + s.getLexeme());
+        }
+        */
     }
     
     public void genAssignmentIR(String varLex, SymbolType type){
@@ -21,7 +43,8 @@ public class SemanticAnalyzer {
         depth = symbolTableHandle.getDepthAsString();
         irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
         // XXX not sure about the memory management here - should this be in the symbol table?
-        irOutputFileHandle.format("MOV\tSP\t%s\n", depth);
+        // XXX THE LINE BELOW NEEDS TO COME OUT
+        //irOutputFileHandle.format("MOV\tSP\t%s\n", depth);
         irOutputFileHandle.format("POP\t%s\n", offset);
     }
     

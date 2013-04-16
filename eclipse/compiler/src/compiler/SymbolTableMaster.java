@@ -1,5 +1,6 @@
 package compiler;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class SymbolTableMaster {
@@ -129,5 +130,25 @@ public class SymbolTableMaster {
             depthString = currentTable.genDepthString();
         }
         return(depthString);
+    }
+    
+    public ArrayList<Symbol> topToArrayList(){
+        SymbolTable currentTable;
+        ArrayList<Symbol> symbolList = null;
+        if(!symbolTableStack.empty()){
+            currentTable = symbolTableStack.peek();
+            symbolList = currentTable.toArrayList();
+        }
+        return(symbolList);
+    }
+    
+    public int getSymbolCountForCurrentTable(){
+    	int symCount = 0;
+        SymbolTable currentTable;
+        if(!symbolTableStack.empty()){
+            currentTable = symbolTableStack.peek();
+            symCount = currentTable.getSymbolCount();
+        }
+        return(symCount);
     }
 }

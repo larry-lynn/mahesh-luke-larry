@@ -1,5 +1,7 @@
 package compiler;
 
+import java.util.ArrayList;
+
 public class SymbolTable {
     String name;
     int symbolCount;
@@ -101,6 +103,16 @@ public class SymbolTable {
         depthString.append("D");
         depthString.append(depth);
         return(depthString.toString());
+    }
+    
+    public ArrayList<Symbol> toArrayList(){
+        ArrayList<Symbol> TreeAsList = new ArrayList<Symbol>();	
+        root.traverseGenList(TreeAsList);
+        return(TreeAsList);
+    }
+    
+    public int getSymbolCount(){
+    	return(symbolCount);
     }
     
 }

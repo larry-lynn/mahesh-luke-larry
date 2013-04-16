@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = true;
-        //Boolean debugOn = false;
+        //Boolean debugOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
@@ -639,13 +639,16 @@ public class Parser {
     }
 
     public void CompoundStatement() {
-    	//System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	// 28:CompoundStatement  ⟶ "begin" StatementSequence "end"
+    	infoLog( genStdInfoMsg() );
+
         switch (lookahead.token_name) {
 	        case MP_BEGIN:
 		        listRule(28); // List the rule number applied
 	        	match(TokenType.MP_BEGIN);
+	        	// XXX set up activation record here
+	        	analyze.genCreateActivationRecordIR();
+       	
 	            StatementSequence();
 	        	match(TokenType.MP_END);
 	        	break;
