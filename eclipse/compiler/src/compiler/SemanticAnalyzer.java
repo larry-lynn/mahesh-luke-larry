@@ -46,9 +46,9 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("POP\t%s\n", offset);
     }
     
-    public void genStoreLiteralIR(String literal){
-        irOutputFileHandle.format(";store a literal value on the stack\n");
-        irOutputFileHandle.format("PUSH\t#\"%s\"\n", literal);
+    public void genStoreNumberLitIR(String literalVal){
+        irOutputFileHandle.format(";store an integer literal value on the stack\n");
+        irOutputFileHandle.format("PUSH\t#%s\n", literalVal); 
     }
     
     public void storeString(String stringLit){
@@ -69,6 +69,72 @@ public class SemanticAnalyzer {
     public void genMulIR(){
         irOutputFileHandle.format(";about to multiply 2 values on stack\n");
         irOutputFileHandle.format("MULS\n");
+    }
+    
+    public void genMulOpIR(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
+        // XXX needs type casting
+        if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
+            System.out.println("Semantic Error: No legal operations for string types");
+            System.exit(-11);
+        }
+        else if(( lhsType == rhsType) && (rhsType == SymbolType.MP_SYMBOL_BOOLEAN)){
+        // Both operands booleans - only boolean mulops permitted
+            
+        }
+        else{
+            switch(mulType){
+            case MP_TIMES:
+                irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
+                irOutputFileHandle.format("MULS\n");
+                break;
+            case MP_DIV:
+                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+                irOutputFileHandle.format("DIVS\n");
+                break;
+            case MP_DIVISION:
+                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+                irOutputFileHandle.format("DIVSF\n");
+                break;
+            case MP_MOD:
+                // XXX throw semantic error
+                break;
+            case MP_AND:
+                // XXX: throw semantic error
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    
+    public void genAddOpIR(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
+        // XXX needs type casting
+        if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
+            System.out.println("Semantic Error: No legal operations for string types");
+            System.exit(-11);
+        }
+        else if(( lhsType == rhsType) && (rhsType == SymbolType.MP_SYMBOL_BOOLEAN)){
+        // Both operands booleans - only boolean mulops permitted
+            
+        }
+        else{
+            switch(addType){
+            case MP_PLUS:
+                irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
+                irOutputFileHandle.format("ADDS\n");
+                break;
+            case MP_MINUS:
+                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+                irOutputFileHandle.format("SUBS\n");
+                break;
+            case MP_OR:
+                irOutputFileHandle.format(";about to do OR for 2 values on stack\n");
+                irOutputFileHandle.format("ORS\n");
+                break;
+            default:
+                break;
+            }
+        }
     }
     
     public void terminateIR(){

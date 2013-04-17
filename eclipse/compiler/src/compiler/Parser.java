@@ -668,6 +668,7 @@ public class Parser {
         case MP_ELSE:
         case MP_READ:
         case MP_WRITE:
+        case MP_WRITELN:
         case MP_REPEAT:
         case MP_WHILE:
         case MP_IDENTIFIER:
@@ -1474,15 +1475,18 @@ public class Parser {
 
     	SymbolType type1 = null;
     	SymbolType type2 = null;
+    	AddOpType addType = null;
     	
         switch (lookahead.token_name) {
         case MP_OR:
         case MP_PLUS:
         case MP_MINUS:
             listRule(80); // List the rule number applied
-            AddingOperator();
+            addType = AddingOperator();
             type1 = Term();
             type2 = TermTail();
+            analyze.genAddOpIR(type1, addType, type2);
+            
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1544,24 +1548,29 @@ public class Parser {
         }
     }
 
-    public void AddingOperator() {
+    public AddOpType AddingOperator() {
         //85:AddingOperator          ⟶ "+"
         //86:                        ⟶ "-"
         //87:                        ⟶ "or"   
     	infoLog( genStdInfoMsg() );
 
+    	AddOpType addType = null;
+    	
         switch (lookahead.token_name) {
         case MP_OR:
-                listRule(87); // List the rule number applied
+            listRule(87); // List the rule number applied
             match(TokenType.MP_OR);
+            addType = AddOpType.MP_OR;
             break;
         case MP_PLUS:
 	        listRule(85); // List the rule number applied
             match(TokenType.MP_PLUS);
+            addType = AddOpType.MP_PLUS;
             break;
         case MP_MINUS:
 	        listRule(86); // List the rule number applied
             match(TokenType.MP_MINUS);
+            addType = AddOpType.MP_PLUS;
             break;
         default:
             // parsing error
@@ -1569,6 +1578,7 @@ public class Parser {
 			System.out.println("Expected keyword 'OR' or '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
+        return(addType);
     }
 
     public SymbolType Term() {
@@ -1606,6 +1616,7 @@ public class Parser {
         
     	SymbolType type1 = null;
     	SymbolType type2 = null;
+    	MulOpType mulType;
     	
         switch (lookahead.token_name) {
         case MP_AND:
@@ -1614,10 +1625,11 @@ public class Parser {
         case MP_TIMES:
         case MP_DIVISION:
 	        listRule(89); // List the rule number applied
-            MultiplyingOperator();
+	        mulType = MultiplyingOperator();
             type1 = Factor();
             type2 = FactorTail();
-            // XXX possible semantic action -type checking & casting
+            analyze.genMulOpIR(type1, mulType, type2);
+
             break;
         case MP_END:
         case MP_SCOLON:
@@ -1653,35 +1665,40 @@ public class Parser {
         return(type1);
     }
 
-    public void MultiplyingOperator() {
+    public MulOpType MultiplyingOperator() {
         //91:MultiplyingOperator     ⟶ "*"
         //92:                        ⟶ "div"
         //93:                        ⟶ "mod"
         //94:                        ⟶ "and"
         infoLog(genStdInfoMsg() );
 
-        TokenType mulType = null;
+        MulOpType mulType = null;
         
         switch (lookahead.token_name) {
         case MP_AND:
 	        listRule(94); // List the rule number applied
             match(TokenType.MP_AND);
+            mulType = MulOpType.MP_AND;
             break;
         case MP_DIV:
 	        listRule(92); // List the rule number applied
             match(TokenType.MP_DIV);// MP_DIV???
+            mulType = MulOpType.MP_DIV;
             break;
 	    case MP_DIVISION:
 	        listRule(112); //List the rule number applied
 	        match(TokenType.MP_DIVISION);
+            mulType = MulOpType.MP_DIVISION;
 	        break;
         case MP_MOD:
 	        listRule(93); // List the rule number applied
             match(TokenType.MP_MOD);// MP_MOD???
+            mulType = MulOpType.MP_MOD;
             break;
         case MP_TIMES:
 	        listRule(91); // List the rule number applied
             match(TokenType.MP_TIMES);// MP_TIMES???
+            mulType = MulOpType.MP_TIMES;
             break;
         default:
             // parsing error
@@ -1689,6 +1706,7 @@ public class Parser {
 			System.out.println("Expected  multiplying operator but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(mulType);
     }
 
     public SymbolType Factor() {
@@ -1716,13 +1734,13 @@ public class Parser {
 	        listRule(95); // List the rule number applied
             literalVal = match(TokenType.MP_INTEGER_LIT);
             type = SymbolType.MP_SYMBOL_INTEGER;
-            analyze.genStoreLiteralIR(literalVal);
+            analyze.genStoreNumberLitIR(literalVal);
             break;
         case MP_FLOAT_LIT:
 	        listRule(113); // List the rule number applied
 	        literalVal = match(TokenType.MP_FLOAT_LIT);
             type = SymbolType.MP_SYMBOL_FLOAT;
-            analyze.genStoreLiteralIR(literalVal);
+            analyze.genStoreNumberLitIR(literalVal);
             break;
         case MP_STRING_LIT:
             String stringVal;
@@ -1737,13 +1755,11 @@ public class Parser {
 	        listRule(115); // List the rule number applied
 	        literalVal = match(TokenType.MP_TRUE);
             type = SymbolType.MP_SYMBOL_BOOLEAN;
-            analyze.genStoreLiteralIR(literalVal);
             break;
 		case MP_FALSE:
 	        listRule(116); // List the rule number applied
 	        literalVal = match(TokenType.MP_FALSE);
             type = SymbolType.MP_SYMBOL_BOOLEAN;
-            analyze.genStoreLiteralIR(literalVal);
             break;
         case MP_LPAREN:
 	        listRule(98); // List the rule number applied

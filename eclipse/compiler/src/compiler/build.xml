@@ -240,6 +240,9 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="hello_world.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_test.mp"/>
+      </java>
   	
   </target>
 	
