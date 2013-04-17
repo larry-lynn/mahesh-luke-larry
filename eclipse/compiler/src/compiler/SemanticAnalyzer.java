@@ -43,9 +43,12 @@ public class SemanticAnalyzer {
         depth = symbolTableHandle.getDepthAsString();
         irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
         // XXX not sure about the memory management here - should this be in the symbol table?
-        // XXX THE LINE BELOW NEEDS TO COME OUT
-        //irOutputFileHandle.format("MOV\tSP\t%s\n", depth);
         irOutputFileHandle.format("POP\t%s\n", offset);
+    }
+    
+    public void genStoreLiteralIR(String literal){
+        irOutputFileHandle.format(";store a literal value on the stack\n");
+        irOutputFileHandle.format("PUSH\t#\"%s\"\n", literal);
     }
     
     public void storeString(String stringLit){
@@ -61,6 +64,11 @@ public class SemanticAnalyzer {
     public void putVarOnStack(String offset){
         irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
         irOutputFileHandle.format("PUSH\t%s\n", offset);
+    }
+    
+    public void genMulIR(){
+        irOutputFileHandle.format(";about to multiply 2 values on stack\n");
+        irOutputFileHandle.format("MULS\n");
     }
     
     public void terminateIR(){
