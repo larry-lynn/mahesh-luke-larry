@@ -1,6 +1,6 @@
 package compiler;
 
-// research on simple hash functions foundhere
+// research on simple hash functions found here
 // http://www.cs.hmc.edu/~geoff/classes/hmc.cs070.200101/homework10/hashfuncs.html
 public class ReservedWords {
 	public static final int a_prime = 173;
