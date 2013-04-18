@@ -1628,7 +1628,7 @@ public class Parser {
 	        mulType = MultiplyingOperator();
             type1 = Factor();
             type2 = FactorTail();
-            analyze.genMulOpIR(type1, mulType, type2);
+            analyze.errorCheckAndCastMulOp(type1, mulType, type2);
 
             break;
         case MP_END:

@@ -71,8 +71,43 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("MULS\n");
     }
     
+    public SymbolType errorCheckAndCastMulOp(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
+    	SymbolType typeAfterCasting = null;
+    	// YYY error check string types
+    	// YYY error check BOOL AND BOOL
+    	// YYY combinatorial matrix for mul-ops
+    	
+    	// XXX fixme
+    	System.out.println("YYY: " + lhsType);
+    	System.out.println("ZZZ: " + rhsType);
+    	typeAfterCasting = lhsType;
+    	genDivIntIR();
+    	
+    	return(typeAfterCasting);
+    }
+    
+    public void genMulIntIR(){
+        irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
+        irOutputFileHandle.format("MULS\n");
+    }
+    
+    public void genMulFltIR(){
+        irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
+        irOutputFileHandle.format("MULSF\n");
+    }
+    
+    public void genDivIntIR(){
+        irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+        irOutputFileHandle.format("DIVS\n");
+    }
+    
+    public void genDivFltIR(){
+        irOutputFileHandle.format(";about to do float div for 2 values on stack\n");
+        irOutputFileHandle.format("DIVSF\n");
+    }
+    
     public void genMulOpIR(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
-        // XXX needs type casting
+        // XXX THIS WHOLE METHOD NEEDS TO BE DISASSEMBLED
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
             System.exit(-11);
