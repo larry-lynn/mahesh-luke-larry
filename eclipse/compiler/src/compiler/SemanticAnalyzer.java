@@ -179,8 +179,24 @@ public class SemanticAnalyzer {
     
     public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
         // XXX FIXME Mahesh -- this is just a stub so our perevious expression program compiles right
-        
         SymbolType newTypeOnStack = null;
+        
+        if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
+            System.out.println("Semantic Error: No legal operations for string types");
+            System.exit(-11);
+        }
+        else if(1 == 2){
+            // XXX currently unreachable - for reference purposes only
+            irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+            irOutputFileHandle.format("SUBS\n");
+        }
+        else if (2 == 3){
+            // XXX currently unreachable - for reference purposes only
+            irOutputFileHandle.format(";about to do OR for 2 values on stack\n");
+            irOutputFileHandle.format("ORS\n");
+        }
+        
+        
         irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
         irOutputFileHandle.format("ADDS\n");
         newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
@@ -214,38 +230,6 @@ public class SemanticAnalyzer {
     public void genIntModIntIR(){
         irOutputFileHandle.format(";about to emit MOD for 2 Ints\n");
         irOutputFileHandle.format("MODS\n");
-    }
-    
-    
-    public void genAddOpIR(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
-        // XXX needs type casting
-        // XXX THIS WHOLE METHOD NEEDS TO BE DISASSEMBLED
-        if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
-            System.out.println("Semantic Error: No legal operations for string types");
-            System.exit(-11);
-        }
-        else if(( lhsType == rhsType) && (rhsType == SymbolType.MP_SYMBOL_BOOLEAN)){
-        // Both operands booleans - only boolean mulops permitted
-            
-        }
-        else{
-            switch(addType){
-            case MP_PLUS:
-                irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
-                irOutputFileHandle.format("ADDS\n");
-                break;
-            case MP_MINUS:
-                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
-                irOutputFileHandle.format("SUBS\n");
-                break;
-            case MP_OR:
-                irOutputFileHandle.format(";about to do OR for 2 values on stack\n");
-                irOutputFileHandle.format("ORS\n");
-                break;
-            default:
-                break;
-            }
-        }
     }
     
     public void terminateIR(){
