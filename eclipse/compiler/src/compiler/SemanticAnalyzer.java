@@ -70,20 +70,111 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format(";about to multiply 2 values on stack\n");
         irOutputFileHandle.format("MULS\n");
     }
+    public void deepCastFloatToIntIR(){
+        // XXX Luke's code to go here
+        System.out.println("Cast float 2 deep in stack to int");
+    }
+    public void castFloatToIntIR(){
+        // XXX Luke's code to go here
+        System.out.println("Cast float on top of stack to int");  
+    }
+    public void deepCastIntToFloatIR(){
+        // XXX Luke's code to go here
+        System.out.println("Cast int 2 deep in stack to float");
+    }
+    public void castIntToFloatIR(){
+        // XXX Luke's code to go here
+        System.out.println("Cast int on top of stack to float");  
+    }
+    
     
     public SymbolType errorCheckAndCastMulOp(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
-    	SymbolType typeAfterCasting = null;
-    	// YYY error check string types
-    	// YYY error check BOOL AND BOOL
-    	// YYY combinatorial matrix for mul-ops
+    	SymbolType newTypeOnStack = null;
     	
-    	// XXX fixme
-    	System.out.println("YYY: " + lhsType);
-    	System.out.println("ZZZ: " + rhsType);
-    	typeAfterCasting = lhsType;
-    	genDivIntIR();
-    	
-    	return(typeAfterCasting);
+    	if( (lhsType==SymbolType.MP_SYMBOL_STRING) || (rhsType==SymbolType.MP_SYMBOL_STRING) ){
+    	    // string types in a mulop
+            System.out.println("Semantic Error: No legal operations for string types");
+            System.exit(-11);
+    	}
+    	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (mulType == MulOpType.MP_AND) &&
+                (lhsType == rhsType)){
+            // BOOL AND BOOL is OK -- no other mulops involving BOOLs or ANDs 
+            genBoolAndBoolIR();
+            newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
+    	}
+    	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
+    	    System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+            System.exit(-12);
+    	}
+        else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
+            System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+            System.exit(-13);
+        }
+        else if(mulType == MulOpType.MP_AND){
+            System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+            System.exit(-15);
+        }
+    	else if( mulType == MulOpType.MP_MOD){
+    	    // mod type mulop -- all numbers OK with proper casting
+            if(lhsType != SymbolType.MP_SYMBOL_INTEGER){
+                deepCastFloatToIntIR();
+            }
+            if(rhsType != SymbolType.MP_SYMBOL_INTEGER){
+                castFloatToIntIR();
+            }
+            genIntModIntIR();
+            newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+    	}
+    	else if( mulType == MulOpType.MP_DIV){
+    	    // integer division type mulop -- all numbers OK with proper casting
+            if(lhsType != SymbolType.MP_SYMBOL_INTEGER){
+                deepCastFloatToIntIR();
+            }
+            if(rhsType != SymbolType.MP_SYMBOL_INTEGER){
+                castFloatToIntIR();
+            }
+            genDivIntIR();
+            newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+    	}
+        else if( mulType == MulOpType.MP_DIVISION){
+            // float division type mulop -- all numbers OK with proper casting
+            // WRONG - need float type check method
+            if( !isFloatType(lhsType) ){
+                deepCastIntToFloatIR();
+            }
+            if( !isFloatType(rhsType) ){
+                castIntToFloatIR();
+            }
+            genDivFloatIR();
+            newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+        }
+        else if( mulType == MulOpType.MP_TIMES){
+            // int or float type multiplication depends on types of arguments
+            if(lhsType == SymbolType.MP_SYMBOL_INTEGER && rhsType == SymbolType.MP_SYMBOL_INTEGER){
+                genMulIntIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+            }
+            else if( !isFloatType(lhsType) && isFloatType(rhsType)){
+                deepCastIntToFloatIR();
+                genMulFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else if( isFloatType(lhsType) && !isFloatType(rhsType)){
+                castIntToFloatIR();
+                genMulFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else{
+                genMulFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT; 
+            }
+            
+        }
+
+    	//System.out.println("YYY: " + lhsType);
+    	//System.out.println("ZZZ: " + rhsType);
+  	
+    	return(newTypeOnStack);
     }
     
     public void genMulIntIR(){
@@ -91,7 +182,7 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("MULS\n");
     }
     
-    public void genMulFltIR(){
+    public void genMulFloatIR(){
         irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
         irOutputFileHandle.format("MULSF\n");
     }
@@ -101,49 +192,24 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("DIVS\n");
     }
     
-    public void genDivFltIR(){
+    public void genDivFloatIR(){
         irOutputFileHandle.format(";about to do float div for 2 values on stack\n");
         irOutputFileHandle.format("DIVSF\n");
     }
     
-    public void genMulOpIR(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
-        // XXX THIS WHOLE METHOD NEEDS TO BE DISASSEMBLED
-        if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
-            System.out.println("Semantic Error: No legal operations for string types");
-            System.exit(-11);
-        }
-        else if(( lhsType == rhsType) && (rhsType == SymbolType.MP_SYMBOL_BOOLEAN)){
-        // Both operands booleans - only boolean mulops permitted
-            
-        }
-        else{
-            switch(mulType){
-            case MP_TIMES:
-                irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
-                irOutputFileHandle.format("MULS\n");
-                break;
-            case MP_DIV:
-                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
-                irOutputFileHandle.format("DIVS\n");
-                break;
-            case MP_DIVISION:
-                irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
-                irOutputFileHandle.format("DIVSF\n");
-                break;
-            case MP_MOD:
-                // XXX throw semantic error
-                break;
-            case MP_AND:
-                // XXX: throw semantic error
-                break;
-            default:
-                break;
-            }
-        }
+    public void genBoolAndBoolIR(){
+        irOutputFileHandle.format(";about to emit AND for 2 Booleans\n");
+        irOutputFileHandle.format("ANDS\n");
     }
+    public void genIntModIntIR(){
+        irOutputFileHandle.format(";about to emit MOD for 2 Ints\n");
+        irOutputFileHandle.format("MODS\n");
+    }
+    
     
     public void genAddOpIR(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
         // XXX needs type casting
+        // XXX THIS WHOLE METHOD NEEDS TO BE DISASSEMBLED
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
             System.exit(-11);
@@ -178,5 +244,15 @@ public class SemanticAnalyzer {
     
     public void cleanup(){
         irOutputFileHandle.close();
+    }
+    
+    private boolean isFloatType(SymbolType sType){
+        if( (sType == SymbolType.MP_SYMBOL_FIXED) || (sType == SymbolType.MP_SYMBOL_FLOAT) || 
+            (sType == SymbolType.MP_SYMBOL_REAL) ){
+                 return(true);
+        }
+        else{
+            return(false);       
+        }
     }
 }

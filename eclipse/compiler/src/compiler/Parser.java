@@ -1601,7 +1601,6 @@ public class Parser {
 	        listRule(88); // List the rule number applied
 	        newType = Factor(typeOnStack);
 	        
-	        System.out.println("AAA: "+ newType);
 	        // XXX check this
 	        if(newType != null){typeOnStack = newType;}
 	     
@@ -1615,9 +1614,6 @@ public class Parser {
 			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        // XXX check this
-
-        System.out.println("Term: "+ typeOnStack);
         return(typeOnStack);
     }
 
