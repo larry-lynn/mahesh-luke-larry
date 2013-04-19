@@ -1474,8 +1474,9 @@ public class Parser {
 	//81:                        ⟶ ε
     	infoLog(genStdInfoMsg());
 
-    	SymbolType type1 = null;
-    	SymbolType type2 = null;
+        SymbolType newType = null;
+        SymbolType lhsType = typeOnStack;
+        SymbolType rhsType = null;
     	AddOpType addType = null;
     	
         switch (lookahead.token_name) {
@@ -1484,9 +1485,11 @@ public class Parser {
         case MP_MINUS:
             listRule(80); // List the rule number applied
             addType = AddingOperator();
-            type1 = Term(typeOnStack);
-            type2 = TermTail(typeOnStack);
-            analyze.genAddOpIR(type1, addType, type2);
+            rhsType = Term(typeOnStack);
+            analyze.genAddOpIR(lhsType, addType, rhsType);
+            newType = TermTail(typeOnStack);
+            if(newType != null){typeOnStack = newType;}
+
             
             break;
         case MP_END:
@@ -1514,7 +1517,7 @@ public class Parser {
 			System.out.println("Expected adding operator or *** but found "+ lookahead.token_name);            
             System.exit(-5);
         }
-        return(type1);
+        return(typeOnStack);
     }
 
     public void OptionalSign() {
