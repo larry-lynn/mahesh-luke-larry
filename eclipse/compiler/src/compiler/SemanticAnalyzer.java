@@ -177,6 +177,16 @@ public class SemanticAnalyzer {
     	return(newTypeOnStack);
     }
     
+    public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
+        // XXX FIXME Mahesh -- this is just a stub so our perevious expression program compiles right
+        
+        SymbolType newTypeOnStack = null;
+        irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
+        irOutputFileHandle.format("ADDS\n");
+        newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+        return(newTypeOnStack);
+    }
+    
     public void genMulIntIR(){
         irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
         irOutputFileHandle.format("MULS\n");

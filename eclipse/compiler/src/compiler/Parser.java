@@ -1486,7 +1486,8 @@ public class Parser {
             listRule(80); // List the rule number applied
             addType = AddingOperator();
             rhsType = Term(typeOnStack);
-            analyze.genAddOpIR(lhsType, addType, rhsType);
+            newType = analyze.errorCheckAndCastAddOp(lhsType, addType, rhsType);
+            if(newType != null){typeOnStack = newType;}
             newType = TermTail(typeOnStack);
             if(newType != null){typeOnStack = newType;}
 
@@ -1637,7 +1638,8 @@ public class Parser {
 	        listRule(89); // List the rule number applied
 	        mulType = MultiplyingOperator();
             rhsType = Factor(typeOnStack);
-            analyze.errorCheckAndCastMulOp(lhsType, mulType, rhsType);
+            newType = analyze.errorCheckAndCastMulOp(lhsType, mulType, rhsType);
+            if(newType != null){typeOnStack = newType;}
             
             newType = FactorTail(typeOnStack);
             if(newType != null){typeOnStack = newType;}
