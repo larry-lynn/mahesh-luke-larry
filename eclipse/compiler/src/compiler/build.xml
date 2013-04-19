@@ -15,6 +15,9 @@
       <fileset dir="${data}/parser/" includes="*.infolog.txt"/>
       <fileset dir="${data}/parser/" includes="*.rulelog.txt"/>    	
       <fileset dir="${data}/parser/" includes="*.ir"/>
+      <fileset dir="${data}/symbol-table/" includes="*.infolog.txt"/>
+      <fileset dir="${data}/symbol-table/" includes="*.rulelog.txt"/>    	
+      <fileset dir="${data}/symbol-table/" includes="*.ir"/>
       <fileset dir="${data}/" includes="*.infolog.txt"/>
       <fileset dir="${data}/" includes="*.rulelog.txt"/>
       <fileset dir="${data}/" includes="*.ir"/>
@@ -223,20 +226,23 @@
 	  -->
 	</target>
 	
+	<target depends="compile" name="run-symbol-table">
+	  <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	    <arg value="symbol-table/symbol_undeclared_var.mp"/>
+	  </java>
+	  <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	    <arg value="symbol-table/symbol_declare_procedure.mp"/>
+	  </java>
+	  <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	    <arg value="symbol-table/symbol_declare_function.mp"/>
+	  </java>
+	  <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	    <arg value="symbol-table/symbol_use_parameter.mp"/>
+	  </java>
+	</target>
+	
     <target depends="compile" name="run">
       
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="symbol_undeclared_var.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="symbol_declare_procedure.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="symbol_declare_function.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="symbol_use_parameter.mp"/>
-      </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="hello_world.mp"/>
       </java>
