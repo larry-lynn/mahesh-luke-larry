@@ -1,0 +1,8 @@
+Program Expression_test_2;
+BEGIN
+writeln( 3 +  5 );
+writeln( 1.5 + 5);
+writeln( 2 + 4.35);
+writeln( 3.7 + 8.2);
+END
+.
