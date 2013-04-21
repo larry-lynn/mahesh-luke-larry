@@ -345,6 +345,11 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="expression_not_test.mp"/>
       </java>        
+      <!-- begin B level tests, happy path -->
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_simple_if.mp"/>
+      </java>
+            
   </target>
 	
 </project>
