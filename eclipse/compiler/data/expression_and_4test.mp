@@ -6,6 +6,6 @@ writeln( TRUE AND false  );
 writeln('Should output 0');
 writeln( False And True );
 writeln('should output 1');
-writeln( true and FALSE );
+writeln( true and TRUE );
 END
 .
