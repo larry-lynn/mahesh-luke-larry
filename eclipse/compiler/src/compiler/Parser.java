@@ -1737,11 +1737,16 @@ public class Parser {
         SymbolType newType = null;
         String literalVal = "";
 
+    	SymbolType type = typeOnStack;
+
         switch (lookahead.token_name) {
         case MP_NOT:
 	        listRule(97); // List the rule number applied
             match(TokenType.MP_NOT);
             // XXX is NOT a factor?
+            newType = analyze.errorCheckNotOp(type);
+            if(newType != null){typeOnStack = newType;}
+
             newType = Factor(typeOnStack);
             break;
         case MP_INTEGER_LIT:

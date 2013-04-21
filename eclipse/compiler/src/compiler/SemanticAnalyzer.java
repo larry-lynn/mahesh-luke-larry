@@ -178,30 +178,89 @@ public class SemanticAnalyzer {
     }
     
     public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
-        // XXX FIXME Mahesh -- this is just a stub so our perevious expression program compiles right
-        SymbolType newTypeOnStack = null;
-        
+    	SymbolType newTypeOnStack = null;
+    	
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
             System.exit(-11);
         }
-        else if(1 == 2){
-            // XXX currently unreachable - for reference purposes only
-            irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
-            irOutputFileHandle.format("SUBS\n");
+    	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (addType == AddOpType.MP_OR) &&
+                (lhsType == rhsType)){
+            genBoolOrBoolIR();
+            newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
+    	}
+    	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
+    	    System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+            System.exit(-12);
+    	}
+        else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
+            System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+            System.exit(-13);
         }
-        else if (2 == 3){
-            // XXX currently unreachable - for reference purposes only
-            irOutputFileHandle.format(";about to do OR for 2 values on stack\n");
-            irOutputFileHandle.format("ORS\n");
+        else if(addType == AddOpType.MP_OR){
+            System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+            System.exit(-15);
         }
-        
-        
-        irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
-        irOutputFileHandle.format("ADDS\n");
-        newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
-        return(newTypeOnStack);
+        else if( addType == AddOpType.MP_PLUS){
+            if(lhsType == SymbolType.MP_SYMBOL_INTEGER && rhsType == SymbolType.MP_SYMBOL_INTEGER){
+                genAddIntIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+            }
+            else if( !isFloatType(lhsType) && isFloatType(rhsType)){
+                deepCastIntToFloatIR();
+                genAddFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else if( isFloatType(lhsType) && !isFloatType(rhsType)){
+                castIntToFloatIR();
+                genAddFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else{
+                genMulFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT; 
+            }
+            
+        }
+
+        else if( addType == AddOpType.MP_MINUS){
+            if(lhsType == SymbolType.MP_SYMBOL_INTEGER && rhsType == SymbolType.MP_SYMBOL_INTEGER){
+                genSubIntIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+            }
+            else if( !isFloatType(lhsType) && isFloatType(rhsType)){
+                deepCastIntToFloatIR();
+                genSubFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else if( isFloatType(lhsType) && !isFloatType(rhsType)){
+                castIntToFloatIR();
+                genSubFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+            }
+            else{
+                genMulFloatIR();
+                newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT; 
+            }
+            
+        }
+
+    	return(newTypeOnStack);
     }
+
+    public SymbolType errorCheckNotOp(SymbolType type){
+    	SymbolType newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
+
+        if(type != SymbolType.MP_SYMBOL_BOOLEAN){
+            System.out.println("Semantic Error: NOT only legal for BOOLEAN types");
+            System.exit(-11);
+        }
+
+	genNotIR();
+
+    	return(newTypeOnStack);
+    }
+
     
     public void genMulIntIR(){
         irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
@@ -231,6 +290,45 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format(";about to emit MOD for 2 Ints\n");
         irOutputFileHandle.format("MODS\n");
     }
+
+    public void genAddIntIR(){
+        irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
+        irOutputFileHandle.format("ADDS\n");
+    }
+    
+    public void genAddFloatIR(){
+        irOutputFileHandle.format(";about to do int add for 2 values on stack\n");
+        irOutputFileHandle.format("ADDSF\n");
+    }
+    
+    public void genSubIntIR(){
+        irOutputFileHandle.format(";about to do int sub for 2 values on stack\n");
+        irOutputFileHandle.format("SUBS\n");
+    }
+    
+    public void genSubFloatIR(){
+        irOutputFileHandle.format(";about to do float sub for 2 values on stack\n");
+        irOutputFileHandle.format("SUBSF\n");
+    }
+    public void genBoolOrBoolIR(){
+        irOutputFileHandle.format(";about to emit OR for 2 Booleans\n");
+        irOutputFileHandle.format("ORS\n");
+    }
+
+
+    public void genOrIR(){
+        irOutputFileHandle.format(";about to emit OR for 2 values on stack\n");
+        irOutputFileHandle.format("ORS\n");
+    }
+    public void genAndIR(){
+        irOutputFileHandle.format(";about to emit AND for 2 values on stack\n");
+        irOutputFileHandle.format("ANDS\n");
+    }
+    public void genNotIR(){
+        irOutputFileHandle.format(";about to emit NOT for value on stack\n");
+        irOutputFileHandle.format("NOTS\n");
+    }
+
     
     public void terminateIR(){
         irOutputFileHandle.format("HLT\n");
