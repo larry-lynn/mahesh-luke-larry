@@ -1369,7 +1369,9 @@ public class Parser {
 			listRule(70); // List the rule number applied
             newType = SimpleExpression(typeOnStack);
             if(newType != null){typeOnStack = newType;}
-            OptionalRelationalPart(typeOnStack);
+	    // Made changes here?
+            newType = OptionalRelationalPart(typeOnStack);
+	    if(newType != null){typeOnStack = newType;}
             break;
         default:
             // parsing error
@@ -1426,7 +1428,7 @@ public class Parser {
             System.out.println("Expected relational operator or end of statement but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
-	return (typeOnStack);
+	return (newType);
     }
 
     public RelationalOpType RelationalOperator() {

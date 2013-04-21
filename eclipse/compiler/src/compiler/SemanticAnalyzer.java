@@ -125,8 +125,7 @@ public class SemanticAnalyzer {
     // Method for checking comparison and their numbers
     public SymbolType errorCheckandCastCompareOp(SymbolType lhsType, RelationalOpType opType, SymbolType rhsType) {
 	SymbolType newTypeOnStack = null;
-
-	//Check to see if we have strings first
+ 	//Check to see if we have strings first
 	if( lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING )
 	{
 	    //Send message that we have an error
