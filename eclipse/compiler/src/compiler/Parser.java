@@ -1354,11 +1354,10 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parse Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
-			System.out.println("Expected start of expression but found "+ lookahead.token_name);            			
+            System.out.println("Expected start of expression but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
 
-        System.out.println("BBB: "+ typeOnStack);
         return(typeOnStack);
     }
 
@@ -1446,8 +1445,9 @@ public class Parser {
         //79:SimpleExpression        ⟶ OptionalSign Term TermTail
     	infoLog( genStdInfoMsg() );
     	
-    	SymbolType type1 = null;
-    	SymbolType type2 = null;
+    	SymbolType lhsType = typeOnStack;
+        SymbolType rhsType = null;
+    	SymbolType newType = null;
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1455,21 +1455,24 @@ public class Parser {
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
-		case MP_STRING_LIT:
+	case MP_STRING_LIT:
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
             listRule(79); // List the rule number applied
             OptionalSign();
-            type1 = Term(typeOnStack);
-            type2 = TermTail(typeOnStack);
+            lhsType = Term(typeOnStack);
+            if(lhsType != null){typeOnStack = lhsType;}
+            newType = TermTail(typeOnStack);
+            if(newType != null){typeOnStack = newType;}
             break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected start of expression but found "+ lookahead.token_name);
+            System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(type1);
+
+        return(typeOnStack);
     }
 
     public SymbolType TermTail(SymbolType typeOnStack) {
@@ -1833,9 +1836,7 @@ public class Parser {
 	    System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        // XXX double check this
         typeOnStack = newType;
-        System.out.println("AAA: " +typeOnStack);        
 
         return(typeOnStack);
     }
