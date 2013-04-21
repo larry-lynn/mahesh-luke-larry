@@ -1792,10 +1792,9 @@ public class Parser {
 	    listRule(97); // List the rule number applied
             match(TokenType.MP_NOT);
             // XXX is NOT a factor?
+            type = Factor(typeOnStack);
             newType = analyze.errorCheckNotOp(type);
             if(newType != null){typeOnStack = newType;}
-
-            newType = Factor(typeOnStack);
             break;
         case MP_INTEGER_LIT:
 	    listRule(95); // List the rule number applied

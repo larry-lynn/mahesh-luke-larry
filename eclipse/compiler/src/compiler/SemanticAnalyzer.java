@@ -355,6 +355,8 @@ public class SemanticAnalyzer {
     }
 
     public SymbolType errorCheckNotOp(SymbolType type){
+        //System.out.println("XXX: " + type);
+
     	SymbolType newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
 
         if(type != SymbolType.MP_SYMBOL_BOOLEAN){
