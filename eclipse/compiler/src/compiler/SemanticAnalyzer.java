@@ -70,21 +70,64 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format(";about to multiply 2 values on stack\n");
         irOutputFileHandle.format("MULS\n");
     }
-    public void deepCastFloatToIntIR(){
+    public SymbolType castFloatToIntIR(){
+        SymbolType newTypeOnStack = null;
         // XXX Luke's code to go here
-        System.out.println("Cast float 2 deep in stack to int");
+        System.out.println("Cast float on top of stack to int");
+        irOutputFileHandle.format(";cast the float on top of stack to an int\n");
+        irOutputFileHandle.format("CASTSI\n");
+
+        newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+        return (newTypeOnStack);
+
     }
-    public void castFloatToIntIR(){
-        // XXX Luke's code to go here
-        System.out.println("Cast float on top of stack to int");  
-    }
-    public void deepCastIntToFloatIR(){
+    public SymbolType deepCastIntToFloatIR(){
+        SymbolType newTypeOnStack = null;
         // XXX Luke's code to go here
         System.out.println("Cast int 2 deep in stack to float");
+        irOutputFileHandle.format(";cast the int 2 deep on the stack to a float\n");
+        irOutputFileHandle.format(";push the bottom int on top of the stack\n");
+        irOutputFileHandle.format("PUSH -2(SP)\n");
+        irOutputFileHandle.format(";cast the top to a float\n");
+        irOutputFileHandle.format("CASTSF\n");
+        irOutputFileHandle.format(";move the value back 2 deep\n");
+        irOutputFileHandle.format("POP -2(SP)\n");
+
+        newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+        return (newTypeOnStack);
     }
-    public void castIntToFloatIR(){
+    public SymbolType castIntToFloatIR(){
+        SymbolType newTypeOnStack = null;
+	irOutputFileHandle.format("CASTSI\n");
+
+        newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+        return (newTypeOnStack);
+
+    }
+    public SymbolType deepCastIntToFloatIR(){
+        SymbolType newTypeOnStack = null;
         // XXX Luke's code to go here
-        System.out.println("Cast int on top of stack to float");  
+        System.out.println("Cast int 2 deep in stack to float");
+        irOutputFileHandle.format(";cast the int 2 deep on the stack to a float\n");
+        irOutputFileHandle.format(";push the bottom int on top of the stack\n");
+        irOutputFileHandle.format("PUSH -2(SP)\n");
+        irOutputFileHandle.format(";cast the top to a float\n");
+        irOutputFileHandle.format("CASTSF\n");
+        irOutputFileHandle.format(";move the value back 2 deep\n");
+        irOutputFileHandle.format("POP -2(SP)\n");
+
+        newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+        return (newTypeOnStack);
+    }
+    public SymbolType castIntToFloatIR(){
+        SymbolType newTypeOnStack = null;
+        // XXX Luke's code to go here
+        System.out.println("Cast int on top of stack to float");
+        irOutputFileHandle.format(";cast the int on top of the stack to a float\n");
+        irOutputFileHandle.format("CASTSF\n");
+
+        newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
+        return (newTypeOnStack);
     }
     
     
