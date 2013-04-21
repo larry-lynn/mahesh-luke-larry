@@ -290,8 +290,8 @@ public class SemanticAnalyzer {
     
     public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
     	SymbolType newTypeOnStack = null;
-        System.out.println("XXX: " + lhsType);
-        System.out.println("YYY: " + rhsType);
+        //System.out.println("XXX: " + lhsType);
+        //System.out.println("YYY: " + rhsType);
     	
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
