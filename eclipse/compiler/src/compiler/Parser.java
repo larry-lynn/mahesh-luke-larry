@@ -955,6 +955,8 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
 	case MP_FIXED_LIT:
+	case MP_FLOAT_LIT:
+	case MP_STRING_LIT:
             listRule(50); // List the rule number applied
             OrdinalExpression();
             break;
@@ -1167,6 +1169,9 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	case MP_FIXED_LIT:
+	case MP_FLOAT_LIT:
+        case MP_STRING_LIT:
             listRule(60); // List the rule number applied
             OrdinalExpression();
             break;
@@ -1206,11 +1211,14 @@ public class Parser {
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	    case MP_MINUS:
+	case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	case MP_FIXED_LIT:
+	case MP_FLOAT_LIT:
+	case MP_STRING_LIT:
             listRule(63); // List the rule number applied
             OrdinalExpression();
             break;
@@ -1347,6 +1355,7 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
             listRule(70); // List the rule number applied
             newType = SimpleExpression(typeOnStack);
             if(newType != null){typeOnStack = newType;}
@@ -1459,6 +1468,7 @@ public class Parser {
 	case MP_STRING_LIT:
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
             listRule(79); // List the rule number applied
             OptionalSign();
             lhsType = Term(typeOnStack);
@@ -1546,9 +1556,10 @@ public class Parser {
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
-		case MP_STRING_LIT:
+	case MP_STRING_LIT:
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
 	    // map to ε
             listRule(84); // List the rule number applied
             break;        
@@ -1603,8 +1614,9 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-		case MP_STRING_LIT:
-		case MP_FLOAT_LIT:
+	case MP_STRING_LIT:
+	case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
         case MP_LPAREN:
 	        listRule(88); // List the rule number applied
 	        newType = Factor(typeOnStack);
@@ -1768,13 +1780,18 @@ public class Parser {
             newType = SymbolType.MP_SYMBOL_FLOAT;
             analyze.genStoreNumberLitIR(literalVal);
             break;
+        case MP_FIXED_LIT:
+            listRule(113); // List the rule number applied                                                                                                           
+            literalVal = match(TokenType.MP_FIXED_LIT);
+            newType = SymbolType.MP_SYMBOL_FIXED;
+            analyze.genStoreNumberLitIR(literalVal);
+            break;
         case MP_STRING_LIT:
             String stringVal;
 	    listRule(114); // List the rule number applied
             stringVal = match(TokenType.MP_STRING_LIT);
             newType = SymbolType.MP_SYMBOL_STRING;
             analyze.storeString(stringVal);
-            
             break;
 		case MP_TRUE:
 		    // XXX true & false may need to change for semantics of VM
