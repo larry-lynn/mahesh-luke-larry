@@ -241,6 +241,30 @@
 	  </java>
 	</target>
 	
+    <target depends="compile" name="run-failure-tests">
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_5.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_6.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_7.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_8.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_9.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_10.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="expression_add_test_11.mp"/>
+      </java>      
+    </target>
+
     <target depends="compile" name="run">
       
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
@@ -271,30 +295,7 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="expression_add_test_4.mp"/>
       </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_5.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_6.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_7.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_8.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_9.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_10.mp"/>
-      </java>
-      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
-        <arg value="expression_add_test_11.mp"/>
-      </java>
-      
-
-    	
+            
   </target>
 	
 </project>
