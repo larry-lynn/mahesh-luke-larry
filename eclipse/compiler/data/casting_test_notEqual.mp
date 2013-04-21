@@ -6,11 +6,11 @@ BEGIN
   float1 := 65.666;
   int1 := 50;
   writeln('This next line should return True');
-  writeln(float <> int1);
+  writeln(float1 <> int1);
   writeln('This next line should return False');
   writeln(float1 <> 65.666);
   writeln('This next line should return True');
-  writeln(int <> 50.05);
+  writeln(int1 <> 50.05);
   writeln('This next line should return False');
   writeln(int1 <> 50);
 END

@@ -1331,6 +1331,11 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	case MP_FIXED_LIT:
+        case MP_FLOAT_LIT:
+	case MP_STRING_LIT:
+	case MP_TRUE:
+	case MP_FALSE:
             listRule(69); // List the rule number applied
             OrdinalExpression();
             break;

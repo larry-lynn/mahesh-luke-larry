@@ -262,7 +262,24 @@
       </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="expression_add_test_11.mp"/>
-      </java>      
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="casting_test_equals_fail.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="casting_test_greater_fail.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="casting_test_greaterEqual_fail.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="casting_test_less_fail.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="casting_test_lessEqual_fail.mp"/>
+      </java>
+
+      
     </target>
 
     <target depends="compile" name="run">
@@ -281,6 +298,24 @@
       </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="casting_test2.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_equalBools.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_equals.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_lessEqual.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_less.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_notEqualBool.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+	<arg value="casting_test_notEqual.mp"/>
       </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="expression_div_4test.mp"/>
@@ -309,8 +344,7 @@
 
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="expression_not_test.mp"/>
-      </java>
-            
+      </java>        
   </target>
 	
 </project>
