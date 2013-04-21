@@ -1795,16 +1795,16 @@ public class Parser {
             newType = SymbolType.MP_SYMBOL_STRING;
             analyze.storeString(stringVal);
             break;
-		case MP_TRUE:
-		    // XXX true & false may need to change for semantics of VM
-	        listRule(115); // List the rule number applied
-	        literalVal = match(TokenType.MP_TRUE);
-                newType = SymbolType.MP_SYMBOL_BOOLEAN;
+        case MP_TRUE:
+	    // XXX true & false may need to change for semantics of VM
+            listRule(115); // List the rule number applied
+            literalVal = match(TokenType.MP_TRUE);
+            newType = SymbolType.MP_SYMBOL_BOOLEAN;
             break;
-		case MP_FALSE:
-	        listRule(116); // List the rule number applied
-	        literalVal = match(TokenType.MP_FALSE);
-                newType = SymbolType.MP_SYMBOL_BOOLEAN;
+        case MP_FALSE:
+            listRule(116); // List the rule number applied
+            literalVal = match(TokenType.MP_FALSE);
+            newType = SymbolType.MP_SYMBOL_BOOLEAN;
             break;
         case MP_LPAREN:
 	    listRule(98); // List the rule number applied
@@ -1951,19 +1951,18 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	        listRule(104); // List the rule number applied
+            listRule(104); // List the rule number applied
             typeOnStack = Expression(noValOnStack);
             break;
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
+            System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
 
     public void OrdinalExpression() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//105:OrdinalExpression    ⟶ Expression 
     	
@@ -1977,13 +1976,16 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	        listRule(105); // List the rule number applied
+        case MP_STRING_LIT:
+        case MP_FIXED_LIT:
+        case MP_FLOAT_LIT:
+            listRule(105); // List the rule number applied
             typeOnStack = Expression(noValOnStack);
             break;
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
+            System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
     }
