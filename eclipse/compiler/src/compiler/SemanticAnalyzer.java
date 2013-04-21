@@ -19,11 +19,10 @@ public class SemanticAnalyzer {
     	symCount = symbolTableHandle.getSymbolCountForCurrentTable();
     	depth = symbolTableHandle.getDepthAsString();
     	
-    	irOutputFileHandle.format(";backup SP so we can restore it later\n");
-    	irOutputFileHandle.format("MOV\tSP\t%s\n", depth);
+    	irOutputFileHandle.format("MOV\tSP\t%s\t ;backup SP so we can restore it later\n", depth);
     	for(i = 0; i < symCount; ++i){
-    		irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
-    		irOutputFileHandle.format("PUSH\t%s\n", depth);
+	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
+    	    irOutputFileHandle.format("PUSH\t%s\t ;make room on stack for X(DX) variables\n", depth);
     	}
     	/*
     	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
@@ -41,34 +40,29 @@ public class SemanticAnalyzer {
         sym = symbolTableHandle.fetchSymbolByLexeme(varLex);
         offset = sym.getOffset();
         depth = symbolTableHandle.getDepthAsString();
-        irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
+        //irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
         // XXX not sure about the memory management here - should this be in the symbol table?
-        irOutputFileHandle.format("POP\t%s\n", offset);
+        irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
     
     public void genStoreNumberLitIR(String literalVal){
-        irOutputFileHandle.format(";store an integer literal value on the stack\n");
-        irOutputFileHandle.format("PUSH\t#%s\n", literalVal); 
+        //irOutputFileHandle.format(";store an integer literal value on the stack\n");
+        irOutputFileHandle.format("PUSH\t#%s\t ;store an integer literal on the stack\n", literalVal); 
     }
     
     public void storeString(String stringLit){
-        irOutputFileHandle.format(";store value of a string literal on the stack\n");
-        irOutputFileHandle.format("PUSH\t#\"%s\"\n", stringLit);
+        //irOutputFileHandle.format(";store value of a string literal on the stack\n");
+        irOutputFileHandle.format("PUSH\t#\"%s\"\t;store a string literal on the stack\n", stringLit);
     }
     
     public void genWriteIR(){
-        irOutputFileHandle.format(";print a value left on the stack by an expression\n");
-        irOutputFileHandle.format("WRTLNS\n");
+        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
+        irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
     }
     
     public void putVarOnStack(String offset){
-        irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
-        irOutputFileHandle.format("PUSH\t%s\n", offset);
-    }
-    
-    public void genMulIR(){
-        irOutputFileHandle.format(";about to multiply 2 values on stack\n");
-        irOutputFileHandle.format("MULS\n");
+        //irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
+        irOutputFileHandle.format("PUSH\t%s\t ;put the value of a variable in a factor onto the stack\n", offset);
     }
 
     public SymbolType deepCastFloatToIntIR() {
@@ -375,23 +369,23 @@ public class SemanticAnalyzer {
 
     
     public void genMulIntIR(){
-        irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
-        irOutputFileHandle.format("MULS\n");
+        //irOutputFileHandle.format(";int mult for 2 values on stack\n");
+        irOutputFileHandle.format("MULS \t ;int mult for 2 values on stack\n");
     }
     
     public void genMulFloatIR(){
-        irOutputFileHandle.format(";about to do float mult for 2 values on stack\n");
-        irOutputFileHandle.format("MULSF\n");
+        //irOutputFileHandle.format(";about to do float mult for 2 values on stack\n");
+        irOutputFileHandle.format("MULSF \t ;float mult for 2 values on stack\n");
     }
     
     public void genDivIntIR(){
-        irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
-        irOutputFileHandle.format("DIVS\n");
+        //irOutputFileHandle.format(";about to do int div for 2 values on stack\n");
+        irOutputFileHandle.format("DIVS \t ;int div for 2 values on stack\n");
     }
     
     public void genDivFloatIR(){
-        irOutputFileHandle.format(";about to do float div for 2 values on stack\n");
-        irOutputFileHandle.format("DIVSF\n");
+        //irOutputFileHandle.format(";about to do float div for 2 values on stack\n");
+        irOutputFileHandle.format("DIVSF \t ;float div for 2 values on stack\n");
     }
     
     public void genBoolAndBoolIR(){
