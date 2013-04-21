@@ -23,7 +23,7 @@ public class Parser {
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
         //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
         
         Parser parse;
         
@@ -957,6 +957,8 @@ public class Parser {
 	case MP_FIXED_LIT:
 	case MP_FLOAT_LIT:
 	case MP_STRING_LIT:
+	case MP_TRUE:
+	case MP_FALSE:
             listRule(50); // List the rule number applied
             OrdinalExpression();
             break;
@@ -1356,7 +1358,9 @@ public class Parser {
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
 	case MP_FIXED_LIT:
-            listRule(70); // List the rule number applied
+	case MP_TRUE:
+	case MP_FALSE:
+			listRule(70); // List the rule number applied
             newType = SimpleExpression(typeOnStack);
             if(newType != null){typeOnStack = newType;}
             OptionalRelationalPart(typeOnStack);
@@ -1486,6 +1490,8 @@ public class Parser {
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
 	case MP_FIXED_LIT:
+	case MP_TRUE:
+	case MP_FALSE:
             listRule(79); // List the rule number applied
             OptionalSign();
             lhsType = Term(typeOnStack);
@@ -1495,7 +1501,7 @@ public class Parser {
             break;
         default:
             // parsing error
-            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
             System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
@@ -1575,6 +1581,8 @@ public class Parser {
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
 	case MP_FIXED_LIT:
+	case MP_TRUE:
+	case MP_FALSE:
 	    // map to ε
             listRule(84); // List the rule number applied
             break;        
@@ -1632,6 +1640,8 @@ public class Parser {
 	case MP_STRING_LIT:
 	case MP_FLOAT_LIT:
 	case MP_FIXED_LIT:
+	case MP_TRUE:
+	case MP_FALSE:
         case MP_LPAREN:
 	        listRule(88); // List the rule number applied
 	        newType = Factor(typeOnStack);
@@ -1817,11 +1827,13 @@ public class Parser {
             listRule(115); // List the rule number applied
             literalVal = match(TokenType.MP_TRUE);
             newType = SymbolType.MP_SYMBOL_BOOLEAN;
+            analyze.genStoreNumberLitIR("1");			
             break;
         case MP_FALSE:
             listRule(116); // List the rule number applied
             literalVal = match(TokenType.MP_FALSE);
             newType = SymbolType.MP_SYMBOL_BOOLEAN;
+            analyze.genStoreNumberLitIR("0");			
             break;
         case MP_LPAREN:
 	    listRule(98); // List the rule number applied
@@ -1996,6 +2008,8 @@ public class Parser {
         case MP_STRING_LIT:
         case MP_FIXED_LIT:
         case MP_FLOAT_LIT:
+		case MP_TRUE:
+		case MP_FALSE:
             listRule(105); // List the rule number applied
             typeOnStack = Expression(noValOnStack);
             break;
