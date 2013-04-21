@@ -1371,12 +1371,15 @@ public class Parser {
         return(typeOnStack);
     }
 
-    public void OptionalRelationalPart(SymbolType typeOnStack) {
+    public SymbolType OptionalRelationalPart(SymbolType typeOnStack) {
         //71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
         //72:                        ⟶ ε
     	infoLog( genStdInfoMsg() );
     	
-    	SymbolType type = null;
+    	SymbolType newType = null;
+	SymbolType lhsType = typeOnStack;
+	SymbolType rhsType = null;
+	RelationalOpType opType = null;
 
         switch (lookahead.token_name) {
         case MP_EQUAL:
@@ -1386,8 +1389,13 @@ public class Parser {
         case MP_LEQUAL:
         case MP_NEQUAL:
             listRule(71); // List the rule number applied
-            RelationalOperator();
-            type = SimpleExpression(typeOnStack);
+            opType = RelationalOperator();
+            rhsType = SimpleExpression(typeOnStack);
+	    newType = analyze.errorCheckandCastCompareOp(lhsType, opType, rhsType);
+	    if ( newType != null)
+		{
+		    typeOnStack = newType;
+		}
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1396,9 +1404,9 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
-	    case MP_DO:
-	    case MP_TO:
-	    case MP_DOWNTO:
+	case MP_DO:
+        case MP_TO:
+        case MP_DOWNTO:
             // map to ε
             listRule(72); // List the rule number applied
             break;
@@ -1408,9 +1416,10 @@ public class Parser {
             System.out.println("Expected relational operator or end of statement but found "+ lookahead.token_name);            			
             System.exit(-5);
         }
+	return (typeOnStack);
     }
 
-    public void RelationalOperator() {
+    public RelationalOpType RelationalOperator() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 	//73:RelationalOperator      ⟶ "="
 	//74:                        ⟶ "<"
@@ -1418,37 +1427,45 @@ public class Parser {
 	//76:                        ⟶ "<="
 	//77:                        ⟶ ">="
 	//78:                        ⟶ "<>" 
+	RelationalOpType opType = null;
         switch (lookahead.token_name) {
         case MP_EQUAL:
-                listRule(73); // List the rule number applied
+            listRule(73); // List the rule number applied
             match(TokenType.MP_EQUAL);
+	    opType = RelationalOpType.MP_EQUAL;
             break;
         case MP_GTHAN:
-                listRule(75); // List the rule number applied
+            listRule(75); // List the rule number applied
             match(TokenType.MP_GTHAN);
+	    opType = RelationalOpType.MP_GTHAN;
             break;
         case MP_GEQUAL:
-                listRule(77); // List the rule number applied
+            listRule(77); // List the rule number applied
             match(TokenType.MP_GEQUAL);
+	    opType = RelationalOpType.MP_GEQUAL;
             break;
         case MP_LTHAN:
-                listRule(74); // List the rule number applied
+            listRule(74); // List the rule number applied
             match(TokenType.MP_LTHAN);
+	    opType = RelationalOpType.MP_LTHAN;
             break;
         case MP_LEQUAL:
-                listRule(76); // List the rule number applied
+            listRule(76); // List the rule number applied
             match(TokenType.MP_LEQUAL);
+	    opType = RelationalOpType.MP_LEQUAL;
             break;
         case MP_NEQUAL:
-                listRule(78); // List the rule number applied
+            listRule(78); // List the rule number applied
             match(TokenType.MP_NEQUAL);
+	    opType = RelationalOpType.MP_NEQUAL;
             break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected relational operator but found "+ lookahead.token_name);                        
-			System.exit(-5);
+	    System.out.println("Expected relational operator but found "+ lookahead.token_name);                        
+	    System.exit(-5);
         }
+	return (opType);
     }
 
     public SymbolType SimpleExpression(SymbolType typeOnStack) {

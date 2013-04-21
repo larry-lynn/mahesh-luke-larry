@@ -76,12 +76,9 @@ public class SemanticAnalyzer {
 	// XXX Luke's code to go here
 	System.out.println("Cast float to int 2 deep on stack");
 	irOutputFileHandle.format(";cast the float to an int 2 deep on the stack\n");
-	irOutputFileHandle.format(";push the bottom float on top of the stack\n");
-	irOutputFileHandle.format("PUSH -2(SP)\n");
-	irOutputFileHandle.format(";cast the top to an int\n");
-	irOutputFileHandle.format("CASTSI\n");
-	irOutputFileHandle.format(";move the value back 2 deep\n");
-	irOutputFileHandle.format("POP -2(SP)\n");
+	irOutputFileHandle.format("PUSH -2(SP) ;push the bottom float on top of the stack\n ");
+	irOutputFileHandle.format("CASTSI ;cast the top to an int\n");
+	irOutputFileHandle.format("POP -2(SP) ;move the value back 2 deep\n");
 
 	newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
 	return newTypeOnStack;
@@ -103,12 +100,9 @@ public class SemanticAnalyzer {
         // XXX Luke's code to go here
         System.out.println("Cast int 2 deep in stack to float");
         irOutputFileHandle.format(";cast the int 2 deep on the stack to a float\n");
-        irOutputFileHandle.format(";push the bottom int on top of the stack\n");
-        irOutputFileHandle.format("PUSH -2(SP)\n");
-        irOutputFileHandle.format(";cast the top to a float\n");
-        irOutputFileHandle.format("CASTSF\n");
-        irOutputFileHandle.format(";move the value back 2 deep\n");
-        irOutputFileHandle.format("POP -2(SP)\n");
+        irOutputFileHandle.format("PUSH -2(SP) ;push the bottom int on top of the stack\n");
+        irOutputFileHandle.format("CASTSF ;cast the top to a float\n");
+        irOutputFileHandle.format("POP -2(SP) ;move the value back 2 deep\n");
 
         newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
         return (newTypeOnStack);
@@ -118,8 +112,7 @@ public class SemanticAnalyzer {
         SymbolType newTypeOnStack = null;
         // XXX Luke's code to go here
         System.out.println("Cast int on top of stack to float");
-        irOutputFileHandle.format(";cast the int on top of the stack to a float\n");
-        irOutputFileHandle.format("CASTSF\n");
+        irOutputFileHandle.format("CASTSF ;cast the int on top of the stack to a float\n");
 
         newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
         return (newTypeOnStack);
@@ -128,6 +121,10 @@ public class SemanticAnalyzer {
     // Method for checking comparison and their numbers
     public SymbolType errorCheckandCastCompareOp(SymbolType lhsType, RelationalOpType opType, SymbolType rhsType) {
 	SymbolType newTypeOnStack = null;
+
+	System.out.printf("Left hand side type found was: %s\n", lhsType);
+	System.out.printf("Op Type found was: %s\n",opType);
+	System.out.printf("Right hand side type found was: %s\n", rhsType);
 
 	//Check to see if we have strings first
 	if( lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING )
@@ -147,12 +144,14 @@ public class SemanticAnalyzer {
 	else if( lhsType == SymbolType.MP_SYMBOL_INTEGER && rhsType == SymbolType.MP_SYMBOL_FLOAT )
 	{
 	    //Signal to do cast at first level
-	    castIntToFloatIR();
+	    deepCastIntToFloatIR();
+	    lhsType = SymbolType.MP_SYMBOL_FLOAT;
 	}
 	else if( lhsType == SymbolType.MP_SYMBOL_FLOAT && rhsType == SymbolType.MP_SYMBOL_INTEGER )
 	{
 	    //Signal to do cast at second level
-	    deepCastIntToFloatIR();
+	    castIntToFloatIR();
+	    rhsType = SymbolType.MP_SYMBOL_FLOAT;
         }
 	//Signal IR code generation
 	if( lhsType == SymbolType.MP_SYMBOL_FLOAT && rhsType == SymbolType.MP_SYMBOL_FLOAT )
@@ -193,7 +192,7 @@ public class SemanticAnalyzer {
 	    // we some how got past all the checks and something went wrong
 	    System.out.println("Semantic Error: Relational Operator checker went AWOL");
 	}
-	newTypeOnStack = SymbolType.MP_SYMBOL_INTEGER;
+	newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
 	return (newTypeOnStack);
 
     }
@@ -441,52 +440,40 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("NOTS\n");
     }
     public void genEqualIR() {
-	irOutputFileHandle.format(";about to do an equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPEQS\n");
+	irOutputFileHandle.format("CMPEQS ;about to do an equal compare for 2 values on stack\n");
     }
     public void genNotEqualIR() {
-	irOutputFileHandle.format(";about to do a not-equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPNES\n");
+	irOutputFileHandle.format("CMPNES ;about to do a not-equal compare for 2 values on stack\n");
     }
     public void genGreaterIR() {
-	irOutputFileHandle.format(";about to do a greater than compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPGTS\n");
+	irOutputFileHandle.format("CMPGTS ;about to do a greater than compare for 2 values on stack\n");
     }
     public void genGreaterOrEqualIR() {
-	irOutputFileHandle.format(";about to do a greater than or equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPGES\n");
+	irOutputFileHandle.format("CMPGES ;about to do a greater than or equal compare for 2 values on stack\n");
     }
     public void genLessIR() {
-	irOutputFileHandle.format(";about to do a less than compare for 2 values on stack\n");
-        irOutputFileHandle.format("CMPLTS\n");
+        irOutputFileHandle.format("CMPLTS ;about to do a less than compare for 2 values on stack\n");
     }
     public void genLessOrEqualIR() {
-	irOutputFileHandle.format(";about to do a less than or equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPLES\n");
+	irOutputFileHandle.format("CMPLES ;about to do a less than or equal compare for 2 values on stack\n");
     }
     public void genFloatEqualIR() {
-	irOutputFileHandle.format(";about to do a float-equal compare for 2 values on stack\n");
-        irOutputFileHandle.format("CMPEQSF\n");
+        irOutputFileHandle.format("CMPEQSF ;about to do a float-equal compare for 2 values on stack\n");
     }
     public void genFloatNotEqualIR() {
-	irOutputFileHandle.format(";about to do a float-not-equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPNESF\n");
+	irOutputFileHandle.format("CMPNESF ;about to do a float-not-equal compare for 2 values on stack\n");
     }
     public void genFloatGreaterIR() {
-	irOutputFileHandle.format(";about to do a float-greater than compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPGTSF\n");
+	irOutputFileHandle.format("CMPGTSF ;about to do a float-greater than compare for 2 values on stack\n");
     }
     public void genFloatGreaterOrEqualIR() {
-	irOutputFileHandle.format(";about to do a float-greater than or equal compare for 2 values on stack\n");
-	irOutputFileHandle.format("CMPGESF\n");
+	irOutputFileHandle.format("CMPGESF ;about to do a float-greater than or equal compare for 2 values on stack\n");
     }
     public void genFloatLessIR() {
-	irOutputFileHandle.format(";about to do a float-less than compare for 2 values on the stack\n");
-	irOutputFileHandle.format("CMPLTSF\n");
+	irOutputFileHandle.format("CMPLTSF ;about to do a float-less than compare for 2 values on the stack\n");
     }
     public void genFloatLessOrEqualIR() {
-	irOutputFileHandle.format(";about to do a float-less than or equal compare for 2 values on the stack\n");
-	irOutputFileHandle.format("CMPLESF\n");
+	irOutputFileHandle.format("CMPLESF ;about to do a float-less than or equal compare for 2 values on the stack\n");
     }
     
     public void terminateIR(){
