@@ -19,7 +19,6 @@ public class SemanticAnalyzer {
     	symCount = symbolTableHandle.getSymbolCountForCurrentTable();
     	depth = symbolTableHandle.getDepthAsString();
     	
-    	//irOutputFileHandle.format(";backup SP so we can restore it later\n");
     	irOutputFileHandle.format("MOV\tSP\t%s\t ;backup SP so we can restore it later\n", depth);
     	for(i = 0; i < symCount; ++i){
 	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
