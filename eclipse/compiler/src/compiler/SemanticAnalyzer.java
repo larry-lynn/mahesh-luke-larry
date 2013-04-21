@@ -6,12 +6,22 @@ import java.util.ArrayList;
 public class SemanticAnalyzer {
     PrintWriter irOutputFileHandle;
     SymbolTableMaster symbolTableHandle;
+    int labelCounter;
     
     public SemanticAnalyzer(String fileWithPath, SymbolTableMaster stHandle) throws Exception{        
         irOutputFileHandle = new PrintWriter(fileWithPath + ".ir");
         symbolTableHandle = stHandle;
+        labelCounter = 0;
     }
     
+    public String genUniqueLabel(){
+        StringBuilder label = new StringBuilder();
+        label.append("L");
+        label.append(labelCounter);
+        labelCounter++;
+        return(label.toString());
+    }
+
     public void genCreateActivationRecordIR(){
     	String depth;
     	int symCount;

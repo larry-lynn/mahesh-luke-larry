@@ -152,10 +152,11 @@ public class Parser {
         		break;
 	        default:
 		        // parsing error
-		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
-		        System.exit(-5);
+                    System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
+                    System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+                    System.exit(-5);
         }
+
     }
 
     public void Program() {
