@@ -290,6 +290,8 @@ public class SemanticAnalyzer {
     
     public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
     	SymbolType newTypeOnStack = null;
+        System.out.println("XXX: " + lhsType);
+        System.out.println("YYY: " + rhsType);
     	
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
@@ -328,7 +330,7 @@ public class SemanticAnalyzer {
                 newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
             }
             else{
-                genMulFloatIR();
+                genAddFloatIR();
                 newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT; 
             }
             
@@ -350,7 +352,7 @@ public class SemanticAnalyzer {
                 newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT;
             }
             else{
-                genMulFloatIR();
+                genSubFloatIR();
                 newTypeOnStack = SymbolType.MP_SYMBOL_FLOAT; 
             }
             
@@ -379,7 +381,7 @@ public class SemanticAnalyzer {
     }
     
     public void genMulFloatIR(){
-        irOutputFileHandle.format(";about to do int mult for 2 values on stack\n");
+        irOutputFileHandle.format(";about to do float mult for 2 values on stack\n");
         irOutputFileHandle.format("MULSF\n");
     }
     
