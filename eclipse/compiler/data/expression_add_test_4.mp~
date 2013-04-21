@@ -1,9 +1,0 @@
-Program Expression_test_2;
-BEGIN
-writeln('mahesh output');
-writeln( (TRUE OR TRUE) );
-writeln( FALSE OR TRUE );
-writeln( TRUE OR FALSE );
-writeln( FALSE OR FALSE );
-END
-.

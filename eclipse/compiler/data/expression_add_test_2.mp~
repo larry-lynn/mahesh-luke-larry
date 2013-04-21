@@ -1,5 +1,0 @@
-Program Expression_test_2;
-BEGIN
-writeln( (1.2 + 5) );
-END
-.
