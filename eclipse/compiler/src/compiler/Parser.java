@@ -1038,14 +1038,21 @@ public class Parser {
         //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
+		String elselabel = null;
+		String afterElselabel = null;
+		
         switch (lookahead.token_name) {
         case MP_IF:
-            listRule(53); // List the rule number applied
+                listRule(53); // List the rule number applied
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
+			elselabel = analyze.genIfIR();	
             Statement();
-            OptionalElsePart();
+			analyze.putElselabel(elselabel);
+            afterElselabel = OptionalElsePart();
+			analyze.putAfterElselabel(afterElselabel);
+			
             break;
         default:
             // parsing error
@@ -1055,16 +1062,18 @@ public class Parser {
         }
     }
 
-    public void OptionalElsePart() {
+    public String OptionalElsePart() {
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
     	infoLog( genStdInfoMsg() );
+		String afterElselabel = null;
 
         switch (lookahead.token_name) {
         case MP_ELSE:
             listRule(54); // List the rule number applied
             match(TokenType.MP_ELSE);
             Statement();
+			afterElselabel = analyze.genlabelAroundElse();
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1073,6 +1082,7 @@ public class Parser {
         //case MP_ELSE:
             // map to ε
                 listRule(55); // List the rule number applied
+			afterElselabel = analyze.genlabelAroundElse();
             break;
         default:
             // parsing error
@@ -1080,6 +1090,7 @@ public class Parser {
 			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
             System.exit(-15);
         }
+		return afterElselabel;
     }
 
     public void RepeatStatement() {
@@ -1332,11 +1343,6 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	case MP_FIXED_LIT:
-        case MP_FLOAT_LIT:
-	case MP_STRING_LIT:
-	case MP_TRUE:
-	case MP_FALSE:
             listRule(69); // List the rule number applied
             OrdinalExpression();
             break;
