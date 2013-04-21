@@ -93,6 +93,12 @@ public class SemanticAnalyzer {
         //irOutputFileHandle.format(";write the new label name\n");
         irOutputFileHandle.format("%s:;put the new label\n", afterElselabel);
     }
+    public void dropLabelIR(String label){
+        irOutputFileHandle.format("%s:\t;drop a label to be refered to later\n", label);
+    }
+    public void genUntilTerminationIR(String returnLabel){
+        irOutputFileHandle.format("BRFS\t%s\t; repeat if the condition is not satisfied\n", returnLabel);
+    }   
 	
     public void putVarOnStack(String offset){
         //irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
@@ -317,9 +323,12 @@ public class SemanticAnalyzer {
     
     public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
     	SymbolType newTypeOnStack = null;
-        //System.out.println("XXX: " + lhsType);
-        //System.out.println("YYY: " + rhsType);
-    	
+        /*
+        System.out.println("XXX: " + lhsType);
+        System.out.println("Operator :" + addType );
+        System.out.println("YYY: " + rhsType);
+        */    	
+
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
             System.exit(-11);

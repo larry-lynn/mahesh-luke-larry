@@ -1096,13 +1096,21 @@ public class Parser {
     public void RepeatStatement() {
         // 56:RepeatStatement ⟶ "repeat" StatementSequence "until" BooleanExpression
     	infoLog( genStdInfoMsg() );
+
+        String returnLabel;
+
         switch (lookahead.token_name) {
         case MP_REPEAT:
-                listRule(56); // List the rule number applied
+            listRule(56); // List the rule number applied
             match(TokenType.MP_REPEAT);
+            returnLabel = analyze.genUniqueLabel();
+            analyze.dropLabelIR(returnLabel);
+
             StatementSequence();
             match(TokenType.MP_UNTIL);
             BooleanExpression();
+            analyze.genUntilTerminationIR(returnLabel);
+
             break;
         default:
             // parsing error
@@ -1621,19 +1629,19 @@ public class Parser {
             addType = AddOpType.MP_OR;
             break;
         case MP_PLUS:
-	        listRule(85); // List the rule number applied
+	    listRule(85); // List the rule number applied
             match(TokenType.MP_PLUS);
             addType = AddOpType.MP_PLUS;
             break;
         case MP_MINUS:
-	        listRule(86); // List the rule number applied
+	    listRule(86); // List the rule number applied
             match(TokenType.MP_MINUS);
-            addType = AddOpType.MP_PLUS;
+            addType = AddOpType.MP_MINUS;
             break;
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected keyword 'OR' or '+' or '-' but found "+ lookahead.token_name);            
+            System.out.println("Expected keyword 'OR' or '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
         return(addType);

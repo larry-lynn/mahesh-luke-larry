@@ -283,7 +283,7 @@
     </target>
 
     <target depends="compile" name="run">
-      
+      <!-- begin C level tests, happy path -->      
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="hello_world.mp"/>
       </java>
@@ -349,6 +349,10 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="test_simple_if.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="repeat_until.mp"/>
+      </java>
+
             
   </target>
 	
