@@ -1507,8 +1507,6 @@ public class Parser {
             if(newType != null){typeOnStack = newType;}
             newType = TermTail(typeOnStack);
             if(newType != null){typeOnStack = newType;}
-
-            
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1523,9 +1521,9 @@ public class Parser {
         case MP_RPAREN:
         case MP_THEN:
         case MP_ELSE:
-		case MP_DO:
-		case MP_TO:
-		case MP_DOWNTO:
+	case MP_DO:
+	case MP_TO:
+	case MP_DOWNTO:
             // map to ε
                 listRule(81); // List the rule number applied
             break;
@@ -1749,6 +1747,10 @@ public class Parser {
 	//97:                        ⟶ "not" Factor
 	//98:                        ⟶ "(" Expression ")"
 	//99:                        ⟶ FunctionIdentifier OptionalActualParameterList
+	//113:                       ⟶ UnsignedFloat
+	//114:                       ⟶ StringLiteral
+	//115:                       ⟶ "True"
+	//115:                       ⟶ "False"  
     	infoLog( genStdInfoMsg() );
 
         SymbolKind idKind = null;
