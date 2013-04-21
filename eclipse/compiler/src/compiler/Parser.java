@@ -763,7 +763,7 @@ public class Parser {
             WhileStatement();
             break;
         case MP_WRITE:
-		case MP_WRITELN:
+	case MP_WRITELN:
             // 35:Statement ⟶ WriteStatement
             listRule(35); // List the rule number applied
             WriteStatement();
@@ -954,6 +954,7 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
+	case MP_FIXED_LIT:
             listRule(50); // List the rule number applied
             OrdinalExpression();
             break;
