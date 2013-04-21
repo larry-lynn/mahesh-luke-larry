@@ -1040,7 +1040,7 @@ public class Parser {
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
         switch (lookahead.token_name) {
         case MP_IF:
-                listRule(53); // List the rule number applied
+            listRule(53); // List the rule number applied
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
@@ -1062,7 +1062,7 @@ public class Parser {
 
         switch (lookahead.token_name) {
         case MP_ELSE:
-                listRule(54); // List the rule number applied
+            listRule(54); // List the rule number applied
             match(TokenType.MP_ELSE);
             Statement();
             break;
@@ -1078,7 +1078,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
-            System.exit(-5);
+            System.exit(-15);
         }
     }
 
