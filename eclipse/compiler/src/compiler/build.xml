@@ -353,6 +353,9 @@
         <arg value="test_simple_if.mp"/>
       </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_if_else.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="repeat_until.mp"/>
       </java>
 

@@ -1035,15 +1035,15 @@ public class Parser {
     }
 
     public void IfStatement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
+    	infoLog( genStdInfoMsg() );
+
 		String elselabel = null;
 		String afterElselabel = null;
 		
         switch (lookahead.token_name) {
         case MP_IF:
-                listRule(53); // List the rule number applied
+            listRule(53); // List the rule number applied
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
@@ -1081,7 +1081,7 @@ public class Parser {
         // XXX note: MP_ELSE predicted by LL(1) table - AMBIGOUS - resolving by always matching nearest MP_IF
         //case MP_ELSE:
             // map to ε
-                listRule(55); // List the rule number applied
+            listRule(55); // List the rule number applied
 			afterElselabel = analyze.genlabelAroundElse();
             break;
         default:
