@@ -67,6 +67,11 @@ public class SemanticAnalyzer {
     
     public void genWriteIR(){
         //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
+        irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
+    }
+    
+    public void genWriteLineIR(){
+        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
         irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
     }
     

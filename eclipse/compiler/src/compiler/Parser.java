@@ -912,7 +912,7 @@ public class Parser {
             WriteParameter();
             WriteParameterTail();
             match(TokenType.MP_RPAREN);
-            analyze.genWriteIR();
+            analyze.genWriteLineIR();
             break;
         default:
             // parsing error
@@ -1161,6 +1161,7 @@ public class Parser {
             
             controlVarLex = ControlVariable();
             match(TokenType.MP_ASSIGN);
+            
             typeOnStack = InitialValue();
             // doesn't make sense for this type to be anything but numeric. Add Semantic check
             analyze.genAssignmentIR(controlVarLex, typeOnStack);
