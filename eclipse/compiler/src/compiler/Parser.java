@@ -1143,18 +1143,40 @@ public class Parser {
     public void ForStatement() {
          // 58:ForStatement ⟶ "for" ControlVariable ":=" InitialValue StepValue FinalValue "do" Statement
     	infoLog( genStdInfoMsg() );
+    	
+    	String beginForLoopLabel;
+    	String exitForLoopLabel;
+    	Boolean positive = null;
+    	String  controlVarLex;
+    	SymbolType typeOnStack;
+    	SymbolType terminatorType;
         
         switch (lookahead.token_name) {
         case MP_FOR:
-                listRule(58); // List the rule number applied
+            listRule(58); // List the rule number applied
             match(TokenType.MP_FOR);
-            ControlVariable();
+            
+            beginForLoopLabel = analyze.genUniqueLabel();
+            exitForLoopLabel = analyze.genUniqueLabel();
+            
+            controlVarLex = ControlVariable();
             match(TokenType.MP_ASSIGN);
-            InitialValue();
-            StepValue();
-            FinalValue();
+            typeOnStack = InitialValue();
+            // doesn't make sense for this type to be anything but numeric. Add Semantic check
+            analyze.genAssignmentIR(controlVarLex, typeOnStack);
+            
+            positive = StepValue();
+            analyze.dropLabelIR(beginForLoopLabel);
+            terminatorType = FinalValue();
+            // again we should do a semantic check & make sure this is numeric
+
+            analyze.genForLoopPreambleIR(controlVarLex, exitForLoopLabel);
             match(TokenType.MP_DO);
             Statement();
+
+            analyze.genForLoopPostambleIR(controlVarLex, positive, beginForLoopLabel);
+            analyze.dropLabelIR(exitForLoopLabel);
+            
             break;
         default:
             // parsing error
@@ -1164,14 +1186,15 @@ public class Parser {
         }
     }
 
-    public void ControlVariable() {
+    public String ControlVariable() {
         // 59:ControlVariable ⟶ VariableIdentifier
     	infoLog( genStdInfoMsg() );
+    	String controlVarLex = "";
 
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-                listRule(59); // List the rule number applied
-            VariableIdentifier();
+            listRule(59); // List the rule number applied
+            controlVarLex = VariableIdentifier();
             break;
         default:
             // parsing error
@@ -1179,11 +1202,15 @@ public class Parser {
 			System.out.println("Expected an identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(controlVarLex);
     }
 
-    public void InitialValue() {
+    public SymbolType InitialValue() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 60:InitialValue ⟶ OrdinalExpression
+    	
+    	SymbolType typeOnStack = null;
+    	
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1191,11 +1218,12 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	case MP_FIXED_LIT:
-	case MP_FLOAT_LIT:
+	    case MP_FIXED_LIT:
+	    case MP_FLOAT_LIT:
         case MP_STRING_LIT:
             listRule(60); // List the rule number applied
-            OrdinalExpression();
+            typeOnStack = OrdinalExpression();
+            
             break;
         default:
             // parsing error
@@ -1203,21 +1231,26 @@ public class Parser {
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(typeOnStack);
     }
 
-    public void StepValue() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public Boolean StepValue() {
         // 61:StepValue ⟶ "to"
         // 62: ⟶ "downto"
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	Boolean positive = null;
+    	
         switch (lookahead.token_name) {
         case MP_TO:
-                listRule(61); // List the rule number applied
+            listRule(61); // List the rule number applied
             match(TokenType.MP_TO);
+            positive = true;
             break;
         case MP_DOWNTO:
-                listRule(62); // List the rule number applied
+            listRule(62); // List the rule number applied
             match(TokenType.MP_DOWNTO);
+            positive = false;
             break;
         default:
             // parsing error
@@ -1225,24 +1258,25 @@ public class Parser {
 			System.out.println("Expected keyword 'TO' or 'DOWNTO' but found "+ lookahead.token_name);
             System.exit(-5);
         }
+    	return(positive);
     }
 
-    public void FinalValue() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public SymbolType FinalValue() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    	SymbolType typeOnStack = null;
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	case MP_MINUS:
+	    case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	case MP_FIXED_LIT:
-	case MP_FLOAT_LIT:
-	case MP_STRING_LIT:
+	    case MP_FIXED_LIT:
+	    case MP_FLOAT_LIT:
+        case MP_STRING_LIT:
             listRule(63); // List the rule number applied
-            OrdinalExpression();
+            typeOnStack = OrdinalExpression();
             break;
         default:
             // parsing error
@@ -1250,6 +1284,7 @@ public class Parser {
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(typeOnStack);
     }
 
     public void ProcedureStatement() {
@@ -2012,9 +2047,11 @@ public class Parser {
         }
     }
 
-    public void OrdinalExpression() {
+    public SymbolType OrdinalExpression() {
+        //105:OrdinalExpression    ⟶ Expression 
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-	//105:OrdinalExpression    ⟶ Expression 
+        // XXX'ordinal expression' suggests numbers
+    	// should we throw a semantic error if the type on the stack is not numeric?
     	
     	SymbolType noValOnStack = null;
     	SymbolType typeOnStack = null;
@@ -2040,6 +2077,7 @@ public class Parser {
             System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(typeOnStack);
     }
 
     public ArrayList<String> IdentifierList() {

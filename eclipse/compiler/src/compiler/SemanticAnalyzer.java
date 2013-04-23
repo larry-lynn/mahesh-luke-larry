@@ -98,11 +98,36 @@ public class SemanticAnalyzer {
     }
     public void genUntilTerminationIR(String returnLabel){
         irOutputFileHandle.format("BRFS\t%s\t; repeat if the condition is not satisfied\n", returnLabel);
-    }   
+    }  
+    public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
+        putVarOnStackByName(controlVarLex);
+        irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");
+        irOutputFileHandle.format("BRFS\t%s\t; repeat FOR until terminating condition satisfied\n", exitForLoopLabel);
+   
+    }
+    public void genForLoopPostambleIR(String controlVarLex, Boolean positive, String beginForLoopLabel){
+        putVarOnStackByName(controlVarLex);
+        irOutputFileHandle.format("PUSH\t#1\t ;put FOR, loop step:int 1 on the stack\n");
+        if(positive){
+            genAddIntIR();
+
+        }
+        else{
+            genSubIntIR();
+        }
+        genAssignmentIR(controlVarLex, SymbolType.MP_SYMBOL_INTEGER);
+        irOutputFileHandle.format("BR\t%s\t ; return to top of FOR loop\n", beginForLoopLabel);
+    }
 	
     public void putVarOnStack(String offset){
         //irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
         irOutputFileHandle.format("PUSH\t%s\t ;put the value of a variable in a factor onto the stack\n", offset);
+    }
+    
+    public void putVarOnStackByName(String varLexeme){
+        Symbol sym = symbolTableHandle.fetchSymbolByLexeme( varLexeme );
+        String offset = sym.getOffset();
+        putVarOnStack(offset);
     }
 
     public SymbolType deepCastFloatToIntIR() {
