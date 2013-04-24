@@ -1865,6 +1865,7 @@ public class Parser {
         String literalVal = "";
 
     	SymbolType type = typeOnStack;
+    	StackTopRecord recOnStack = new StackTopRecord(typeOnStack);
 
         switch (lookahead.token_name) {
         case MP_NOT:
