@@ -203,27 +203,27 @@ public class SemanticAnalyzer {
 	    System.exit(-11);
 	}
 	//Check to see if we have booleans as well
-	else if( lhsType == SymbolType.MP_SYMBOL_BOOLEAN || rhsType == SymbolType.MP_SYMBOL_BOOLEAN )
+	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN && rhsType != SymbolType.MP_SYMBOL_BOOLEAN) || (lhsType != SymbolType.MP_SYMBOL_BOOLEAN && rhsType == SymbolType.MP_SYMBOL_BOOLEAN ))
 	{
 	    //Send message that we have an error
-	    System.out.println(" Semantic Error: No legal operations for bool types with relational operator");
+	    System.out.println(" Semantic Error: No legal operations for non bool-bool types with relational operator");
 	    System.exit(-12);
 	}
 	// Else check to see if we need to do casting before compare hapens
-	else if( lhsType == SymbolType.MP_SYMBOL_INTEGER && rhsType == SymbolType.MP_SYMBOL_FLOAT )
+		 else if( lhsType == SymbolType.MP_SYMBOL_INTEGER && isFloatType(rhsType) )
 	{
 	    //Signal to do cast at first level
 	    deepCastIntToFloatIR();
 	    lhsType = SymbolType.MP_SYMBOL_FLOAT;
 	}
-	else if( lhsType == SymbolType.MP_SYMBOL_FLOAT && rhsType == SymbolType.MP_SYMBOL_INTEGER )
+		 else if( isFloatType(lhsType) && rhsType == SymbolType.MP_SYMBOL_INTEGER )
 	{
 	    //Signal to do cast at second level
 	    castIntToFloatIR();
 	    rhsType = SymbolType.MP_SYMBOL_FLOAT;
         }
 	//Signal IR code generation
-	if( lhsType == SymbolType.MP_SYMBOL_FLOAT && rhsType == SymbolType.MP_SYMBOL_FLOAT )
+		 if( isFloatType(lhsType) && isFloatType(rhsType) )
         {
 	    //check which symbol
 	    if( opType == RelationalOpType.MP_EQUAL )
@@ -257,6 +257,18 @@ public class SemanticAnalyzer {
                 genNotEqualIR();
 
 	}
+	else if( lhsType == SymbolType.MP_SYMBOL_BOOLEAN && rhsType == SymbolType.MP_SYMBOL_BOOLEAN )
+	    {
+		if( opType == RelationalOpType.MP_EQUAL )
+		    genEqualIR();
+		else if( opType == RelationalOpType.MP_NEQUAL )
+		    genNotEqualIR();
+		else
+		    {
+			System.out.println("Semantic Error: Op Type does not work with Boolean types");
+			System.exit(-14);
+		    }
+	    }
 	else {
 	    // we some how got past all the checks and something went wrong
 	    System.out.println("Semantic Error: Relational Operator checker went AWOL");
