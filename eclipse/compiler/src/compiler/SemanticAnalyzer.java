@@ -104,6 +104,15 @@ public class SemanticAnalyzer {
     public void genUntilTerminationIR(String returnLabel){
         irOutputFileHandle.format("BRFS\t%s\t; repeat if the condition is not satisfied\n", returnLabel);
     }  
+    
+    public void genWhileLoopPreambleIR(String exitWhileLoopLabel){
+        irOutputFileHandle.format("BRFS\t%s\t; repeat WHILE until terminating condition satisfied\n", exitWhileLoopLabel);
+    }
+    
+    public void genWhileLoopPostambleIR(String beginWhileLoopLabel){
+        irOutputFileHandle.format("BR\t%s\t ; return to top of FOR loop\n", beginWhileLoopLabel);
+    }
+    
     public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
         putVarOnStackByName(controlVarLex);
         irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");

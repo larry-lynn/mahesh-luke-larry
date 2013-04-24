@@ -227,6 +227,10 @@ public class Parser {
 	            VariableDeclaration();
 	        	match(TokenType.MP_SCOLON);
 	        	VariableDeclarationTail();
+	        	
+	            // XXX set up activation record here
+                analyze.genCreateActivationRecordIR();
+	        	
 	        	break;
 			case MP_BEGIN:
 			case MP_PROCEDURE:
@@ -284,7 +288,7 @@ public class Parser {
 	        default: 
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected variable name but found "+ lookahead.token_name);
+			    System.out.println("Expected variable name but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
         for(String lexeme: lexemes){
@@ -376,7 +380,7 @@ public class Parser {
 	        default:
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
+			    System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
     }
@@ -455,7 +459,7 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected function declaration but found "+ lookahead.token_name);
+			    System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
         funcSym = new Function(functionName, funcRetType, argList);
@@ -643,8 +647,7 @@ public class Parser {
 	        case MP_BEGIN:
 		        listRule(28); // List the rule number applied
 	        	match(TokenType.MP_BEGIN);
-	        	// XXX set up activation record here
-	        	analyze.genCreateActivationRecordIR();
+
        	
 	            StatementSequence();
 	        	match(TokenType.MP_END);
@@ -1122,15 +1125,33 @@ public class Parser {
 
     public void WhileStatement() {
         // 57:WhileStatement ⟶ "while" BooleanExpression "do" Statement
-    	infoLog( genStdInfoMsg() );
+    	infoLog( Thread.currentThread().getStackTrace()[1].getMethodName() );
 
+        String beginWhileLoopLabel;
+        String exitWhileLoopLabel;
+        String  controlVarLex;
+        SymbolType typeOnStack;
+        SymbolType terminatorType;
+    	
         switch (lookahead.token_name) {
         case MP_WHILE:
-                listRule(57); // List the rule number applied
+            listRule(57); // List the rule number applied
             match(TokenType.MP_WHILE);
+            
+            beginWhileLoopLabel = analyze.genUniqueLabel();
+            exitWhileLoopLabel = analyze.genUniqueLabel();
+            analyze.dropLabelIR(beginWhileLoopLabel);
+            
             BooleanExpression();
+            
             match(TokenType.MP_DO);
+            analyze.genWhileLoopPreambleIR(exitWhileLoopLabel);
+            
             Statement();
+            
+            analyze.genWhileLoopPostambleIR(beginWhileLoopLabel);
+            analyze.dropLabelIR(exitWhileLoopLabel);
+            
             break;
         default:
             // parsing error
