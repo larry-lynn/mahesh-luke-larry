@@ -54,6 +54,15 @@ public class SemanticAnalyzer {
         // XXX not sure about the memory management here - should this be in the symbol table?
         irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
+
+    public void genNegativeIR() {
+	//Signal we have to make the number negative
+	irOutputFileHandle.format("NEGS ;make the integer number negative\n");
+    }
+
+    public void genNegativeFloatIR() {
+	irOutputFileHandle.format("NEGSF ;make the float number negative\n");
+    }
     
     public void genStoreNumberLitIR(String literalVal){
         //irOutputFileHandle.format(";store an integer literal value on the stack\n");
@@ -77,26 +86,29 @@ public class SemanticAnalyzer {
     
 	public String genIfIR(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
-		String elselabel = genUniqueLabel();
-        irOutputFileHandle.format("BRFS\t%s;branch to the label if the condition satisfies\n", elselabel);
-		return elselabel;
+		String elseLabel = genUniqueLabel();
+        irOutputFileHandle.format("BRFS\t%s;branch to the label if the condition satisfies\n", elseLabel);
+		return elseLabel;
     }
 
-    public void putElselabel(String elselabel){
-        //irOutputFileHandle.format(";write the new label name\n");
-        irOutputFileHandle.format("%s:;put the new label\n", elselabel);
+    public void putElseLabel(String elseLabel){
+        //irOutputFileHandle.format(";write the new Label name\n");
+        irOutputFileHandle.format("%s:;put the new Label\n", elseLabel);
     }
 	
-	public String genlabelAroundElse(){
+	public String genLabelAroundElse(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
-		String afterElselabel = genUniqueLabel();
-        irOutputFileHandle.format("BR\t%s;branch to the label if the condition satisfies\n", afterElselabel);
-		return afterElselabel;
+		String afterElseLabel = genUniqueLabel();
+		return afterElseLabel;
     }	
 	
-	public void putAfterElselabel(String afterElselabel){
-        //irOutputFileHandle.format(";write the new label name\n");
-        irOutputFileHandle.format("%s:;put the new label\n", afterElselabel);
+	public void branchAroundElse(String afterElseLabel){
+		irOutputFileHandle.format("BR\t%s;branch to the Label if the condition satisfies\n", afterElseLabel);
+	}
+	
+	public void putAfterElseLabel(String afterElseLabel){
+        //irOutputFileHandle.format(";write the new Label name\n");
+        irOutputFileHandle.format("%s:;put the new Label\n", afterElseLabel);
     }
     public void dropLabelIR(String label){
         irOutputFileHandle.format("%s:\t;drop a label to be refered to later\n", label);
@@ -115,6 +127,7 @@ public class SemanticAnalyzer {
     
     public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
         putVarOnStackByName(controlVarLex);
+	//Added today on 4-24 for an error about CMPNES, need to drop Terminator here as well
         irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");
         irOutputFileHandle.format("BRFS\t%s\t; repeat FOR until terminating condition satisfied\n", exitForLoopLabel);
    

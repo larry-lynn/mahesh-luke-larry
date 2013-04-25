@@ -976,7 +976,7 @@ public class Parser {
 
     public void AssignmentStatement() {
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
-        // 52: ⟶ FunctionIdentifier ":=" Expression
+        // 52:                    ⟶ FunctionIdentifier ":=" Expression
     	infoLog( genStdInfoMsg() );
 
         SymbolKind idKind = null;
@@ -1041,8 +1041,8 @@ public class Parser {
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
     	infoLog( genStdInfoMsg() );
 
-		String elselabel = null;
-		String afterElselabel = null;
+		String elseLabel = null;
+		String afterElseLabel = null;
 		
         switch (lookahead.token_name) {
         case MP_IF:
@@ -1050,12 +1050,14 @@ public class Parser {
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
-			elselabel = analyze.genIfIR();	
+			elseLabel = analyze.genIfIR();	
             Statement();
-			analyze.putElselabel(elselabel);
-            afterElselabel = OptionalElsePart();
-			analyze.putAfterElselabel(afterElselabel);
-			
+			afterElseLabel = analyze.genLabelAroundElse();
+			analyze.branchAroundElse(afterElseLabel);
+			analyze.putElseLabel(elseLabel);
+            OptionalElsePart(afterElseLabel);
+			analyze.putAfterElseLabel(afterElseLabel);
+
             break;
         default:
             // parsing error
@@ -1065,18 +1067,16 @@ public class Parser {
         }
     }
 
-    public String OptionalElsePart() {
+    public void OptionalElsePart(String afterElseLabel) {
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
     	infoLog( genStdInfoMsg() );
-		String afterElselabel = null;
 
         switch (lookahead.token_name) {
         case MP_ELSE:
             listRule(54); // List the rule number applied
             match(TokenType.MP_ELSE);
             Statement();
-			afterElselabel = analyze.genlabelAroundElse();
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1085,7 +1085,7 @@ public class Parser {
         //case MP_ELSE:
             // map to ε
             listRule(55); // List the rule number applied
-			afterElselabel = analyze.genlabelAroundElse();
+			analyze.branchAroundElse(afterElseLabel);
             break;
         default:
             // parsing error
@@ -1093,7 +1093,6 @@ public class Parser {
 			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
             System.exit(-15);
         }
-		return afterElselabel;
     }
 
     public void RepeatStatement() {
@@ -1191,7 +1190,8 @@ public class Parser {
             analyze.dropLabelIR(beginForLoopLabel);
             terminatorType = FinalValue();
             // again we should do a semantic check & make sure this is numeric
-
+	    // Also need to add the terminator value to the Preamble?
+	    // See test...
             analyze.genForLoopPreambleIR(controlVarLex, exitForLoopLabel);
             match(TokenType.MP_DO);
             Statement();
@@ -1289,13 +1289,13 @@ public class Parser {
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	    case MP_MINUS:
+	case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	    case MP_FIXED_LIT:
-	    case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
+	case MP_FLOAT_LIT:
         case MP_STRING_LIT:
             listRule(63); // List the rule number applied
             recOnStack = OrdinalExpression();
@@ -1423,7 +1423,7 @@ public class Parser {
         //70:Expression              ⟶ SimpleExpression OptionalRelationalPart
     	infoLog( genStdInfoMsg() );
     	
-    	StackTopRecord newType = null;
+    	StackTopRecord newRec = null;
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1437,12 +1437,12 @@ public class Parser {
 	case MP_FIXED_LIT:
 	case MP_TRUE:
 	case MP_FALSE:
-			listRule(70); // List the rule number applied
-            newType = SimpleExpression(recOnStack);
-            if(newType != null){recOnStack = newType;}
+            listRule(70); // List the rule number applied
+            newRec = SimpleExpression(recOnStack);
+            if(newRec != null){recOnStack = newRec;}
 	    // Made changes here?
-            newType = OptionalRelationalPart(recOnStack);
-	    if(newType != null){recOnStack = newType;}
+            newRec = OptionalRelationalPart(recOnStack);
+	    if(newRec != null){recOnStack = newRec;}
             break;
         default:
             // parsing error
@@ -1557,7 +1557,14 @@ public class Parser {
     	
     	StackTopRecord lhsRec = recOnStack;
         StackTopRecord rhsRec = null;
-    	StackTopRecord newType = null;
+    	StackTopRecord newRec = null;
+
+    	//SymbolType lhsType = recOnStack.dataType;
+        //SymbolType rhsType = null;
+        SymbolType typeOnStack = null;
+    	SymbolType newType = null;
+	TokenType signType = null;
+	Boolean isNumber = false;
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1572,11 +1579,28 @@ public class Parser {
 	case MP_TRUE:
 	case MP_FALSE:
             listRule(79); // List the rule number applied
-            OptionalSign();
+
+            signType = OptionalSign();
+
+            //lhsType = Term(typeOnStack);
             lhsRec = Term(recOnStack);
             if(lhsRec != null){recOnStack = lhsRec;}
-            newType = TermTail(recOnStack);
-            if(newType != null){recOnStack = newType;}
+            //if(lhsType != null){typeOnStack = lhsType;}
+            if(recOnStack.dataType != null){
+                typeOnStack = recOnStack.dataType;
+            }
+	    if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER || typeOnStack == SymbolType.MP_SYMBOL_FLOAT || typeOnStack == SymbolType.MP_SYMBOL_FIXED ) {
+		if(signType == TokenType.MP_MINUS)
+		    {
+			if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER)
+			    analyze.genNegativeIR();
+			else
+			    analyze.genNegativeFloatIR();
+		    }
+	    }
+            newRec = TermTail(recOnStack);
+            if(newRec != null){recOnStack = newRec;}
+
             break;
         default:
             // parsing error
@@ -1638,19 +1662,22 @@ public class Parser {
         return(recOnStack);
     }
 
-    public void OptionalSign() {
+    public TokenType OptionalSign() {
         //82:OptionalSign            ⟶ "+"
         //83:                        ⟶ "-"
         //84:                        ⟶ ε
+	TokenType signType = null;
     	infoLog( genStdInfoMsg() );
 
         switch (lookahead.token_name) {
         case MP_PLUS:
             listRule(82); // List the rule number applied
+	    signType = TokenType.MP_PLUS;
             match(TokenType.MP_PLUS);
             break;
         case MP_MINUS:
             listRule(83); // List the rule number applied
+	    signType = TokenType.MP_MINUS;
             match(TokenType.MP_MINUS);
             break;
         case MP_LPAREN:
@@ -1671,6 +1698,8 @@ public class Parser {
 			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
+	return (signType);
+	
     }
 
     public AddOpType AddingOperator() {

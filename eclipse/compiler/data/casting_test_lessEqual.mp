@@ -3,8 +3,10 @@ program casting_test_lessEqual;
   floatnumber: Float;
 
 BEGIN
+  
   intnumber := 500;
-  floatnumber := 500.50;
+floatnumber := 500.50;
+writeln('Program casting_test_less_equal');
   writeln('Output should be False');
   writeln( floatnumber <= intnumber);
   writeln('Output should be True');

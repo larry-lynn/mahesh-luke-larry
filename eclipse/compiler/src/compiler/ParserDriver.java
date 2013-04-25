@@ -48,7 +48,7 @@ public class ParserDriver {
         	break;    
         // Test 8 - use parse_input7.mp
         case MP_ELSE:
-        	parse.OptionalElsePart();
+        	parse.OptionalElsePart("DummyString");
         	break;
         // Test 9 - use parse_input8.mp
         case MP_WHILE:
