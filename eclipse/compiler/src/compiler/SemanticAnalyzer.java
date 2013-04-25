@@ -54,6 +54,15 @@ public class SemanticAnalyzer {
         // XXX not sure about the memory management here - should this be in the symbol table?
         irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
+
+    public void genNegativeIR() {
+	//Signal we have to make the number negative
+	irOutputFileHandle.format("NEGS ;make the integer number negative\n");
+    }
+
+    public void genNegativeFloatIR() {
+	irOutputFileHandle.format("NEGSF ;make the float number negative\n");
+    }
     
     public void genStoreNumberLitIR(String literalVal){
         //irOutputFileHandle.format(";store an integer literal value on the stack\n");
@@ -118,6 +127,7 @@ public class SemanticAnalyzer {
     
     public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
         putVarOnStackByName(controlVarLex);
+	//Added today on 4-24 for an error about CMPNES, need to drop Terminator here as well
         irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");
         irOutputFileHandle.format("BRFS\t%s\t; repeat FOR until terminating condition satisfied\n", exitForLoopLabel);
    

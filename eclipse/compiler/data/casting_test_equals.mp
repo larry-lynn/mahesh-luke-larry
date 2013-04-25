@@ -8,7 +8,8 @@ BEGIN
   float1 := 7.15;
   float2 := 88.88;
   int1 := 505;
-  int2 := 1;
+int2 := 1;
+writeln('Program casting_test_equals');
   writeln('Output should be False');
   writeln(float1 = int1);
   writeln('Output should be False');
