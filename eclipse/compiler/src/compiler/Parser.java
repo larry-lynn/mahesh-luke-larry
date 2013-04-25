@@ -2012,8 +2012,10 @@ public class Parser {
         if( (newRec == null) && (newType != null) ){
             newRec = new StackTopRecord(newType);
         }
+        /* XXX probably garbage
         System.out.println("AAA: " + newRec.dataType);
         System.out.println("BBB: " + newType);
+        */
 
         recOnStack = newRec;
 

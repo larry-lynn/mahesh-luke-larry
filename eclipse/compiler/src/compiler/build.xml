@@ -364,18 +364,22 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="while_loop.mp"/>
       </java>
+      <!-- This test is also missing
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="test_if_else_compound.mp"/>
       </java>
+      -->
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="test_if_compound.mp"/>
       </java>
+      <!--  XXX - it looks like we're missing these inner tests in the repository
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="test_if_else_compound.mp"/>
       </java>
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="test_if_inner_if_else.mp"/>
       </java>
+      -->
 
   </target>
 	

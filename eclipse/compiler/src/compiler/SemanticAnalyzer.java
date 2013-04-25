@@ -297,7 +297,7 @@ public class SemanticAnalyzer {
     
     
     public StackTopRecord errorCheckAndCastMulOp(StackTopRecord lhsRec, MulOpType mulType, StackTopRecord rhsRec){
-        System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
+        //System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
         StackTopRecord newRecOnStack = new StackTopRecord(SymbolType.MP_SYMBOL_INTEGER);
     	SymbolType lhsType = lhsRec.dataType;
     	SymbolType rhsType = rhsRec.dataType;
@@ -390,7 +390,7 @@ public class SemanticAnalyzer {
     }
     
     public StackTopRecord errorCheckAndCastAddOp(StackTopRecord lhsRec, AddOpType addType, StackTopRecord rhsRec){
-        System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
+        //System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
     	SymbolType newTypeOnStack = null;
         SymbolType lhsType = lhsRec.dataType;
         SymbolType rhsType = rhsRec.dataType;
