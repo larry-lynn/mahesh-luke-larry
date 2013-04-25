@@ -3,6 +3,7 @@ VAR myBool : Boolean;
 
 BEGIN
   myBool := True;
+  writeln('Prgram casting_test_equalsBool');
   writeln('This next line should return True');
   writeln(myBool = True);
   writeln('This next line should return False');

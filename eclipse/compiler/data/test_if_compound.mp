@@ -10,7 +10,7 @@ BEGIN
     then
       BEGIN
       writeln('All up in the then portion');
-      for num1 := (1 * 5 / 5) to num2
+      for num1 := (1 * 5 div 5) to num2
       do writeln(num1);
       writeln('Outa my for loops');
         BEGIN

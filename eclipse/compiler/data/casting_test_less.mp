@@ -8,8 +8,9 @@ BEGIN
   floatnumber := 3.14;
   floatnumber2 := -5.5;
   intnumber := 13;
-  intnumber2 := 7;
-  writeln('Output should be False');
+intnumber2 := 7;
+  writeln('Program casting_test_less');
+  writeln('Output should be False for 3.14 < -5.5');
   writeln( floatnumber < floatnumber2 );
   writeln('Output should be True');
   writeln( floatnumber < intnumber );

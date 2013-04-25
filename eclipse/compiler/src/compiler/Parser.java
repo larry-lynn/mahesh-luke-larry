@@ -976,7 +976,7 @@ public class Parser {
 
     public void AssignmentStatement() {
         // 51:AssignmentStatement ⟶ VariableIdentifier ":=" Expression
-        // 52: ⟶ FunctionIdentifier ":=" Expression
+        // 52:                    ⟶ FunctionIdentifier ":=" Expression
     	infoLog( genStdInfoMsg() );
 
         SymbolKind idKind = null;
@@ -1191,7 +1191,8 @@ public class Parser {
             analyze.dropLabelIR(beginForLoopLabel);
             terminatorType = FinalValue();
             // again we should do a semantic check & make sure this is numeric
-
+	    // Also need to add the terminator value to the Preamble?
+	    // See test...
             analyze.genForLoopPreambleIR(controlVarLex, exitForLoopLabel);
             match(TokenType.MP_DO);
             Statement();
@@ -1289,13 +1290,13 @@ public class Parser {
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
-	    case MP_MINUS:
+	case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	    case MP_FIXED_LIT:
-	    case MP_FLOAT_LIT:
+	case MP_FIXED_LIT:
+	case MP_FLOAT_LIT:
         case MP_STRING_LIT:
             listRule(63); // List the rule number applied
             typeOnStack = OrdinalExpression();
@@ -1437,7 +1438,7 @@ public class Parser {
 	case MP_FIXED_LIT:
 	case MP_TRUE:
 	case MP_FALSE:
-			listRule(70); // List the rule number applied
+	    listRule(70); // List the rule number applied
             newType = SimpleExpression(typeOnStack);
             if(newType != null){typeOnStack = newType;}
 	    // Made changes here?
@@ -1558,6 +1559,9 @@ public class Parser {
     	SymbolType lhsType = typeOnStack;
         SymbolType rhsType = null;
     	SymbolType newType = null;
+	TokenType signType = null;
+	Boolean isNumber = false;
+	// XXXX
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1572,9 +1576,18 @@ public class Parser {
 	case MP_TRUE:
 	case MP_FALSE:
             listRule(79); // List the rule number applied
-            OptionalSign();
+            signType = OptionalSign();
             lhsType = Term(typeOnStack);
             if(lhsType != null){typeOnStack = lhsType;}
+	    if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER || typeOnStack == SymbolType.MP_SYMBOL_FLOAT || typeOnStack == SymbolType.MP_SYMBOL_FIXED ) {
+		if(signType == TokenType.MP_MINUS)
+		    {
+			if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER)
+			    analyze.genNegativeIR();
+			else
+			    analyze.genNegativeFloatIR();
+		    }
+	    }
             newType = TermTail(typeOnStack);
             if(newType != null){typeOnStack = newType;}
             break;
@@ -1638,19 +1651,22 @@ public class Parser {
         return(typeOnStack);
     }
 
-    public void OptionalSign() {
+    public TokenType OptionalSign() {
         //82:OptionalSign            ⟶ "+"
         //83:                        ⟶ "-"
         //84:                        ⟶ ε
+	TokenType signType = null;
     	infoLog( genStdInfoMsg() );
 
         switch (lookahead.token_name) {
         case MP_PLUS:
             listRule(82); // List the rule number applied
+	    signType = TokenType.MP_PLUS;
             match(TokenType.MP_PLUS);
             break;
         case MP_MINUS:
             listRule(83); // List the rule number applied
+	    signType = TokenType.MP_MINUS;
             match(TokenType.MP_MINUS);
             break;
         case MP_LPAREN:
@@ -1671,6 +1687,8 @@ public class Parser {
 			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
+	return (signType);
+	
     }
 
     public AddOpType AddingOperator() {
