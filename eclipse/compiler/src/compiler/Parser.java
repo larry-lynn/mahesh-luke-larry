@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
+        //Boolean debugOn = false;
         
         Parser parse;
         
@@ -982,8 +982,8 @@ public class Parser {
         SymbolKind idKind = null;
         String lookaheadLex = "";
         String varLex = "";
-        SymbolType type = null;
-        SymbolType noValOnStack = null;
+        StackTopRecord rec = null;
+        StackTopRecord noValOnStack = null;
 
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
@@ -1007,16 +1007,16 @@ public class Parser {
                 listRule(51); // List the rule number applied
                 varLex = VariableIdentifier();
                 match(TokenType.MP_ASSIGN);
-                type = Expression(noValOnStack);
+                rec = Expression(noValOnStack);
                 // prepare info for semantic analyzer
 
-                analyze.genAssignmentIR(varLex, type);
+                analyze.genAssignmentIR(varLex, rec.dataType);
                 break;
             case MP_SYMBOL_FUNCTION:
                 listRule(52); // List the rule number applied
                 FunctionIdentifier(); 
                 match(TokenType.MP_ASSIGN); 
-                type = Expression(noValOnStack); 
+                rec = Expression(noValOnStack); 
                 break;
 
             default:
@@ -1130,8 +1130,8 @@ public class Parser {
         String beginWhileLoopLabel;
         String exitWhileLoopLabel;
         String  controlVarLex;
-        SymbolType typeOnStack;
-        SymbolType terminatorType;
+        StackTopRecord recOnStack;
+        StackTopRecord terminatorType;
     	
         switch (lookahead.token_name) {
         case MP_WHILE:
@@ -1169,8 +1169,8 @@ public class Parser {
     	String exitForLoopLabel;
     	Boolean positive = null;
     	String  controlVarLex;
-    	SymbolType typeOnStack;
-    	SymbolType terminatorType;
+    	StackTopRecord recOnStack;
+    	StackTopRecord terminatorType;
         
         switch (lookahead.token_name) {
         case MP_FOR:
@@ -1183,9 +1183,9 @@ public class Parser {
             controlVarLex = ControlVariable();
             match(TokenType.MP_ASSIGN);
             
-            typeOnStack = InitialValue();
+            recOnStack = InitialValue();
             // doesn't make sense for this type to be anything but numeric. Add Semantic check
-            analyze.genAssignmentIR(controlVarLex, typeOnStack);
+            analyze.genAssignmentIR(controlVarLex, recOnStack.dataType);
             
             positive = StepValue();
             analyze.dropLabelIR(beginForLoopLabel);
@@ -1227,11 +1227,11 @@ public class Parser {
         return(controlVarLex);
     }
 
-    public SymbolType InitialValue() {
+    public StackTopRecord InitialValue() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 60:InitialValue ⟶ OrdinalExpression
     	
-    	SymbolType typeOnStack = null;
+    	StackTopRecord recOnStack = null;
     	
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1244,7 +1244,7 @@ public class Parser {
 	    case MP_FLOAT_LIT:
         case MP_STRING_LIT:
             listRule(60); // List the rule number applied
-            typeOnStack = OrdinalExpression();
+            recOnStack = OrdinalExpression();
             
             break;
         default:
@@ -1253,7 +1253,7 @@ public class Parser {
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(typeOnStack);
+        return(recOnStack);
     }
 
     public Boolean StepValue() {
@@ -1283,9 +1283,9 @@ public class Parser {
     	return(positive);
     }
 
-    public SymbolType FinalValue() {
+    public StackTopRecord FinalValue() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	SymbolType typeOnStack = null;
+    	StackTopRecord recOnStack = null;
         // 63:FinalValue ⟶ OrdinalExpression
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1298,7 +1298,7 @@ public class Parser {
 	    case MP_FLOAT_LIT:
         case MP_STRING_LIT:
             listRule(63); // List the rule number applied
-            typeOnStack = OrdinalExpression();
+            recOnStack = OrdinalExpression();
             break;
         default:
             // parsing error
@@ -1306,7 +1306,7 @@ public class Parser {
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(typeOnStack);
+        return(recOnStack);
     }
 
     public void ProcedureStatement() {
@@ -1419,11 +1419,11 @@ public class Parser {
         }
     }
 
-    public SymbolType Expression(SymbolType typeOnStack) {
+    public StackTopRecord Expression(StackTopRecord recOnStack) {
         //70:Expression              ⟶ SimpleExpression OptionalRelationalPart
     	infoLog( genStdInfoMsg() );
     	
-    	SymbolType newType = null;
+    	StackTopRecord newType = null;
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1438,11 +1438,11 @@ public class Parser {
 	case MP_TRUE:
 	case MP_FALSE:
 			listRule(70); // List the rule number applied
-            newType = SimpleExpression(typeOnStack);
-            if(newType != null){typeOnStack = newType;}
+            newType = SimpleExpression(recOnStack);
+            if(newType != null){recOnStack = newType;}
 	    // Made changes here?
-            newType = OptionalRelationalPart(typeOnStack);
-	    if(newType != null){typeOnStack = newType;}
+            newType = OptionalRelationalPart(recOnStack);
+	    if(newType != null){recOnStack = newType;}
             break;
         default:
             // parsing error
@@ -1451,17 +1451,17 @@ public class Parser {
             System.exit(-5);
         }
 
-        return(typeOnStack);
+        return(recOnStack);
     }
 
-    public SymbolType OptionalRelationalPart(SymbolType typeOnStack) {
+    public StackTopRecord OptionalRelationalPart(StackTopRecord recOnStack) {
         //71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
         //72:                        ⟶ ε
     	infoLog( genStdInfoMsg() );
     	
-    	SymbolType newType = null;
-	SymbolType lhsType = typeOnStack;
-	SymbolType rhsType = null;
+    	StackTopRecord newType = null;
+	StackTopRecord lhsRec = recOnStack;
+	StackTopRecord rhsRec = null;
 	RelationalOpType opType = null;
 
         switch (lookahead.token_name) {
@@ -1473,11 +1473,11 @@ public class Parser {
         case MP_NEQUAL:
             listRule(71); // List the rule number applied
             opType = RelationalOperator();
-            rhsType = SimpleExpression(typeOnStack);
-	    newType = analyze.errorCheckandCastCompareOp(lhsType, opType, rhsType);
+            rhsRec = SimpleExpression(recOnStack);
+	    newType = analyze.errorCheckandCastCompareOp(lhsRec, opType, rhsRec);
 	    if ( newType != null)
 		{
-		    typeOnStack = newType;
+		    recOnStack = newType;
 		}
             break;
         case MP_END:
@@ -1551,13 +1551,13 @@ public class Parser {
 	return (opType);
     }
 
-    public SymbolType SimpleExpression(SymbolType typeOnStack) {
+    public StackTopRecord SimpleExpression(StackTopRecord recOnStack) {
         //79:SimpleExpression        ⟶ OptionalSign Term TermTail
     	infoLog( genStdInfoMsg() );
     	
-    	SymbolType lhsType = typeOnStack;
-        SymbolType rhsType = null;
-    	SymbolType newType = null;
+    	StackTopRecord lhsRec = recOnStack;
+        StackTopRecord rhsRec = null;
+    	StackTopRecord newType = null;
 
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -1573,10 +1573,10 @@ public class Parser {
 	case MP_FALSE:
             listRule(79); // List the rule number applied
             OptionalSign();
-            lhsType = Term(typeOnStack);
-            if(lhsType != null){typeOnStack = lhsType;}
-            newType = TermTail(typeOnStack);
-            if(newType != null){typeOnStack = newType;}
+            lhsRec = Term(recOnStack);
+            if(lhsRec != null){recOnStack = lhsRec;}
+            newType = TermTail(recOnStack);
+            if(newType != null){recOnStack = newType;}
             break;
         default:
             // parsing error
@@ -1585,17 +1585,17 @@ public class Parser {
             System.exit(-5);
         }
 
-        return(typeOnStack);
+        return(recOnStack);
     }
 
-    public SymbolType TermTail(SymbolType typeOnStack) {
+    public StackTopRecord TermTail(StackTopRecord recOnStack) {
 	//80:TermTail                ⟶ AddingOperator Term TermTail
 	//81:                        ⟶ ε
     	infoLog(genStdInfoMsg());
 
-        SymbolType newType = null;
-        SymbolType lhsType = typeOnStack;
-        SymbolType rhsType = null;
+        StackTopRecord newType = null;
+        StackTopRecord lhsRec = recOnStack;
+        StackTopRecord rhsRec = null;
     	AddOpType addType = null;
     	
         switch (lookahead.token_name) {
@@ -1604,11 +1604,11 @@ public class Parser {
         case MP_MINUS:
             listRule(80); // List the rule number applied
             addType = AddingOperator();
-            rhsType = Term(typeOnStack);
-            newType = analyze.errorCheckAndCastAddOp(lhsType, addType, rhsType);
-            if(newType != null){typeOnStack = newType;}
-            newType = TermTail(typeOnStack);
-            if(newType != null){typeOnStack = newType;}
+            rhsRec = Term(recOnStack);
+            newType = analyze.errorCheckAndCastAddOp(lhsRec, addType, rhsRec);
+            if(newType != null){recOnStack = newType;}
+            newType = TermTail(recOnStack);
+            if(newType != null){recOnStack = newType;}
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1635,7 +1635,7 @@ public class Parser {
 			System.out.println("Expected adding operator or *** but found "+ lookahead.token_name);            
             System.exit(-5);
         }
-        return(typeOnStack);
+        return(recOnStack);
     }
 
     public void OptionalSign() {
@@ -1706,11 +1706,12 @@ public class Parser {
         return(addType);
     }
 
-    public SymbolType Term(SymbolType typeOnStack) {
+    public StackTopRecord Term(StackTopRecord recOnStack) {
 	//88:Term                    ⟶ Factor FactorTail 
     	infoLog(genStdInfoMsg());
     	
-    	SymbolType newType = null;
+    	StackTopRecord newType = null;
+        StackTopRecord newRec = null;        
 
         switch (lookahead.token_name) {
         case MP_NOT:
@@ -1722,15 +1723,15 @@ public class Parser {
 	case MP_TRUE:
 	case MP_FALSE:
         case MP_LPAREN:
-	        listRule(88); // List the rule number applied
-	        newType = Factor(typeOnStack);
+	    listRule(88); // List the rule number applied
+	    newRec = Factor(recOnStack);
 	        
 	        // XXX check this
-	        if(newType != null){typeOnStack = newType;}
+	    if(newRec != null){recOnStack = newRec;}
 	     
-            newType = FactorTail(typeOnStack);
+            newRec = FactorTail(recOnStack);
             
-            if(newType != null){typeOnStack = newType;}
+            if(newRec != null){recOnStack = newRec;}
             break;
         default:
             // parsing error
@@ -1738,18 +1739,20 @@ public class Parser {
 			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(typeOnStack);
+        
+        return(recOnStack);
     }
 
-    public SymbolType FactorTail(SymbolType typeOnStack) {
+    public StackTopRecord FactorTail(StackTopRecord recOnStack) {
         //89:FactorTail              ⟶ MultiplyingOperator Factor FactorTail
         //90:                        ⟶ ε 
     	infoLog(genStdInfoMsg() );
 
         
-    	SymbolType newType = null;
-    	SymbolType lhsType = typeOnStack;
-    	SymbolType rhsType = null;
+    	StackTopRecord newType = null;
+    	StackTopRecord lhsRec = recOnStack;
+    	StackTopRecord rhsRec = null;
+    	StackTopRecord newRec = null;
     	MulOpType mulType;
     	
         switch (lookahead.token_name) {
@@ -1758,14 +1761,14 @@ public class Parser {
         case MP_MOD:
         case MP_TIMES:
         case MP_DIVISION:
-	        listRule(89); // List the rule number applied
-	        mulType = MultiplyingOperator();
-            rhsType = Factor(typeOnStack);
-            newType = analyze.errorCheckAndCastMulOp(lhsType, mulType, rhsType);
-            if(newType != null){typeOnStack = newType;}
+	    listRule(89); // List the rule number applied
+	    mulType = MultiplyingOperator();
+            rhsRec = Factor(recOnStack);
+            newRec = analyze.errorCheckAndCastMulOp(lhsRec, mulType, rhsRec);
+            if(newRec != null){recOnStack = newRec;}
             
-            newType = FactorTail(typeOnStack);
-            if(newType != null){typeOnStack = newType;}
+            newRec = FactorTail(recOnStack);
+            if(newRec != null){recOnStack = newRec;}
 
 
             break;
@@ -1800,7 +1803,7 @@ public class Parser {
             System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' or *** but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(typeOnStack);
+        return(recOnStack);
     }
 
     public MulOpType MultiplyingOperator() {
@@ -1847,7 +1850,7 @@ public class Parser {
         return(mulType);
     }
 
-    public SymbolType Factor(SymbolType typeOnStack) {
+    public StackTopRecord Factor(StackTopRecord recOnStack) {
 	//95:Factor                  ⟶ UnsignedInteger
 	//96:                        ⟶ VariableIdentifier
 	//97:                        ⟶ "not" Factor
@@ -1864,17 +1867,17 @@ public class Parser {
         SymbolType newType = null;
         String literalVal = "";
 
-    	SymbolType type = typeOnStack;
-    	StackTopRecord recOnStack = new StackTopRecord(typeOnStack);
+        StackTopRecord rec = recOnStack;
+        StackTopRecord newRec = recOnStack;
 
         switch (lookahead.token_name) {
         case MP_NOT:
 	    listRule(97); // List the rule number applied
             match(TokenType.MP_NOT);
             // XXX is NOT a factor?
-            type = Factor(typeOnStack);
-            newType = analyze.errorCheckNotOp(type);
-            if(newType != null){typeOnStack = newType;}
+            rec = Factor(recOnStack);
+            newRec = analyze.errorCheckNotOp(rec);
+            if(newRec != null){recOnStack = newRec;}
             break;
         case MP_INTEGER_LIT:
 	    listRule(95); // List the rule number applied
@@ -1917,7 +1920,7 @@ public class Parser {
         case MP_LPAREN:
 	    listRule(98); // List the rule number applied
             match(TokenType.MP_LPAREN);
-            newType = Expression(typeOnStack);
+            newRec = Expression(recOnStack);
             match(TokenType.MP_RPAREN);
             break;
         case MP_IDENTIFIER:
@@ -1941,7 +1944,14 @@ public class Parser {
                 analyze.putVarOnStack(offset);
                 SymbolWithType symt = (SymbolWithType) sym;
                 newType = symt.getType();
-                
+                // The record on the stack is currently valid for pass-by-reference
+                recOnStack = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);
+                /*
+                recOnStack.dataType = newType;
+                recOnStack.variableLexeme = lex;
+                recOnStack.callTypeCompatibility = SymbolMode.MP_SYMBOL_VALUE;
+                */                
+
                 break;
             case MP_SYMBOL_FUNCTION:
                 listRule(99); // List the rule number applied
@@ -1964,9 +1974,17 @@ public class Parser {
 	    System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        typeOnStack = newType;
+        if( (newRec == null) && (newType != null) ){
+            newRec = new StackTopRecord(newType);
+        }
+        System.out.println("AAA: " + newRec.dataType);
+        System.out.println("BBB: " + newType);
 
-        return(typeOnStack);
+        recOnStack = newRec;
+
+        //recOnStack.dataType = newType;
+
+        return(recOnStack);
     }
 
     public void ProgramIdentifier() {
@@ -2049,8 +2067,8 @@ public class Parser {
         //104:BooleanExpression    ⟶ Expression
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
     	
-    	SymbolType noValOnStack = null;
-    	SymbolType typeOnStack;
+    	StackTopRecord noValOnStack = null;
+    	StackTopRecord recOnStack;
     	
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -2060,7 +2078,7 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
             listRule(104); // List the rule number applied
-            typeOnStack = Expression(noValOnStack);
+            recOnStack = Expression(noValOnStack);
             break;
         default:
             // parsing error
@@ -2070,14 +2088,14 @@ public class Parser {
         }
     }
 
-    public SymbolType OrdinalExpression() {
+    public StackTopRecord OrdinalExpression() {
         //105:OrdinalExpression    ⟶ Expression 
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // XXX'ordinal expression' suggests numbers
     	// should we throw a semantic error if the type on the stack is not numeric?
     	
-    	SymbolType noValOnStack = null;
-    	SymbolType typeOnStack = null;
+    	StackTopRecord noValOnStack = null;
+    	StackTopRecord recOnStack = null;
     	
         switch (lookahead.token_name) {
         case MP_PLUS:
@@ -2092,7 +2110,7 @@ public class Parser {
 		case MP_TRUE:
 		case MP_FALSE:
             listRule(105); // List the rule number applied
-            typeOnStack = Expression(noValOnStack);
+            recOnStack = Expression(noValOnStack);
             break;
         default:
             // parsing error
@@ -2100,7 +2118,7 @@ public class Parser {
             System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(typeOnStack);
+        return(recOnStack);
     }
 
     public ArrayList<String> IdentifierList() {

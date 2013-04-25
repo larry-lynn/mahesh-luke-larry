@@ -57,7 +57,7 @@ public class SemanticAnalyzer {
     
     public void genStoreNumberLitIR(String literalVal){
         //irOutputFileHandle.format(";store an integer literal value on the stack\n");
-        irOutputFileHandle.format("PUSH\t#%s\t ;store an integer literal on the stack\n", literalVal); 
+        irOutputFileHandle.format("PUSH\t#%s\t ;store a number literal on the stack\n", literalVal); 
     }
     
     public void storeString(String stringLit){
@@ -192,8 +192,11 @@ public class SemanticAnalyzer {
     }
 
     // Method for checking comparison and their numbers
-    public SymbolType errorCheckandCastCompareOp(SymbolType lhsType, RelationalOpType opType, SymbolType rhsType) {
+    public StackTopRecord errorCheckandCastCompareOp(StackTopRecord lhsRec, RelationalOpType opType, StackTopRecord rhsRec) {
 	SymbolType newTypeOnStack = null;
+	SymbolType lhsType = lhsRec.dataType;
+	SymbolType rhsType = rhsRec.dataType;
+	StackTopRecord newRecOnStack = new StackTopRecord(SymbolType.MP_SYMBOL_BOOLEAN);
 
  	//Check to see if we have strings first
 	if( lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING )
@@ -274,12 +277,17 @@ public class SemanticAnalyzer {
 	    System.out.println("Semantic Error: Relational Operator checker went AWOL");
 	}
 	newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
-	return (newTypeOnStack);
+        newRecOnStack.dataType = newTypeOnStack;
+	return (newRecOnStack);
 
     }
     
     
-    public SymbolType errorCheckAndCastMulOp(SymbolType lhsType, MulOpType mulType, SymbolType rhsType){
+    public StackTopRecord errorCheckAndCastMulOp(StackTopRecord lhsRec, MulOpType mulType, StackTopRecord rhsRec){
+        System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
+        StackTopRecord newRecOnStack = new StackTopRecord(SymbolType.MP_SYMBOL_INTEGER);
+    	SymbolType lhsType = lhsRec.dataType;
+    	SymbolType rhsType = rhsRec.dataType;
     	SymbolType newTypeOnStack = null;
     	
     	if( (lhsType==SymbolType.MP_SYMBOL_STRING) || (rhsType==SymbolType.MP_SYMBOL_STRING) ){
@@ -361,15 +369,19 @@ public class SemanticAnalyzer {
             }
             
         }
-
+        newRecOnStack.dataType = newTypeOnStack;
     	//System.out.println("YYY: " + lhsType);
     	//System.out.println("ZZZ: " + rhsType);
   	
-    	return(newTypeOnStack);
+    	return(newRecOnStack);
     }
     
-    public SymbolType errorCheckAndCastAddOp(SymbolType lhsType, AddOpType addType, SymbolType rhsType){
+    public StackTopRecord errorCheckAndCastAddOp(StackTopRecord lhsRec, AddOpType addType, StackTopRecord rhsRec){
+        System.out.println("ZZZ: " + lhsRec.dataType + ", YYY: " + rhsRec.dataType);
     	SymbolType newTypeOnStack = null;
+        SymbolType lhsType = lhsRec.dataType;
+        SymbolType rhsType = rhsRec.dataType;
+        StackTopRecord newRecOnStack = new StackTopRecord(SymbolType.MP_SYMBOL_INTEGER);
         /*
         System.out.println("XXX: " + lhsType);
         System.out.println("Operator :" + addType );
@@ -440,23 +452,24 @@ public class SemanticAnalyzer {
             }
             
         }
+        newRecOnStack.dataType = newTypeOnStack;
 
-    	return(newTypeOnStack);
+    	return(newRecOnStack);
     }
 
-    public SymbolType errorCheckNotOp(SymbolType type){
+    public StackTopRecord errorCheckNotOp(StackTopRecord rec){
         //System.out.println("XXX: " + type);
 
-    	SymbolType newTypeOnStack = SymbolType.MP_SYMBOL_BOOLEAN;
+    	StackTopRecord newRecOnStack = new StackTopRecord(SymbolType.MP_SYMBOL_BOOLEAN);
 
-        if(type != SymbolType.MP_SYMBOL_BOOLEAN){
+        if(rec.dataType != SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: NOT only legal for BOOLEAN types");
             System.exit(-11);
         }
 
 	genNotIR();
 
-    	return(newTypeOnStack);
+    	return(newRecOnStack);
     }
 
     
