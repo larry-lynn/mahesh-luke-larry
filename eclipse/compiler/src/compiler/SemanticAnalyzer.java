@@ -77,26 +77,29 @@ public class SemanticAnalyzer {
     
 	public String genIfIR(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
-		String elselabel = genUniqueLabel();
-        irOutputFileHandle.format("BRFS\t%s;branch to the label if the condition satisfies\n", elselabel);
-		return elselabel;
+		String elseLabel = genUniqueLabel();
+        irOutputFileHandle.format("BRFS\t%s;branch to the label if the condition satisfies\n", elseLabel);
+		return elseLabel;
     }
 
-    public void putElselabel(String elselabel){
-        //irOutputFileHandle.format(";write the new label name\n");
-        irOutputFileHandle.format("%s:;put the new label\n", elselabel);
+    public void putElseLabel(String elseLabel){
+        //irOutputFileHandle.format(";write the new Label name\n");
+        irOutputFileHandle.format("%s:;put the new Label\n", elseLabel);
     }
 	
-	public String genlabelAroundElse(){
+	public String genLabelAroundElse(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
-		String afterElselabel = genUniqueLabel();
-        irOutputFileHandle.format("BR\t%s;branch to the label if the condition satisfies\n", afterElselabel);
-		return afterElselabel;
+		String afterElseLabel = genUniqueLabel();
+		return afterElseLabel;
     }	
 	
-	public void putAfterElselabel(String afterElselabel){
-        //irOutputFileHandle.format(";write the new label name\n");
-        irOutputFileHandle.format("%s:;put the new label\n", afterElselabel);
+	public void branchAroundElse(String afterElseLabel){
+		irOutputFileHandle.format("BR\t%s;branch to the Label if the condition satisfies\n", afterElseLabel);
+	}
+	
+	public void putAfterElseLabel(String afterElseLabel){
+        //irOutputFileHandle.format(";write the new Label name\n");
+        irOutputFileHandle.format("%s:;put the new Label\n", afterElseLabel);
     }
     public void dropLabelIR(String label){
         irOutputFileHandle.format("%s:\t;drop a label to be refered to later\n", label);

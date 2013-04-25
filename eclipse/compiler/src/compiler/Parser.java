@@ -1041,8 +1041,8 @@ public class Parser {
         // 53:IfStatement ⟶ "if" BooleanExpression "then" Statement OptionalElsePart
     	infoLog( genStdInfoMsg() );
 
-		String elselabel = null;
-		String afterElselabel = null;
+		String elseLabel = null;
+		String afterElseLabel = null;
 		
         switch (lookahead.token_name) {
         case MP_IF:
@@ -1050,12 +1050,14 @@ public class Parser {
             match(TokenType.MP_IF);
             BooleanExpression();
             match(TokenType.MP_THEN);
-			elselabel = analyze.genIfIR();	
+			elseLabel = analyze.genIfIR();	
             Statement();
-			analyze.putElselabel(elselabel);
-            afterElselabel = OptionalElsePart();
-			analyze.putAfterElselabel(afterElselabel);
-			
+			afterElseLabel = analyze.genLabelAroundElse();
+			analyze.branchAroundElse(afterElseLabel);
+			analyze.putElseLabel(elseLabel);
+            OptionalElsePart(afterElseLabel);
+			analyze.putAfterElseLabel(afterElseLabel);
+
             break;
         default:
             // parsing error
@@ -1065,18 +1067,16 @@ public class Parser {
         }
     }
 
-    public String OptionalElsePart() {
+    public void OptionalElsePart(String afterElseLabel) {
         // 54:OptionalElsePart ⟶ "else" Statement
         // 55: ⟶ ε
     	infoLog( genStdInfoMsg() );
-		String afterElselabel = null;
 
         switch (lookahead.token_name) {
         case MP_ELSE:
             listRule(54); // List the rule number applied
             match(TokenType.MP_ELSE);
             Statement();
-			afterElselabel = analyze.genlabelAroundElse();
             break;
         case MP_END:
         case MP_UNTIL:
@@ -1085,7 +1085,7 @@ public class Parser {
         //case MP_ELSE:
             // map to ε
             listRule(55); // List the rule number applied
-			afterElselabel = analyze.genlabelAroundElse();
+			analyze.branchAroundElse(afterElseLabel);
             break;
         default:
             // parsing error
@@ -1093,7 +1093,6 @@ public class Parser {
 			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
             System.exit(-15);
         }
-		return afterElselabel;
     }
 
     public void RepeatStatement() {
