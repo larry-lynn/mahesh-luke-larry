@@ -219,11 +219,10 @@
 	  <apply dir="${vm-code}" executable="./execute" parallel="false" >
 	    <fileset dir="${output_ir}" includes="*.ir"/>
 	  </apply>
-	  <!--
-	  <exec dir="${vm-code}" executable="./execute">
+<!--	  <exec dir="${vm-code}" executable="./execute">
 	    <arg value="${output_ir}/*.ir" /> 
 	  </exec>
-	  -->
+-->
 	</target>
 	
 	<target depends="compile" name="run-symbol-table">
@@ -365,8 +364,19 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="while_loop.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_if_else_compound.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_if_compound.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_if_else_compound.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_if_inner_if_else.mp"/>
+      </java>
 
-            
   </target>
 	
 </project>
