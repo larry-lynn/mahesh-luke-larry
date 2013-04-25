@@ -57,7 +57,7 @@ public class SemanticAnalyzer {
     
     public void genStoreNumberLitIR(String literalVal){
         //irOutputFileHandle.format(";store an integer literal value on the stack\n");
-        irOutputFileHandle.format("PUSH\t#%s\t ;store a number literal on the stack\n", literalVal); 
+        irOutputFileHandle.format("PUSH\t#%s\t ;store an integer literal on the stack\n", literalVal); 
     }
     
     public void storeString(String stringLit){

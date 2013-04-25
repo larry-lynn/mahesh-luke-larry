@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = true;
-        //Boolean debugOn = false;
+        //Boolean debugOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
@@ -1883,18 +1883,21 @@ public class Parser {
 	    listRule(95); // List the rule number applied
             literalVal = match(TokenType.MP_INTEGER_LIT);
             newType = SymbolType.MP_SYMBOL_INTEGER;
+            newRec = new StackTopRecord(newType);
             analyze.genStoreNumberLitIR(literalVal);
             break;
         case MP_FLOAT_LIT:
 	    listRule(113); // List the rule number applied
 	    literalVal = match(TokenType.MP_FLOAT_LIT);
             newType = SymbolType.MP_SYMBOL_FLOAT;
+            newRec = new StackTopRecord(newType);
             analyze.genStoreNumberLitIR(literalVal);
             break;
         case MP_FIXED_LIT:
             listRule(113); // List the rule number applied                                                                                                           
             literalVal = match(TokenType.MP_FIXED_LIT);
             newType = SymbolType.MP_SYMBOL_FIXED;
+            newRec = new StackTopRecord(newType);
             analyze.genStoreNumberLitIR(literalVal);
             break;
         case MP_STRING_LIT:
@@ -1902,6 +1905,7 @@ public class Parser {
 	    listRule(114); // List the rule number applied
             stringVal = match(TokenType.MP_STRING_LIT);
             newType = SymbolType.MP_SYMBOL_STRING;
+            newRec = new StackTopRecord(newType);
             analyze.storeString(stringVal);
             break;
         case MP_TRUE:
@@ -1909,12 +1913,14 @@ public class Parser {
             listRule(115); // List the rule number applied
             literalVal = match(TokenType.MP_TRUE);
             newType = SymbolType.MP_SYMBOL_BOOLEAN;
+            newRec = new StackTopRecord(newType);
             analyze.genStoreNumberLitIR("1");			
             break;
         case MP_FALSE:
             listRule(116); // List the rule number applied
             literalVal = match(TokenType.MP_FALSE);
             newType = SymbolType.MP_SYMBOL_BOOLEAN;
+            newRec = new StackTopRecord(newType);
             analyze.genStoreNumberLitIR("0");			
             break;
         case MP_LPAREN:
@@ -1945,7 +1951,7 @@ public class Parser {
                 SymbolWithType symt = (SymbolWithType) sym;
                 newType = symt.getType();
                 // The record on the stack is currently valid for pass-by-reference
-                recOnStack = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);
+                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);
                 /*
                 recOnStack.dataType = newType;
                 recOnStack.variableLexeme = lex;
