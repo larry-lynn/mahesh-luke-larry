@@ -55,13 +55,17 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
 
-    public void genNegativeIR() {
+    public void genNegativeIR(SymbolType inputType) {
 	//Signal we have to make the number negative
-	irOutputFileHandle.format("NEGS ;make the integer number negative\n");
-    }
-
-    public void genNegativeFloatIR() {
-	irOutputFileHandle.format("NEGSF ;make the float number negative\n");
+	if(isFloatType(inputType))
+	    irOutputFileHandle.format("NEGSF ;make the float number negative\n");
+	else if(inputType == SymbolType.MP_SYMBOL_INTEGER)
+	    irOutputFileHandle.format("NEGS ;make the integer number negative\n");
+	else
+	{
+	    System.out.println("Semantic Error: Cannot apply negative operation on given type.");
+	    System.exit(-11);
+	}
     }
     
     public void genStoreNumberLitIR(String literalVal){

@@ -1616,15 +1616,8 @@ public class Parser {
             if(recOnStack.dataType != null){
                 typeOnStack = recOnStack.dataType;
             }
-	    if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER || typeOnStack == SymbolType.MP_SYMBOL_FLOAT || typeOnStack == SymbolType.MP_SYMBOL_FIXED ) {
-		if(signType == TokenType.MP_MINUS)
-		    {
-			if(typeOnStack == SymbolType.MP_SYMBOL_INTEGER)
-			    analyze.genNegativeIR();
-			else
-			    analyze.genNegativeFloatIR();
-		    }
-	    }
+	    if(signType == TokenType.MP_MINUS)
+		analyze.genNegativeIR(lhsRec.dataType);
             newRec = TermTail(recOnStack);
             if(newRec != null){recOnStack = newRec;}
 
