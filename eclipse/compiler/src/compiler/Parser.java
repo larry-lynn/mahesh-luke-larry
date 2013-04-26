@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
+        //Boolean debugOn = false;
         
         Parser parse;
         
@@ -139,8 +139,7 @@ public class Parser {
     // ### LUKES BLOCK STARTS HERE ### //
     public void SystemGoal() {
         // 1:SystemGoal      ⟶ Program eof    
-        infoLog( genStdInfoMsg());
-
+        infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         switch(lookahead.token_name){
         	case MP_PROGRAM:
 		        listRule(1); // List the rule number applied
@@ -197,8 +196,11 @@ public class Parser {
     }
 
     public void Block() {
+        // 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 4:Block           ⟶ VariableDeclarationPart ProcedureAndFunctionDeclarationPart StatementPart
+    	
+    	String branchAroundDefsLabel;
+    	
         switch(lookahead.token_name){
 	        case MP_VAR:
 			case MP_BEGIN:
@@ -206,13 +208,19 @@ public class Parser {
 			case MP_FUNCTION:
 		        listRule(4); // List the rule number applied
 	        	VariableDeclarationPart();
+
+	        	branchAroundDefsLabel = analyze.genBranchAroundDefsIR();
+	        	
 	        	ProcedureAndFunctionDeclarationPart();
+	        	
+	        	analyze.dropLabelIR(branchAroundDefsLabel);
+	        	
 	        	StatementPart();
 	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
+				System.out.println("Expected VAR, PROCEDURE, FUNCTION or BEGIN but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -720,7 +728,7 @@ public class Parser {
     }
 
     public void Statement() {
-    	infoLog( genStdInfoMsg() );
+    	infoLog( Thread.currentThread().getStackTrace()[1].getMethodName() );
 
         SymbolKind idKind = null;
         String lex = "";
@@ -767,7 +775,7 @@ public class Parser {
             WhileStatement();
             break;
         case MP_WRITE:
-	case MP_WRITELN:
+	    case MP_WRITELN:
             // 35:Statement ⟶ WriteStatement
             listRule(35); // List the rule number applied
             WriteStatement();
@@ -794,7 +802,8 @@ public class Parser {
             case MP_SYMBOL_PROCEDURE:
                 // 41:Statement ⟶ ProcedureStatement
                 listRule(41);
-                ProcedureStatement();    
+                ProcedureStatement();   
+                break;
             default:
             // parsing error
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
@@ -813,9 +822,9 @@ public class Parser {
     } // end statement
 
     public void EmptyStatement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 42:EmptyStatement ⟶ ε
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
         switch (lookahead.token_name) {
         case MP_END:
         case MP_UNTIL:
@@ -1328,13 +1337,13 @@ public class Parser {
     }
 
     public void OptionalActualParameterList() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
         switch (lookahead.token_name) {
         case MP_LPAREN:
-                listRule(65); // List the rule number applied
+            listRule(65); // List the rule number applied
             match(TokenType.MP_LPAREN);
             ActualParameter();
             ActualParameterTail();

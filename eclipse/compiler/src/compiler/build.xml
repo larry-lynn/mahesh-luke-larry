@@ -380,6 +380,9 @@
         <arg value="test_if_inner_if_else.mp"/>
       </java>
       -->
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="simple_proc.mp"/>
+      </java>
 
   </target>
 	

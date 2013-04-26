@@ -84,6 +84,13 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
     }
     
+    public String genBranchAroundDefsIR(){
+        String branchAroundDefsLabel;
+        branchAroundDefsLabel = genUniqueLabel();
+        irOutputFileHandle.format("BR\t%s\t ; branching around Procedure and Function Declarations\n",branchAroundDefsLabel);
+        return( branchAroundDefsLabel );
+    }
+    
 	public String genIfIR(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
 		String elseLabel = genUniqueLabel();
