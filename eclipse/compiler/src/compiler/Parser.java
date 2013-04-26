@@ -384,6 +384,9 @@ public class Parser {
 	              // XXX should we do this just in debug mode?
                 symbolTableHandle.dumpTop();
                 symbolTableHandle.ascendContextDestroyTable();
+                
+                analyze.genProcPostambleIR();
+                
 	        	break;
 	        default:
 	        	// parsing error
@@ -406,6 +409,7 @@ public class Parser {
 	        	// XXX should we do this just in debug mode?
 	        	symbolTableHandle.dumpTop();
 	        	symbolTableHandle.ascendContextDestroyTable();
+	        	
 	        	break;
 	        default:
 		        // parsing error
@@ -422,6 +426,7 @@ public class Parser {
     	String procedureName = "";
         ArrayList<Args> argList = new ArrayList<Args>();
         Procedure procSym;
+        String newLabel = "";
     	
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
@@ -429,6 +434,7 @@ public class Parser {
 	        	match(TokenType.MP_PROCEDURE);
 	        	procedureName = ProcedureIdentifier();
 	        	argList = OptionalFormalParameterList();
+	        	newLabel = analyze.genUniqueLabel();
 	        	break;
 	        default:
 		        // parsing error
@@ -436,13 +442,16 @@ public class Parser {
 				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
-        procSym = new Procedure(procedureName, argList);
+        procSym = new Procedure(procedureName, argList, newLabel);
         symbolTableHandle.insert(procSym);
 
         symbolTableHandle.newSymbolTableForNewContext(procedureName);
         for(Args argument : argList){
             symbolTableHandle.insert(argument);
         }
+        
+        analyze.dropLabelIR(newLabel);
+        // XXX proc pre-amble here?
 
     }
 
@@ -1319,14 +1328,23 @@ public class Parser {
     }
 
     public void ProcedureStatement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 64:ProcedureStatement ⟶ ProcedureIdentifier OptionalActualParameterList
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	Procedure procHandle = null;
+    	String procLex = "";
+    	String procLabel = "";
+    	
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
-                listRule(64); // List the rule number applied
-            ProcedureIdentifier();
+            listRule(64); // List the rule number applied
+            procLex = ProcedureIdentifier();
             OptionalActualParameterList();
+            
+            procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procLex);
+            procLabel = procHandle.getJumpLabel();
+            analyze.genProcCallIR(procLabel);
+            
             break;
         default:
             // parsing error

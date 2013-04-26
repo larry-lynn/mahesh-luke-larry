@@ -91,6 +91,19 @@ public class SemanticAnalyzer {
         return( branchAroundDefsLabel );
     }
     
+    public void genProcPreambleIR(String procLabel){
+        // XXX fixme - this has to change
+        irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
+    }
+    
+    public void genProcCallIR(String procLabel){
+        irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
+    }
+    
+    public void genProcPostambleIR(){
+        irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
+    }
+    
 	public String genIfIR(){
         //irOutputFileHandle.format(";write a branch statement for IF\n");
 		String elseLabel = genUniqueLabel();
