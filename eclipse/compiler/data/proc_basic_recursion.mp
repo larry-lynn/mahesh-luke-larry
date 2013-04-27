@@ -11,6 +11,7 @@ Procedure p(a : Integer);
 
 BEGIN
 writeln('Program: PROC_basic_recursion');
+writeln('Expected results: 5, 6, 7, 8, 9');
 
 X := 5;
 

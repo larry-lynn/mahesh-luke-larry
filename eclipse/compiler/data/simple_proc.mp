@@ -8,7 +8,7 @@ Procedure do_it;
 BEGIN
 writeln('Simple procedure test - no arguments');
 
-writeln('I should first in order of execution');
+writeln('I should come first in order of execution');
 do_it;
 
 END

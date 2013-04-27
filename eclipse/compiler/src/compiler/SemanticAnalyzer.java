@@ -162,8 +162,8 @@ public class SemanticAnalyzer {
         j = 0;
         for(i = argCount; i > 0; --i){
             
-            stackOffset = 0 - (3 + i);
-            irOutputFileHandle.format("MOV\t%s(SP)\t%s(%s)\t ; load local param memory with data\n",stackOffset, j, depth);
+            stackOffset = 0 - (2 + i);
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
             ++j;
         }
         
