@@ -35,30 +35,31 @@ public class SemanticAnalyzer {
     	//symCount = symbolTableHandle.getSymbolCountForCurrentTable();
     	
     	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
-    	
-    	
-    	
-    	
+    		
         for(Symbol s : topTableAsList){
-            // don't re-allocate memroy for paramters
             if(s.getKind() == SymbolKind.MP_SYMBOL_VAR){
                 irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for var %s\n", s.getLexeme(), s.getLexeme());
             }
         }
         
-        /*
+        /*  XXX can this go now?
     	for(i = 0; i < symCount; ++i){
 	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
     	    irOutputFileHandle.format("PUSH\t%s\t ;make room on stack for X(DX) variables\n", depth);
     	}
     	*/
-    	/*
-    	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
-        for(Symbol s : topTableAsList){
-        	System.out.println("AAA: " + s.getLexeme());
-        }
-        */
     }
+    
+    public void tearDownMainVariablesIR(){
+        ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();   
+        
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_VAR){
+                irOutputFileHandle.format("POP\tD0\t ; free up memory for all variables in main program\n");
+            }
+        }
+    }
+    
     
     public void genAssignmentIR(String varLex, SymbolType type){
         // XXX need type checking in here
@@ -113,13 +114,27 @@ public class SemanticAnalyzer {
         return( branchAroundDefsLabel );
     }
     
+    /*
     public void genProcPreambleIR(String procLabel){
         // XXX fixme - this has to change
         irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
     }
+    */
     
     public void genProcCallIR(String procLabel){
         irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
+    }
+    
+    public void postProcCallCleanupIR(String procName){
+        Procedure procHandle;
+        int argCount, i;
+        procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procName);
+        argCount = procHandle.getArgCount();
+        irOutputFileHandle.format("PUSH SP\n");
+        irOutputFileHandle.format("PUSH #%s\n", argCount);
+        irOutputFileHandle.format("SUBS\n");
+        irOutputFileHandle.format("POP SP\n");
+        
     }
     
     public void genProcDefPreambleIR(String procedureName){

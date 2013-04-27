@@ -175,6 +175,9 @@ public class Parser {
 				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
 	        	System.exit(-5);
         }
+        
+        analyze.tearDownMainVariablesIR();
+        
     }
 
     public void ProgramHeading() {
@@ -1363,6 +1366,7 @@ public class Parser {
             procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procLex);
             procLabel = procHandle.getJumpLabel();
             analyze.genProcCallIR(procLabel);
+            analyze.postProcCallCleanupIR(procLex);
             
             break;
         default:

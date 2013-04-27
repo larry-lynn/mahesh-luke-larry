@@ -383,6 +383,9 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="proc_by_val.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="proc_basic_recursion.mp"/>
+      </java>
 
   </target>
 	
