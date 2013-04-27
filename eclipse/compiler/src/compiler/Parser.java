@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
+        //Boolean debugOn = false;
         
         Parser parse;
         
@@ -413,24 +413,28 @@ public class Parser {
     }
 
     public void FunctionDeclaration() {
+        // 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 16. <FunctionDeclaration> -> <FunctionHeading> ";" <Block> ";"
+
+    	String functionName;
+    	
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
 		        listRule(16); // List the rule number applied
-	        	FunctionHeading();
+	        	functionName = FunctionHeading();
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
 	        	match(TokenType.MP_SCOLON);
 	        	// XXX should we do this just in debug mode?
 	        	symbolTableHandle.dumpTop();
+	        	analyze.genProcDefPostambleIR(functionName);
 	        	symbolTableHandle.ascendContextDestroyTable();
 	        	
 	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-			System.out.println("Expected function declaration but found "+ lookahead.token_name);
+                System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
     }
@@ -449,8 +453,7 @@ public class Parser {
 		        listRule(17); // List the rule number applied
 	        	match(TokenType.MP_PROCEDURE);
 	        	procedureName = ProcedureIdentifier();
-	        	argList = OptionalFormalParameterList();
-	        	newLabel = analyze.genUniqueLabel();
+	        	argList = OptionalFormalParameterList();        	
 	        	break;
 	        default:
 		        // parsing error
@@ -458,6 +461,7 @@ public class Parser {
 				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
+        newLabel = analyze.genUniqueLabel();
         procSym = new Procedure(procedureName, argList, newLabel);
         symbolTableHandle.insert(procSym);
 
@@ -469,15 +473,13 @@ public class Parser {
         }
         
         analyze.dropLabelIR(newLabel);
-        
-        // XXX proc pre-amble here?
         analyze.genProcDefPreambleIR(procedureName);
         
         return(procedureName);
 
     }
 
-    public void FunctionHeading() {
+    public String FunctionHeading() {
     	// 18. FunctionHeading                     ⟶ "function" functionIdentifier OptionalFormalParameterList ":" Type
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 
@@ -485,6 +487,7 @@ public class Parser {
         ArrayList<Args> argList = new ArrayList<Args>();
         SymbolType funcRetType = null;
         Function funcSym;
+        String newLabel;
 
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
@@ -493,7 +496,7 @@ public class Parser {
 	        	functionName = FunctionIdentifier();
 	        	argList = OptionalFormalParameterList();
 	        	match(TokenType.MP_COLON);
-	                funcRetType = Type();
+	            funcRetType = Type();
 	        	break;
 	        default:
 		        // parsing error
@@ -501,13 +504,19 @@ public class Parser {
 			    System.out.println("Expected function declaration but found "+ lookahead.token_name);
 		        System.exit(-5);
         }
-        funcSym = new Function(functionName, funcRetType, argList);
+        newLabel = analyze.genUniqueLabel();
+        funcSym = new Function(functionName, funcRetType, argList, newLabel);
         symbolTableHandle.insert(funcSym);
 
         symbolTableHandle.newSymbolTableForNewContext(functionName);
         for(Args argument : argList){
             symbolTableHandle.insert(argument);
         }
+        
+        analyze.dropLabelIR(newLabel);
+        analyze.genFuncDefPreambleIR(functionName);
+        
+        return(functionName);
         
     }
     
@@ -1057,6 +1066,8 @@ public class Parser {
                 FunctionIdentifier(); 
                 match(TokenType.MP_ASSIGN); 
                 rec = Expression(noValOnStack); 
+                analyze.stashFunctionRetValIR();
+                
                 break;
 
             default:
@@ -1471,7 +1482,7 @@ public class Parser {
 
     public StackTopRecord Expression(StackTopRecord recOnStack) {
         //70:Expression              ⟶ SimpleExpression OptionalRelationalPart
-    	infoLog( genStdInfoMsg() );
+    	infoLog( Thread.currentThread().getStackTrace()[1].getMethodName() );
     	
     	StackTopRecord newRec = null;
 
@@ -1480,19 +1491,18 @@ public class Parser {
         case MP_MINUS:
         case MP_LPAREN:
         case MP_NOT:
-	case MP_STRING_LIT:
+        case MP_STRING_LIT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
         case MP_FLOAT_LIT:
-	case MP_FIXED_LIT:
-	case MP_TRUE:
-	case MP_FALSE:
+        case MP_FIXED_LIT:
+        case MP_TRUE:
+        case MP_FALSE:
             listRule(70); // List the rule number applied
             newRec = SimpleExpression(recOnStack);
             if(newRec != null){recOnStack = newRec;}
-	    // Made changes here?
             newRec = OptionalRelationalPart(recOnStack);
-	    if(newRec != null){recOnStack = newRec;}
+            if(newRec != null){recOnStack = newRec;}
             break;
         default:
             // parsing error
@@ -1507,7 +1517,7 @@ public class Parser {
     public StackTopRecord OptionalRelationalPart(StackTopRecord recOnStack) {
         //71:OptionalRelationalPart  ⟶ RelationalOperator SimpleExpression
         //72:                        ⟶ ε
-    	infoLog( genStdInfoMsg() );
+    	infoLog( Thread.currentThread().getStackTrace()[1].getMethodName() );
     	
     	StackTopRecord newType = null;
 	StackTopRecord lhsRec = recOnStack;
@@ -1524,7 +1534,7 @@ public class Parser {
             listRule(71); // List the rule number applied
             opType = RelationalOperator();
             rhsRec = SimpleExpression(recOnStack);
-	    newType = analyze.errorCheckandCastCompareOp(lhsRec, opType, rhsRec);
+	        newType = analyze.errorCheckandCastCompareOp(lhsRec, opType, rhsRec);
 	    if ( newType != null)
 		{
 		    recOnStack = newType;
@@ -1938,6 +1948,9 @@ public class Parser {
         String lex = "";
         SymbolType newType = null;
         String literalVal = "";
+        Symbol sym;
+        String offset;
+        SymbolWithType typedSym;
 
         StackTopRecord rec = recOnStack;
         StackTopRecord newRec = recOnStack;
@@ -1946,7 +1959,6 @@ public class Parser {
         case MP_NOT:
 	    listRule(97); // List the rule number applied
             match(TokenType.MP_NOT);
-            // XXX is NOT a factor?
             rec = Factor(recOnStack);
             newRec = analyze.errorCheckNotOp(rec);
             if(newRec != null){recOnStack = newRec;}
@@ -2017,24 +2029,33 @@ public class Parser {
             case MP_SYMBOL_PARAMETER:
                 listRule(96); // List the rule number applied
                 VariableIdentifier();
-                Symbol sym = symbolTableHandle.fetchSymbolByLexeme( lex );
-                String offset = sym.getOffset();
+                sym = symbolTableHandle.fetchSymbolByLexeme( lex );
+                offset = sym.getOffset();
                 analyze.putVarOnStack(offset);
-                SymbolWithType symt = (SymbolWithType) sym;
-                newType = symt.getType();
+                typedSym = (SymbolWithType) sym;
+                newType = typedSym.getType();
                 // The record on the stack is currently valid for pass-by-reference
-                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);
-                /*
-                recOnStack.dataType = newType;
-                recOnStack.variableLexeme = lex;
-                recOnStack.callTypeCompatibility = SymbolMode.MP_SYMBOL_VALUE;
-                */                
+                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);            
 
                 break;
             case MP_SYMBOL_FUNCTION:
                 listRule(99); // List the rule number applied
+                Function funcHandle;
+                String funcLabel;
+                
                 FunctionIdentifier(); 
+                sym = symbolTableHandle.fetchSymbolByLexeme( lex );
+                offset = sym.getOffset();
+                typedSym = (SymbolWithType) sym;
+                newType = typedSym.getType();
                 OptionalActualParameterList(); 
+                
+                funcHandle = (Function) typedSym;
+                funcLabel = funcHandle.getJumpLabel();
+                analyze.genFuncCallIR(funcLabel);
+                analyze.postFuncCallCleanupIR( lex );
+                
+                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_VALUE);
                 break;
 
             default:
@@ -2049,7 +2070,7 @@ public class Parser {
         default:
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getMethodName() );
-	    System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+	        System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
             System.exit(-5);
         }
         if( (newRec == null) && (newType != null) ){

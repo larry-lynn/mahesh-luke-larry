@@ -114,12 +114,84 @@ public class SemanticAnalyzer {
         return( branchAroundDefsLabel );
     }
     
-    /*
-    public void genProcPreambleIR(String procLabel){
-        // XXX fixme - this has to change
-        irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
+    public void genFuncCallIR(String funcLabel){
+        irOutputFileHandle.format("PUSH\t#\"RESERVED SPACE FOR RETURN\" ; reserving space for function return on stack\n");
+        irOutputFileHandle.format("CALL\t%s\t ; Call a function\n", funcLabel);
     }
-    */
+    
+    public void postFuncCallCleanupIR(String funcName){
+        Function funcHandle;
+        int argCount;
+        funcHandle = (Function) symbolTableHandle.fetchSymbolByLexeme(funcName);
+        argCount = funcHandle.getArgCount();
+        
+        if(argCount > 0){
+            // move return value down, clobber the lowest arg
+            irOutputFileHandle.format("MOV\t0(SP)\t-%s(SP)\t ; move ret val down the stack so it is still around after we wipe the input params\n");
+            irOutputFileHandle.format("PUSH\tSP\t ; tear down input params to function so they dont clutter the stack \n");
+            irOutputFileHandle.format("PUSH #%s\n", argCount);
+            irOutputFileHandle.format("SUBS\n");
+            irOutputFileHandle.format("POP\tSP\n");
+        }
+        
+    }
+    
+    public void genFuncDefPreambleIR(String functionName){
+        // back up old Dx
+        // allocate memory for all parameters
+        String depth;
+        ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+        Function funcSym;
+        int argCount, i, j, stackOffset;
+        
+        depth = symbolTableHandle.getDepthAsString();
+        funcSym = (Function) symbolTableHandle.fetchSymbolByLexeme(functionName);
+        argCount = funcSym.getArgCount();     
+        
+        irOutputFileHandle.format("PUSH\t%s\t ; Back up Old-Dx to assist recursion\n",depth);
+        assignDxForRelativeAddressing();
+ 
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+                irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for param %s\n", s.getLexeme(), s.getLexeme());
+            }
+        }
+        
+        // load argument vals from expression stack into local param memory
+        j = 0;
+        for(i = argCount; i > 0; --i){
+            
+            stackOffset = 0 - (3 + i);
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
+            ++j;
+        }
+        
+        
+    }
+    
+    public void genFuncDefPostambleIR(String functionName){
+        String depth;
+        ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+        
+        depth = symbolTableHandle.getDepthAsString();
+        
+        //irOutputFileHandle.format("POP\t-3(%s)\t; Store the return value below the local vars\n", depth);
+        
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
+                irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all func args and vars\n", depth);        
+            }
+        }
+        
+        irOutputFileHandle.format("POP\t%s\t; Restore value of old Dx register\n", depth);
+        irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
+    }
+    
+    public void stashFunctionRetValIR(){
+        String depth;
+        depth = symbolTableHandle.getDepthAsString();
+        irOutputFileHandle.format("POP\t-3(%s)\t ; tuck return value down below activation rec\n", depth);
+    }
     
     public void genProcCallIR(String procLabel){
         irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);

@@ -4,27 +4,33 @@ import java.util.*;
 
 public class Function extends SymbolWithType{
 
-    //SymbolType return_type;
+    String jumpLabel;
     ArrayList<Args> args;
-    //List<SubProcArgs> args = new ArrayList<SubProcArgs>();
 
     // Constructor
-    public Function(String lex, SymbolType rtype, ArrayList<Args> argList){
-	//super(lex, SymbolKind.MP_SYMBOL_FUNCTION);
+    public Function(String lex, SymbolType rtype, ArrayList<Args> argList, String newLabel){
 	    super(lex, rtype);
 	    this.kind = SymbolKind.MP_SYMBOL_FUNCTION;
-	    //return_type = rtype;
         args = argList;
-
+        jumpLabel = newLabel;
     }
-    
-    
+   
+    // XXX this method might be unnecessary
     public SymbolType getReturnType(){
     	return(this.getType());
     }
 
     public ArrayList<Args> getArgs(){
-	return(this.args);
+	    return(this.args);
     }
 	
+    public String getJumpLabel(){
+        return(jumpLabel);
+    }
+    
+    public int getArgCount(){
+        int argCount = args.size();
+        return(argCount);
+    }
+    
 }
