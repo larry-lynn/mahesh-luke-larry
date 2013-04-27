@@ -22,18 +22,36 @@ public class SemanticAnalyzer {
         return(label.toString());
     }
 
-    public void genCreateActivationRecordIR(){
-    	String depth;
-    	int symCount;
-    	int i;
-    	symCount = symbolTableHandle.getSymbolCountForCurrentTable();
-    	depth = symbolTableHandle.getDepthAsString();
+    public void assignDxForRelativeAddressing(){
+        String depth;
+        depth = symbolTableHandle.getDepthAsString();
+        irOutputFileHandle.format("MOV\tSP\t%s\t ;backup SP to Dx to enable realtive addressing\n", depth);
+    }
+    
+    public void genAllocateMemForLocalVarsIR(){
     	
-    	irOutputFileHandle.format("MOV\tSP\t%s\t ;backup SP so we can restore it later\n", depth);
+    	//int symCount;
+    	//int i;
+    	//symCount = symbolTableHandle.getSymbolCountForCurrentTable();
+    	
+    	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+    	
+    	
+    	
+    	
+        for(Symbol s : topTableAsList){
+            // don't re-allocate memroy for paramters
+            if(s.getKind() == SymbolKind.MP_SYMBOL_VAR){
+                irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for var %s\n", s.getLexeme(), s.getLexeme());
+            }
+        }
+        
+        /*
     	for(i = 0; i < symCount; ++i){
 	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
     	    irOutputFileHandle.format("PUSH\t%s\t ;make room on stack for X(DX) variables\n", depth);
     	}
+    	*/
     	/*
     	ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         for(Symbol s : topTableAsList){
@@ -104,7 +122,59 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("CALL\t%s\t ; Call a procedure\n", procLabel);
     }
     
-    public void genProcPostambleIR(){
+    public void genProcDefPreambleIR(String procedureName){
+        // back up old Dx
+        // allocate memory for all parameters
+        String depth;
+        ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+        Procedure procSym;
+        int argCount, i, j, stackOffset;
+        
+        depth = symbolTableHandle.getDepthAsString();
+        procSym = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procedureName);
+        argCount = procSym.getArgCount();
+        
+        irOutputFileHandle.format("PUSH\t%s\t ; Back up Old-Dx to assist recursion\n",depth);
+        assignDxForRelativeAddressing();
+ 
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+                irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for param %s\n", s.getLexeme(), s.getLexeme());
+            }
+        }
+        
+        // load argument vals from expression stack into local param memory
+        j = 0;
+        for(i = argCount; i > 0; --i){
+            
+            stackOffset = 0 - (3 + i);
+            irOutputFileHandle.format("MOV\t%s(SP)\t%s(%s)\t ; load local param memory with data\n",stackOffset, j, depth);
+            ++j;
+        }
+        
+        
+    }
+    
+    public void genProcDefPostambleIR(String procedureName){
+        String depth;
+        int i, symbolCount;
+        ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
+        
+        symbolCount = symbolTableHandle.getSymbolCountForCurrentTable(); 
+        depth = symbolTableHandle.getDepthAsString();
+        
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
+                irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);        
+            }
+        }
+        /*
+        for(i = 0; i < symbolCount; ++i){
+            irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);
+        }
+        */
+        
+        irOutputFileHandle.format("POP\t%s\t; Restore value of old Dx register\n", depth);
         irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
     }
     

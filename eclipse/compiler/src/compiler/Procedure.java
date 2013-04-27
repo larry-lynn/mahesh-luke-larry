@@ -21,5 +21,10 @@ public class Procedure extends Symbol{
     public String getJumpLabel(){
         return(jumpLabel);
     }
+    
+    public int getArgCount(){
+        int argCount = args.size();
+        return(argCount);
+    }
 	
 }

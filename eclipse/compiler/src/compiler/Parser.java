@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = true;
-        //Boolean debugOn = false;
+        //Boolean debugOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
@@ -178,14 +178,21 @@ public class Parser {
     }
 
     public void ProgramHeading() {
+        // 3:ProgramHeading  ⟶ "program" ProgramIdentifier
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 3:ProgramHeading  ⟶ "program" ProgramIdentifier
+
+    	String programName;
+    	
         switch(lookahead.token_name){
 	        case MP_PROGRAM:
 		        listRule(3); // List the rule number applied
 	        	//We are looking for the program ID so we can expand
 	        	match(TokenType.MP_PROGRAM);
-	        	ProgramIdentifier();
+	        	programName = ProgramIdentifier();
+	        	
+	            symbolTableHandle.newSymbolTableForNewContext(programName);
+	            analyze.assignDxForRelativeAddressing();
+	            
 	        	break;
 	        default:
 		        // parsing error
@@ -237,7 +244,7 @@ public class Parser {
 	        	VariableDeclarationTail();
 	        	
 	            // XXX set up activation record here
-                analyze.genCreateActivationRecordIR();
+                analyze.genAllocateMemForLocalVarsIR();
 	        	
 	        	break;
 			case MP_BEGIN:
@@ -372,20 +379,26 @@ public class Parser {
     }
 
     public void ProcedureDeclaration() {
+        // 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-    	// 15. ProcedureDeclaration  ->  ProcedureHeading ";" Block ";"
+
+    	String procedureName;
+    	
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
 		        listRule(15); // List the rule number applied
-	        	ProcedureHeading();
+	        	procedureName = ProcedureHeading();
+	        	
 	        	match(TokenType.MP_SCOLON);
 	        	Block();
 	        	match(TokenType.MP_SCOLON);
 	              // XXX should we do this just in debug mode?
                 symbolTableHandle.dumpTop();
+                
+                analyze.genProcDefPostambleIR(procedureName);
                 symbolTableHandle.ascendContextDestroyTable();
                 
-                analyze.genProcPostambleIR();
+
                 
 	        	break;
 	        default:
@@ -419,7 +432,7 @@ public class Parser {
         }
     }
 
-    public void ProcedureHeading() {
+    public String ProcedureHeading() {
         // 17. <ProcedureHeading> -> "procedure" <ProcedureIdentifer> <OptionalFormalParameterList>
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
 
@@ -446,12 +459,18 @@ public class Parser {
         symbolTableHandle.insert(procSym);
 
         symbolTableHandle.newSymbolTableForNewContext(procedureName);
+        
+        
         for(Args argument : argList){
             symbolTableHandle.insert(argument);
         }
         
         analyze.dropLabelIR(newLabel);
+        
         // XXX proc pre-amble here?
+        analyze.genProcDefPreambleIR(procedureName);
+        
+        return(procedureName);
 
     }
 
@@ -2044,16 +2063,16 @@ public class Parser {
         return(recOnStack);
     }
 
-    public void ProgramIdentifier() {
-    	String tableName = "";
+    public String ProgramIdentifier() {
+        //100:ProgramIdentifier    ⟶ Identifier
+    	String programLexeme = "";
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-	//100:ProgramIdentifier    ⟶ Identifier
+
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
 	        listRule(100); // List the rule number applied
-            tableName = match(TokenType.MP_IDENTIFIER);
-            // YYY create symbol table 
-            symbolTableHandle.newSymbolTableForNewContext(tableName);
+	        programLexeme = match(TokenType.MP_IDENTIFIER);
+
             break;
         default:
             // parsing error
@@ -2061,6 +2080,7 @@ public class Parser {
 			System.out.println("Expected identifier but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(programLexeme);
     }
 
     public String VariableIdentifier() {
