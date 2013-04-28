@@ -22,8 +22,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        Boolean debugOn = true;
-        //Boolean debugOn = false;
+        //Boolean debugOn = true;
+        Boolean debugOn = false;
         
         Parser parse;
         
@@ -447,6 +447,7 @@ public class Parser {
         ArrayList<Args> argList = new ArrayList<Args>();
         Procedure procSym;
         String newLabel = "";
+        int position;
     	
         switch(lookahead.token_name){
 	        case MP_PROCEDURE:
@@ -467,9 +468,11 @@ public class Parser {
 
         symbolTableHandle.newSymbolTableForNewContext(procedureName);
         
-        
+        position = 0;
         for(Args argument : argList){
+            argument.setPosition(position);
             symbolTableHandle.insert(argument);
+            position++;
         }
         
         analyze.dropLabelIR(newLabel);
@@ -488,6 +491,7 @@ public class Parser {
         SymbolType funcRetType = null;
         Function funcSym;
         String newLabel;
+        int position;
 
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
@@ -496,7 +500,7 @@ public class Parser {
 	        	functionName = FunctionIdentifier();
 	        	argList = OptionalFormalParameterList();
 	        	match(TokenType.MP_COLON);
-	            funcRetType = Type();
+	                funcRetType = Type();
 	        	break;
 	        default:
 		        // parsing error
@@ -509,8 +513,12 @@ public class Parser {
         symbolTableHandle.insert(funcSym);
 
         symbolTableHandle.newSymbolTableForNewContext(functionName);
+
+        position = 0;
         for(Args argument : argList){
+            argument.setPosition(position);
             symbolTableHandle.insert(argument);
+            position++;
         }
         
         analyze.dropLabelIR(newLabel);

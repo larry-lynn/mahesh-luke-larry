@@ -14,13 +14,13 @@ public class Symbol {
     
     public Symbol(String lex, SymbolKind symKind ){
         lexeme = lex;
-	    kind = symKind;
+        kind = symKind;
     }
     
     // Constructor
     public Symbol(String lex, SymbolKind symKind, SymbolType symType ){
         lexeme = lex;
-	    kind = symKind;
+        kind = symKind;
     }
      
     public String getLexeme(){
@@ -31,15 +31,8 @@ public class Symbol {
     	return(this.kind);
     }
     
-    // XXX I don't think this is right -- Larry
-    /*
-    public void setOffset(int lastOffset){
-	offset = lastOffset + 1;
-    }
-    */
-
     public String getOffset(){
-	    return offset;
+        return offset;
     }
 	
 }

@@ -41,13 +41,6 @@ public class SemanticAnalyzer {
                 irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for var %s\n", s.getLexeme(), s.getLexeme());
             }
         }
-        
-        /*  XXX can this go now?
-    	for(i = 0; i < symCount; ++i){
-	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
-    	    irOutputFileHandle.format("PUSH\t%s\t ;make room on stack for X(DX) variables\n", depth);
-    	}
-    	*/
     }
     
     public void tearDownMainVariablesIR(){
@@ -158,6 +151,7 @@ public class SemanticAnalyzer {
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         Function funcSym;
         int argCount, i, j, stackOffset;
+        Args singleArg;
         
         depth = symbolTableHandle.getDepthAsString();
         funcSym = (Function) symbolTableHandle.fetchSymbolByLexeme(functionName);
@@ -175,9 +169,9 @@ public class SemanticAnalyzer {
         // load argument vals from expression stack into local param memory
         j = 0;
         for(i = argCount; i > 0; --i){
-            
             stackOffset = 0 - (3 + i);
-            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
+            singleArg = Args.getArgAtPosition(topTableAsList, j);
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
             ++j;
         }
         
@@ -231,6 +225,7 @@ public class SemanticAnalyzer {
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         Procedure procSym;
         int argCount, i, j, stackOffset;
+        Args singleArg;
         
         depth = symbolTableHandle.getDepthAsString();
         procSym = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procedureName);
@@ -250,9 +245,20 @@ public class SemanticAnalyzer {
         for(i = argCount; i > 0; --i){
             
             stackOffset = 0 - (2 + i);
-            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
+            singleArg = Args.getArgAtPosition(topTableAsList, j);
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
+	    //            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
             ++j;
         }
+        /*
+        j = 0;
+        for(i = argCount; i > 0; --i){
+            stackOffset = 0 - (3 + i);
+            singleArg = Args.getArgAtPosition(topTableAsList, j);
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
+            ++j;
+        }
+        */
         
         
     }
