@@ -277,6 +277,13 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="casting_test_lessEqual_fail.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_assign_fail1.mp"/>
+      </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="test_assign_fai2.mp"/>
+      </java>
+
 
       
     </target>
