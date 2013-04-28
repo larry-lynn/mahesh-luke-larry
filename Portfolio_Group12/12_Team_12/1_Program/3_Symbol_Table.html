@@ -1,0 +1,212 @@
+<!DOCTYPE html> 
+<html><!-- InstanceBegin template="/Templates/page.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/prettify.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/pageStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/navigationStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/allTextStyles.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/colors-blue.css" />
+<script type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/google-code-prettify/run_prettify.js"></script>
+<script language="javascript" type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/recomputeAttributes.js"></script>
+
+
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Symobl Table</title>
+<!-- InstanceEndEditable -->
+</head>
+
+<body id="body-style">
+
+<!-- 
+<div id="browser-window-veil">
+</div>
+-->
+
+<div id="page-container">
+
+<header id="header">
+<div id="track-icon1">
+  <img src="http://www.hypertextbookshop.com/compilers2012/Media/StyleImages/bobcat-small.png" width="75" height="48"></div>
+<div id="track-icon2">
+</div>
+<div id="track-icon3">
+</div>
+  <div id="headMatter">
+    <span id="headTitle1">
+    Team Portfolios
+    </span>
+    <span id="headTitle2">
+    </span>
+  </div>
+</header>
+
+<nav id="navigate">
+</nav>
+
+
+<aside id="aside-left">
+<div id="asideLeftTitle">
+Compilers 2012
+</div>
+
+</aside>
+
+<aside id="aside-right">
+</aside>
+
+<footer id="footer">
+  <div id="footMatter">
+    <span id="previousPageLink">
+
+    </span>
+    <span id="currentPageNumber">
+    </span>
+    <span id="nextPageLink">
+
+    </span>
+  </div>
+</footer>
+
+<article id="mainContent">
+<!-- InstanceBeginEditable name="Main" -->
+<h1>Symbol Table</h1>
+
+<h2>Specifications</h2>
+<p>
+Click <a href="../../../01_Introduction/2_Project_Specifications/3_SymbolTable.html">here</a> to view the symbol table specifications.
+</p>
+
+<h2>Source Listing</h2>
+<pre class="prettyprint" ><code class="language-java">
+
+
+package compiler;
+
+import java.util.ArrayList;
+
+public class SymbolTable {
+    String name;
+    int symbolCount;
+    int depth;
+    int offsetRelativeToDepth;
+    SymbolTreeNode root;
+    // class variables go here
+
+    // constructor
+    public SymbolTable(String programIdentifierRec, int depthVal){
+        
+        root = new SymbolTreeNode();
+        name = programIdentifierRec;
+        symbolCount = 0;
+        offsetRelativeToDepth = 0;
+        depth = depthVal;
+
+    }
+
+    // methods    
+
+    public boolean insert(Symbol newNode){
+        newNode.offset = genOffsetString();
+	    boolean ret_val = root.insert(newNode);
+        if(ret_val){
+	        symbolCount++;
+	        offsetRelativeToDepth++;
+        }
+        return ret_val;
+    }
+
+    public void dump(){
+    	String outputLine;
+    	System.out.println("SYMBOL TABLE NAME: " + name);
+        System.out.println("Symbol Count: " + symbolCount);
+    	outputLine = String.format("%-20s%-20s%-20s%-7s%s\n", "Symbol lexeme", "Sym. Kind", "Data Type", "Offset", "Args [lex:type:mode]");
+    	System.out.print(outputLine);
+        root.traverse();
+    }	
+   
+    // not sure if this is the right way to do a lookup.  consider retiring
+    public String lookup(String needle){
+        Symbol possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return possible_hit.getLexeme();
+        }
+        else{
+            return("NOT FOUND");
+        }
+    }
+    
+    public Boolean varHasBeenDeclared(String needle){
+        Symbol possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return(true);
+        }
+        else{
+            return(false);
+        }
+    }
+
+    public SymbolKind getKindByLexeme(String needle){
+        Symbol possible_hit;
+        SymbolKind kind = null;
+
+        possible_hit = root.search(needle);
+        if(possible_hit != null){
+            kind = possible_hit.getKind();
+            return(kind);
+        }
+        else{
+            return(null);
+        }
+    }
+    
+    public Symbol fetchSymbolByLexeme(String needle){
+        Symbol possible_hit;
+        possible_hit = root.search(needle);
+        if(possible_hit != null){
+            return(possible_hit);
+        }
+        else{
+            return(null);
+        }
+    }
+    
+    public String genOffsetString(){
+        StringBuilder offsetString = new StringBuilder();
+        offsetString.append(offsetRelativeToDepth);
+        offsetString.append("(");
+        offsetString.append("D");
+        offsetString.append(depth);
+        offsetString.append(")");
+        return(offsetString.toString());
+    }
+
+    public String genDepthString(){
+        StringBuilder depthString = new StringBuilder();
+        depthString.append("D");
+        depthString.append(depth);
+        return(depthString.toString());
+    }
+    
+    public ArrayList<Symbol> toArrayList(){
+        ArrayList<Symbol> TreeAsList = new ArrayList<Symbol>();	
+        root.traverseGenList(TreeAsList);
+        return(TreeAsList);
+    }
+    
+    public int getSymbolCount(){
+    	return(symbolCount);
+    }
+    
+}
+
+
+
+</code></pre>
+<!-- InstanceEndEditable -->
+
+</article>
+</div>
+</body>
+<!-- InstanceEnd --></html>
