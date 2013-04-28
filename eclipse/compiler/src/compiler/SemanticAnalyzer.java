@@ -74,15 +74,34 @@ public class SemanticAnalyzer {
 	{
 	    Symbol temp = symbolTableHandle.fetchSymbolByLexeme(varLex);
 	    SymbolWithType temp2 = (SymbolWithType)temp;
+	    SymbolType lhs = temp2.getType();
+	    System.out.printf("Check on lhs with type %s\n",lhs);
+	    System.out.printf("Check on rhs with type %s\n",type);
 	    //check for lhs is int and rhs is float
-	    if(temp2.getType() == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
+	    if(lhs == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
 	    {
 		//signal call to make cast
 		castFloatToIntIR();
 	    }
 	    // else check for lhs is float and rhs is int
-	    else if( isFloatType(temp2.getType()) &&  type == SymbolType.MP_SYMBOL_INTEGER)
+	    else if( isFloatType(lhs) &&  type == SymbolType.MP_SYMBOL_INTEGER)
 		castIntToFloatIR();
+            // else check for invalid assignments
+	    else if( (lhs == SymbolType.MP_SYMBOL_INTEGER || isFloatType(lhs)) && !( isFloatType(type) || type == SymbolType.MP_SYMBOL_INTEGER))
+	    {
+		System.out.println("Semantic Error: Can not do assignment to float/int with type not float/int");
+		System.exit(-12);
+	    }
+	    else if( lhs == SymbolType.MP_SYMBOL_BOOLEAN && type != SymbolType.MP_SYMBOL_BOOLEAN)
+		{
+		    System.out.println("Semantic Error: Can not do assignment to bool without non bool type");
+		    System.exit(-13);
+		}
+	    else if( lhs == SymbolType.MP_SYMBOL_STRING && type != SymbolType.MP_SYMBOL_STRING)
+		{
+		    System.out.println("Semantic Error: Can not do assignment to string without string type");
+		    System.exit(-14);
+		}
 	}
         //irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
         // XXX not sure about the memory management here - should this be in the symbol table?
