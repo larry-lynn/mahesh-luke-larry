@@ -450,16 +450,16 @@ public class Parser {
         int position;
     	
         switch(lookahead.token_name){
-	        case MP_PROCEDURE:
-		        listRule(17); // List the rule number applied
-	        	match(TokenType.MP_PROCEDURE);
-	        	procedureName = ProcedureIdentifier();
-	        	argList = OptionalFormalParameterList();        	
-	        	break;
+            case MP_PROCEDURE:
+                listRule(17); // List the rule number applied
+                    match(TokenType.MP_PROCEDURE);
+                    procedureName = ProcedureIdentifier();
+                    argList = OptionalFormalParameterList();        	
+                    break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
+                        System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
         newLabel = analyze.genUniqueLabel();
@@ -1375,15 +1375,19 @@ public class Parser {
     	Procedure procHandle = null;
     	String procLex = "";
     	String procLabel = "";
+    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
     	
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             listRule(64); // List the rule number applied
             procLex = ProcedureIdentifier();
-            OptionalActualParameterList();
-            
+            paramRecs = OptionalActualParameterList();
+
             procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procLex);
             procLabel = procHandle.getJumpLabel();
+
+            analyze.checkModes(procLex, paramRecs);
+
             analyze.genProcCallIR(procLabel);
             analyze.postProcCallCleanupIR(procLex);
             
@@ -1396,17 +1400,25 @@ public class Parser {
         }
     }
 
-    public void OptionalActualParameterList() {
+    public ArrayList<StackTopRecord> OptionalActualParameterList() {
         // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	StackTopRecord recOnStack = null;
+    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
+    	ArrayList<StackTopRecord> moreParamRecs = new ArrayList<StackTopRecord>();
 
         switch (lookahead.token_name) {
         case MP_LPAREN:
             listRule(65); // List the rule number applied
             match(TokenType.MP_LPAREN);
-            ActualParameter();
-            ActualParameterTail();
+            recOnStack = ActualParameter();
+            paramRecs.add(recOnStack);
+
+            moreParamRecs = ActualParameterTail();
+            paramRecs.addAll(moreParamRecs);
+
             match(TokenType.MP_RPAREN);
             break;
         case MP_AND:
@@ -1439,21 +1451,30 @@ public class Parser {
 			System.out.println("Expected '(' or end of statement or multiplying operator but found "+ lookahead.token_name);
             System.exit(-5);
         }
+        return(paramRecs);
     }
 
     // ### LARRYS BLOCK ENDS HERE
 
     // ### MAHESHS BLOCK STARTS HERE
-    public void ActualParameterTail() {
+    public ArrayList<StackTopRecord> ActualParameterTail() {
 	//67:ActualParameterTail ⟶ "," ActualParameter ActualParameterTail
 	//68:                    ⟶ ε
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	StackTopRecord recOnStack = null;
+    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
+    	ArrayList<StackTopRecord> moreParamRecs = new ArrayList<StackTopRecord>();
+
         switch (lookahead.token_name) {
         case MP_COMMA:
                 listRule(67); // List the rule number applied
             match(TokenType.MP_COMMA);
-            ActualParameter();
-            ActualParameterTail();
+            recOnStack = ActualParameter();
+            paramRecs.add(recOnStack);
+
+            moreParamRecs = ActualParameterTail();
+            paramRecs.addAll(moreParamRecs);
             break;
 		case MP_RPAREN:
                 listRule(68); // List the rule number applied
@@ -1465,11 +1486,15 @@ public class Parser {
 			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);            
 			System.exit(-5);
         }
+        return(paramRecs);
     }
 
-    public void ActualParameter() {
+    public StackTopRecord ActualParameter() {
 	//69:ActualParameter     ⟶ OrdinalExpression
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	StackTopRecord recOnStack = null;
+
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1478,7 +1503,7 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
             listRule(69); // List the rule number applied
-            OrdinalExpression();
+            recOnStack = OrdinalExpression();
             break;
         default:
             // parsing error
@@ -1486,6 +1511,7 @@ public class Parser {
 			System.out.println("Expected '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
+        return(recOnStack);
     }
 
     public StackTopRecord Expression(StackTopRecord recOnStack) {

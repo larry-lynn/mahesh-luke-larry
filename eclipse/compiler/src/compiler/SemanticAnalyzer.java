@@ -68,8 +68,8 @@ public class SemanticAnalyzer {
 	    Symbol temp = symbolTableHandle.fetchSymbolByLexeme(varLex);
 	    SymbolWithType temp2 = (SymbolWithType)temp;
 	    SymbolType lhs = temp2.getType();
-	    System.out.printf("Check on lhs with type %s\n",lhs);
-	    System.out.printf("Check on rhs with type %s\n",type);
+	    //System.out.printf("Check on lhs with type %s\n",lhs);
+	    //System.out.printf("Check on rhs with type %s\n",type);
 	    //check for lhs is int and rhs is float
 	    if(lhs == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
 	    {
@@ -290,19 +290,57 @@ public class SemanticAnalyzer {
         symbolCount = symbolTableHandle.getSymbolCountForCurrentTable(); 
         depth = symbolTableHandle.getDepthAsString();
         
+        /*
         for(Symbol s : topTableAsList){
             if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
                 irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);        
             }
         }
-        /*
-        for(i = 0; i < symbolCount; ++i){
-            irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);
-        }
         */
         
         irOutputFileHandle.format("POP\t%s\t; Restore value of old Dx register\n", depth);
         irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
+    }
+
+    public void checkModes(String procLex, ArrayList<StackTopRecord> actualParamRecs){
+        ArrayList<Args> formalParams;
+        Symbol tmpSym;
+        Procedure proc;
+        int i, numFormalParams, numActualParams;
+        Args singleFormalParam;
+        StackTopRecord singleActualParam;
+        
+
+        tmpSym = symbolTableHandle.fetchSymbolByLexeme(procLex);
+        proc = (Procedure) tmpSym;
+        formalParams = proc.getArgs();
+        numFormalParams = formalParams.size();
+        numActualParams = actualParamRecs.size();
+        if(numFormalParams != numActualParams){
+            System.out.println("Semantic error calling subroutine");
+            System.out.println("Expected: " + numFormalParams + " arguments, but got: " + numActualParams);
+            System.exit(-20);
+        }
+    
+
+        for(i = 0; i < numFormalParams; ++i){
+	    singleFormalParam = formalParams.get(i);
+            singleActualParam = actualParamRecs.get(i);
+            System.out.println("XXX " + singleFormalParam.getLexeme() );
+
+            if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
+                (singleActualParam.callTypeCompatibility != SymbolMode.MP_SYMBOL_REFERENCE) ){
+                System.out.println("Semantic error calling subroutine");
+                System.out.println("Parameter: " + singleFormalParam.getLexeme() + " is defined call-by-reference");
+                System.out.println("But actual parameter is not compatible with this");
+                System.exit(-21);
+            }
+            else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
+                (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){ 
+                System.out.println("FOO");
+            }
+        }
+
     }
     
 	public String genIfIR(){
