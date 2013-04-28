@@ -70,17 +70,18 @@ public class SemanticAnalyzer {
         offset = sym.getOffset();
         depth = symbolTableHandle.getDepthAsString();
 	//check to see if we have a VAR
-	if(sym == SymbolKind.MP_SYMBOL_VAR)
+	if(sym.kind == SymbolKind.MP_SYMBOL_VAR)
 	{
-	    SymbolKind temp = getKindByLexeme(varLex);
+	    Symbol temp = symbolTableHandle.fetchSymbolByLexeme(varLex);
+	    SymbolWithType temp2 = (SymbolWithType)temp;
 	    //check for lhs is int and rhs is float
-	    if(temp == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
+	    if(temp2.getType() == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
 	    {
 		//signal call to make cast
 		castFloatToIntIR();
 	    }
 	    // else check for lhs is float and rhs is int
-	    else if(isFloatType(temp) && type == SymbolType.MP_SYMBOL_INTEGER)
+	    else if( isFloatType(temp2.getType()) &&  type == SymbolType.MP_SYMBOL_INTEGER)
 		castIntToFloatIR();
 	}
         //irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
