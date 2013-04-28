@@ -127,9 +127,9 @@ public class SemanticAnalyzer {
         
         if(argCount > 0){
             // move return value down, clobber the lowest arg
-            irOutputFileHandle.format("MOV\t0(SP)\t-%s(SP)\t ; move ret val down the stack so it is still around after we wipe the input params\n");
+            irOutputFileHandle.format("POP\t-%s(SP)\t ; move ret val down the stack so it is still around after we wipe the input params\n", argCount);
             irOutputFileHandle.format("PUSH\tSP\t ; tear down input params to function so they dont clutter the stack \n");
-            irOutputFileHandle.format("PUSH #%s\n", argCount);
+            irOutputFileHandle.format("PUSH #%s\n", (argCount - 1) );
             irOutputFileHandle.format("SUBS\n");
             irOutputFileHandle.format("POP\tSP\n");
         }

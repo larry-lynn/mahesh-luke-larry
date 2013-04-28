@@ -392,6 +392,9 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="simple_func.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="func_by_val.mp"/>
+      </java>
 
   </target>
 	
