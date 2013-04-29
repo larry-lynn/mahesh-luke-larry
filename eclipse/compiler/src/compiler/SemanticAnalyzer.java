@@ -97,10 +97,18 @@ public class SemanticAnalyzer {
 		}
 	}
         //irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
-        // XXX not sure about the memory management here - should this be in the symbol table?
         irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
 
+    public void genAssignmentWithIndirectionIR(String varLex, SymbolType type){
+        // XXX this probably needs hardening for type safety
+        String offset;
+        Symbol sym;
+        sym = symbolTableHandle.fetchSymbolByLexeme(varLex);
+        offset = sym.getOffset();
+        irOutputFileHandle.format("POP\t@%s\t ;retrieve a value from the stack; store it in an address with indirection\n", offset);
+    }
+    
     public void genNegativeIR(SymbolType inputType) {
 	//Signal we have to make the number negative
 	if(isFloatType(inputType))
@@ -203,8 +211,6 @@ public class SemanticAnalyzer {
         
         depth = symbolTableHandle.getDepthAsString();
         
-        //irOutputFileHandle.format("POP\t-3(%s)\t; Store the return value below the local vars\n", depth);
-        
         for(Symbol s : topTableAsList){
             if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
                 irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all func args and vars\n", depth);        
@@ -266,18 +272,8 @@ public class SemanticAnalyzer {
             stackOffset = 0 - (2 + i);
             singleArg = Args.getArgAtPosition(topTableAsList, j);
             irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
-	    //            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
             ++j;
         }
-        /*
-        j = 0;
-        for(i = argCount; i > 0; --i){
-            stackOffset = 0 - (3 + i);
-            singleArg = Args.getArgAtPosition(topTableAsList, j);
-            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
-            ++j;
-        }
-        */
         
         
     }
@@ -290,25 +286,25 @@ public class SemanticAnalyzer {
         symbolCount = symbolTableHandle.getSymbolCountForCurrentTable(); 
         depth = symbolTableHandle.getDepthAsString();
         
-        /*
         for(Symbol s : topTableAsList){
             if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
                 irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);        
             }
         }
-        */
+        
         
         irOutputFileHandle.format("POP\t%s\t; Restore value of old Dx register\n", depth);
         irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
     }
 
-    public void checkModes(String procLex, ArrayList<StackTopRecord> actualParamRecs){
+    public void checkModesPrepRefs(String procLex, ArrayList<StackTopRecord> actualParamRecs){
         ArrayList<Args> formalParams;
-        Symbol tmpSym;
+        Symbol tmpSym, varByRef;
         Procedure proc;
-        int i, numFormalParams, numActualParams;
+        int i, numFormalParams, numActualParams, relativeOffset, address;
         Args singleFormalParam;
         StackTopRecord singleActualParam;
+        String register;
         
 
         tmpSym = symbolTableHandle.fetchSymbolByLexeme(procLex);
@@ -322,11 +318,9 @@ public class SemanticAnalyzer {
             System.exit(-20);
         }
     
-
         for(i = 0; i < numFormalParams; ++i){
 	    singleFormalParam = formalParams.get(i);
             singleActualParam = actualParamRecs.get(i);
-            System.out.println("XXX " + singleFormalParam.getLexeme() );
 
             if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
                 (singleActualParam.callTypeCompatibility != SymbolMode.MP_SYMBOL_REFERENCE) ){
@@ -336,11 +330,29 @@ public class SemanticAnalyzer {
                 System.exit(-21);
             }
             else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
-                (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){ 
-                System.out.println("FOO");
+                (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){
+                // Pass by reference is in play
+                varByRef = symbolTableHandle.fetchSymbolByLexeme(singleActualParam.variableLexeme);
+                System.out.println("XXX " + varByRef.getLexeme() );
+                relativeOffset = varByRef.getPartialNumericAddress();
+                register = varByRef.getRegister();
+                genCalculateAddressIR(register, relativeOffset);
+                genReplaceValWithAddressIR(i, numFormalParams);
             }
         }
 
+    }
+    
+    public void genCalculateAddressIR(String register, int relativeOffset){
+        irOutputFileHandle.format("PUSH\t%s\t ; calculating the runtime address of a variable\n", register);
+        irOutputFileHandle.format("PUSH\t#%s\n", relativeOffset);
+        irOutputFileHandle.format("ADDS\t ; Should leave a calculated address on top of the stack\n");
+    }
+    
+    public void genReplaceValWithAddressIR(int position, int numParams){
+        int depthInStack;
+        depthInStack = (-1 * numParams) + position;
+        irOutputFileHandle.format("POP\t%s(SP)\t ; replace a value in the stack with an address\n",depthInStack);
     }
     
 	public String genIfIR(){
@@ -408,6 +420,10 @@ public class SemanticAnalyzer {
     public void putVarOnStack(String offset){
         //irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
         irOutputFileHandle.format("PUSH\t%s\t ;put the value of a variable in a factor onto the stack\n", offset);
+    }
+    
+    public void putValOnStackWithIndirection(String offset){
+        irOutputFileHandle.format("PUSH\t@%s\t ; use index to get an address; dereference address; put that val on the stack\n", offset);
     }
     
     public void putVarOnStackByName(String varLexeme){

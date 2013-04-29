@@ -1059,15 +1059,29 @@ public class Parser {
 
             switch(idKind){
             case MP_SYMBOL_VAR:
-	    // XXX double check this, and see if this is legal
+                listRule(51); // List the rule number applied
+                varLex = VariableIdentifier();
+                match(TokenType.MP_ASSIGN);
+                rec = Expression(noValOnStack);
+
+                analyze.genAssignmentIR(varLex, rec.dataType);
+                break;
             case MP_SYMBOL_PARAMETER:
                 listRule(51); // List the rule number applied
                 varLex = VariableIdentifier();
                 match(TokenType.MP_ASSIGN);
                 rec = Expression(noValOnStack);
-                // prepare info for semantic analyzer
+                Args param = (Args) symbolTableHandle.fetchSymbolByLexeme(varLex);
+                System.out.println("baz");
+                if(param.getMode() == SymbolMode.MP_SYMBOL_VALUE){
+                    System.out.println("foo");
+                    analyze.genAssignmentIR(varLex, rec.dataType);
+                }
+                else if(param.getMode() == SymbolMode.MP_SYMBOL_REFERENCE){
+                    System.out.println("bar");
+                    analyze.genAssignmentWithIndirectionIR(varLex, rec.dataType);
+                }
 
-                analyze.genAssignmentIR(varLex, rec.dataType);
                 break;
             case MP_SYMBOL_FUNCTION:
                 listRule(52); // List the rule number applied
@@ -1386,7 +1400,7 @@ public class Parser {
             procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procLex);
             procLabel = procHandle.getJumpLabel();
 
-            analyze.checkModes(procLex, paramRecs);
+            analyze.checkModesPrepRefs(procLex, paramRecs);
 
             analyze.genProcCallIR(procLabel);
             analyze.postProcCallCleanupIR(procLex);
@@ -2060,12 +2074,30 @@ public class Parser {
 
             switch(idKind){
             case MP_SYMBOL_VAR:
-            case MP_SYMBOL_PARAMETER:
                 listRule(96); // List the rule number applied
                 VariableIdentifier();
                 sym = symbolTableHandle.fetchSymbolByLexeme( lex );
                 offset = sym.getOffset();
                 analyze.putVarOnStack(offset);
+                typedSym = (SymbolWithType) sym;
+                newType = typedSym.getType();
+                // The record on the stack is currently valid for pass-by-reference
+                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);  
+                
+                break;
+            case MP_SYMBOL_PARAMETER:
+                listRule(96); // List the rule number applied
+                VariableIdentifier();
+                sym = symbolTableHandle.fetchSymbolByLexeme( lex );
+                Args param = (Args) sym;
+                offset = param.getOffset();
+                if(param.getMode() == SymbolMode.MP_SYMBOL_VALUE){
+                    analyze.putVarOnStack(offset);
+                }
+                else if(param.getMode() == SymbolMode.MP_SYMBOL_REFERENCE){
+                    // for using parameters that were passed by reference
+                    analyze.putValOnStackWithIndirection(offset);
+                }
                 typedSym = (SymbolWithType) sym;
                 newType = typedSym.getType();
                 // The record on the stack is currently valid for pass-by-reference
