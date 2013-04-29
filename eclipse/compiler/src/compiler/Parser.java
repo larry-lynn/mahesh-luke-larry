@@ -1072,13 +1072,10 @@ public class Parser {
                 match(TokenType.MP_ASSIGN);
                 rec = Expression(noValOnStack);
                 Args param = (Args) symbolTableHandle.fetchSymbolByLexeme(varLex);
-                System.out.println("baz");
                 if(param.getMode() == SymbolMode.MP_SYMBOL_VALUE){
-                    System.out.println("foo");
                     analyze.genAssignmentIR(varLex, rec.dataType);
                 }
                 else if(param.getMode() == SymbolMode.MP_SYMBOL_REFERENCE){
-                    System.out.println("bar");
                     analyze.genAssignmentWithIndirectionIR(varLex, rec.dataType);
                 }
 

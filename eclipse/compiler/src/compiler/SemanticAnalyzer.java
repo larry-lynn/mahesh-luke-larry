@@ -333,7 +333,6 @@ public class SemanticAnalyzer {
                 (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){
                 // Pass by reference is in play
                 varByRef = symbolTableHandle.fetchSymbolByLexeme(singleActualParam.variableLexeme);
-                System.out.println("XXX " + varByRef.getLexeme() );
                 relativeOffset = varByRef.getPartialNumericAddress();
                 register = varByRef.getRegister();
                 genCalculateAddressIR(register, relativeOffset);

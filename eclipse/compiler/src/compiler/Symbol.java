@@ -44,7 +44,6 @@ public class Symbol {
         parenPos = offset.indexOf('(');
         prefix = offset.substring(0,parenPos);
         address = Integer.parseInt(prefix);
-        System.out.println(address);
         return(address);
     }
     
@@ -53,7 +52,6 @@ public class Symbol {
         String register;
         parenPos = offset.indexOf('(');
         register = offset.substring(parenPos + 1, parenPos + 3);
-        System.out.println(register);
         return(register);
     }
     
