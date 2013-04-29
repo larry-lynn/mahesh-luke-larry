@@ -1,3 +1,88 @@
+<!DOCTYPE html> 
+<html><!-- InstanceBegin template="/Templates/page.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/prettify.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/pageStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/navigationStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/allTextStyles.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/colors-blue.css" />
+<script type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/google-code-prettify/run_prettify.js"></script>
+<script language="javascript" type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/recomputeAttributes.js"></script>
+
+
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Sematic Analyzer</title>
+<!-- InstanceEndEditable -->
+</head>
+
+<body id="body-style">
+
+<!-- 
+<div id="browser-window-veil">
+</div>
+-->
+
+<div id="page-container">
+
+<header id="header">
+<div id="track-icon1">
+  <img src="http://www.hypertextbookshop.com/compilers2012/Media/StyleImages/bobcat-small.png" width="75" height="48"></div>
+<div id="track-icon2">
+</div>
+<div id="track-icon3">
+</div>
+  <div id="headMatter">
+    <span id="headTitle1">
+    Team Portfolios
+    </span>
+    <span id="headTitle2">
+    </span>
+  </div>
+</header>
+
+<nav id="navigate">
+</nav>
+
+
+<aside id="aside-left">
+<div id="asideLeftTitle">
+Compilers 2012
+</div>
+
+</aside>
+
+<aside id="aside-right">
+</aside>
+
+<footer id="footer">
+  <div id="footMatter">
+    <span id="previousPageLink">
+
+    </span>
+    <span id="currentPageNumber">
+    </span>
+    <span id="nextPageLink">
+
+    </span>
+  </div>
+</footer>
+
+<article id="mainContent">
+<!-- InstanceBeginEditable name="Main" -->
+<h1>Semantic Analyzer</h1>
+
+<h2>Specifications</h2>
+<p>
+Click <a href="../../../01_Introduction/2_Project_Specifications/4_Semantic_Analyzer.html">here</a> to view the semantic analyzer specifications.
+</p>
+
+<h2>Source Listing</h2>
+
+<pre class="prettyprint" ><code class="language-java">
+
+
 package compiler;
 
 import java.io.PrintWriter;
@@ -41,6 +126,13 @@ public class SemanticAnalyzer {
                 irOutputFileHandle.format("PUSH\t#\"MEM FOR: %s\"\t ;allocate stack memory for var %s\n", s.getLexeme(), s.getLexeme());
             }
         }
+        
+        /*  XXX can this go now?
+    	for(i = 0; i < symCount; ++i){
+	    //irOutputFileHandle.format(";make room on stack for X(DX) variables\n");
+    	    irOutputFileHandle.format("PUSH\t%s\t ;make room on stack for X(DX) variables\n", depth);
+    	}
+    	*/
     }
     
     public void tearDownMainVariablesIR(){
@@ -55,60 +147,18 @@ public class SemanticAnalyzer {
     
     
     public void genAssignmentIR(String varLex, SymbolType type){
-        // Inserted type checking here
+        // XXX need type checking in here
         String offset;
         Symbol sym;
         String depth;
         sym = symbolTableHandle.fetchSymbolByLexeme(varLex);
         offset = sym.getOffset();
         depth = symbolTableHandle.getDepthAsString();
-	//check to see if we have a VAR
-	if(sym.kind == SymbolKind.MP_SYMBOL_VAR)
-	{
-	    Symbol temp = symbolTableHandle.fetchSymbolByLexeme(varLex);
-	    SymbolWithType temp2 = (SymbolWithType)temp;
-	    SymbolType lhs = temp2.getType();
-	    //System.out.printf("Check on lhs with type %s\n",lhs);
-	    //System.out.printf("Check on rhs with type %s\n",type);
-	    //check for lhs is int and rhs is float
-	    if(lhs == SymbolType.MP_SYMBOL_INTEGER && isFloatType(type))
-	    {
-		//signal call to make cast
-		castFloatToIntIR();
-	    }
-	    // else check for lhs is float and rhs is int
-	    else if( isFloatType(lhs) &&  type == SymbolType.MP_SYMBOL_INTEGER)
-		castIntToFloatIR();
-            // else check for invalid assignments
-	    else if( (lhs == SymbolType.MP_SYMBOL_INTEGER || isFloatType(lhs)) && !( isFloatType(type) || type == SymbolType.MP_SYMBOL_INTEGER))
-	    {
-		System.out.println("Semantic Error: Can not do assignment to float/int with type not float/int");
-		System.exit(-12);
-	    }
-	    else if( lhs == SymbolType.MP_SYMBOL_BOOLEAN && type != SymbolType.MP_SYMBOL_BOOLEAN)
-		{
-		    System.out.println("Semantic Error: Can not do assignment to bool without non bool type");
-		    System.exit(-13);
-		}
-	    else if( lhs == SymbolType.MP_SYMBOL_STRING && type != SymbolType.MP_SYMBOL_STRING)
-		{
-		    System.out.println("Semantic Error: Can not do assignment to string without string type");
-		    System.exit(-14);
-		}
-	}
         //irOutputFileHandle.format(";retrieve a value from the stack & store it in a vairable\n");
+        // XXX not sure about the memory management here - should this be in the symbol table?
         irOutputFileHandle.format("POP\t%s\t ;retrieve a value from the stack & store it in a vairable\n", offset);
     }
 
-    public void genAssignmentWithIndirectionIR(String varLex, SymbolType type){
-        // XXX this probably needs hardening for type safety
-        String offset;
-        Symbol sym;
-        sym = symbolTableHandle.fetchSymbolByLexeme(varLex);
-        offset = sym.getOffset();
-        irOutputFileHandle.format("POP\t@%s\t ;retrieve a value from the stack; store it in an address with indirection\n", offset);
-    }
-    
     public void genNegativeIR(SymbolType inputType) {
 	//Signal we have to make the number negative
 	if(isFloatType(inputType))
@@ -178,7 +228,6 @@ public class SemanticAnalyzer {
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         Function funcSym;
         int argCount, i, j, stackOffset;
-        Args singleArg;
         
         depth = symbolTableHandle.getDepthAsString();
         funcSym = (Function) symbolTableHandle.fetchSymbolByLexeme(functionName);
@@ -196,9 +245,9 @@ public class SemanticAnalyzer {
         // load argument vals from expression stack into local param memory
         j = 0;
         for(i = argCount; i > 0; --i){
+            
             stackOffset = 0 - (3 + i);
-            singleArg = Args.getArgAtPosition(topTableAsList, j);
-            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
             ++j;
         }
         
@@ -210,6 +259,8 @@ public class SemanticAnalyzer {
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         
         depth = symbolTableHandle.getDepthAsString();
+        
+        //irOutputFileHandle.format("POP\t-3(%s)\t; Store the return value below the local vars\n", depth);
         
         for(Symbol s : topTableAsList){
             if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER || s.getKind() == SymbolKind.MP_SYMBOL_VAR){
@@ -250,7 +301,6 @@ public class SemanticAnalyzer {
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         Procedure procSym;
         int argCount, i, j, stackOffset;
-        Args singleArg;
         
         depth = symbolTableHandle.getDepthAsString();
         procSym = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procedureName);
@@ -270,8 +320,7 @@ public class SemanticAnalyzer {
         for(i = argCount; i > 0; --i){
             
             stackOffset = 0 - (2 + i);
-            singleArg = Args.getArgAtPosition(topTableAsList, j);
-            irOutputFileHandle.format("MOV\t%s(%s)\t%s\t ; load local param memory with data\n",stackOffset, depth, singleArg.getOffset() );
+            irOutputFileHandle.format("MOV\t%s(%s)\t%s(%s)\t ; load local param memory with data\n",stackOffset, depth, j, depth);
             ++j;
         }
         
@@ -291,67 +340,14 @@ public class SemanticAnalyzer {
                 irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);        
             }
         }
-        
+        /*
+        for(i = 0; i < symbolCount; ++i){
+            irOutputFileHandle.format("POP\t%s\t; De-allocate local memory for all proc args and vars\n", depth);
+        }
+        */
         
         irOutputFileHandle.format("POP\t%s\t; Restore value of old Dx register\n", depth);
         irOutputFileHandle.format("RET\t ; Returning from procedure to caller\n");
-    }
-
-    public void checkModesPrepRefs(String procLex, ArrayList<StackTopRecord> actualParamRecs){
-        ArrayList<Args> formalParams;
-        Symbol tmpSym, varByRef;
-        Procedure proc;
-        int i, numFormalParams, numActualParams, relativeOffset, address;
-        Args singleFormalParam;
-        StackTopRecord singleActualParam;
-        String register;
-        
-
-        tmpSym = symbolTableHandle.fetchSymbolByLexeme(procLex);
-        proc = (Procedure) tmpSym;
-        formalParams = proc.getArgs();
-        numFormalParams = formalParams.size();
-        numActualParams = actualParamRecs.size();
-        if(numFormalParams != numActualParams){
-            System.out.println("Semantic error calling subroutine");
-            System.out.println("Expected: " + numFormalParams + " arguments, but got: " + numActualParams);
-            System.exit(-20);
-        }
-    
-        for(i = 0; i < numFormalParams; ++i){
-	    singleFormalParam = formalParams.get(i);
-            singleActualParam = actualParamRecs.get(i);
-
-            if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
-                (singleActualParam.callTypeCompatibility != SymbolMode.MP_SYMBOL_REFERENCE) ){
-                System.out.println("Semantic error calling subroutine");
-                System.out.println("Parameter: " + singleFormalParam.getLexeme() + " is defined call-by-reference");
-                System.out.println("But actual parameter is not compatible with this");
-                System.exit(-21);
-            }
-            else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
-                (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){
-                // Pass by reference is in play
-                varByRef = symbolTableHandle.fetchSymbolByLexeme(singleActualParam.variableLexeme);
-                relativeOffset = varByRef.getPartialNumericAddress();
-                register = varByRef.getRegister();
-                genCalculateAddressIR(register, relativeOffset);
-                genReplaceValWithAddressIR(i, numFormalParams);
-            }
-        }
-
-    }
-    
-    public void genCalculateAddressIR(String register, int relativeOffset){
-        irOutputFileHandle.format("PUSH\t%s\t ; calculating the runtime address of a variable\n", register);
-        irOutputFileHandle.format("PUSH\t#%s\n", relativeOffset);
-        irOutputFileHandle.format("ADDS\t ; Should leave a calculated address on top of the stack\n");
-    }
-    
-    public void genReplaceValWithAddressIR(int position, int numParams){
-        int depthInStack;
-        depthInStack = (-1 * numParams) + position;
-        irOutputFileHandle.format("POP\t%s(SP)\t ; replace a value in the stack with an address\n",depthInStack);
     }
     
 	public String genIfIR(){
@@ -419,10 +415,6 @@ public class SemanticAnalyzer {
     public void putVarOnStack(String offset){
         //irOutputFileHandle.format(";put the value of a variable in a factor onto the stack\n");
         irOutputFileHandle.format("PUSH\t%s\t ;put the value of a variable in a factor onto the stack\n", offset);
-    }
-    
-    public void putValOnStackWithIndirection(String offset){
-        irOutputFileHandle.format("PUSH\t@%s\t ; use index to get an address; dereference address; put that val on the stack\n", offset);
     }
     
     public void putVarOnStackByName(String varLexeme){
@@ -880,3 +872,14 @@ public class SemanticAnalyzer {
         }
     }
 }
+
+
+
+</code></pre>
+
+<!-- InstanceEndEditable -->
+
+</article>
+</div>
+</body>
+<!-- InstanceEnd --></html>

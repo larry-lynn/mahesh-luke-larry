@@ -1,3 +1,87 @@
+<!DOCTYPE html> 
+<html><!-- InstanceBegin template="/Templates/page.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/prettify.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/pageStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/navigationStylesheet.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/allTextStyles.css" />
+<link rel="stylesheet" href="http://www.hypertextbookshop.com/compilers2013/Stylesheets/colors-blue.css" />
+<script type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/google-code-prettify/run_prettify.js"></script>
+<script language="javascript" type="text/javascript" src="http://www.hypertextbookshop.com/compilers2013/Scripts/recomputeAttributes.js"></script>
+
+
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>Parser</title>
+<!-- InstanceEndEditable -->
+</head>
+
+<body id="body-style">
+
+<!-- 
+<div id="browser-window-veil">
+</div>
+-->
+
+<div id="page-container">
+
+<header id="header">
+<div id="track-icon1">
+  <img src="http://www.hypertextbookshop.com/compilers2012/Media/StyleImages/bobcat-small.png" width="75" height="48"></div>
+<div id="track-icon2">
+</div>
+<div id="track-icon3">
+</div>
+  <div id="headMatter">
+    <span id="headTitle1">
+    Team Portfolios
+    </span>
+    <span id="headTitle2">
+    </span>
+  </div>
+</header>
+
+<nav id="navigate">
+</nav>
+
+
+<aside id="aside-left">
+<div id="asideLeftTitle">
+Compilers 2012
+</div>
+
+</aside>
+
+<aside id="aside-right">
+</aside>
+
+<footer id="footer">
+  <div id="footMatter">
+    <span id="previousPageLink">
+
+    </span>
+    <span id="currentPageNumber">
+    </span>
+    <span id="nextPageLink">
+
+    </span>
+  </div>
+</footer>
+
+<article id="mainContent">
+<!-- InstanceBeginEditable name="Main" -->
+<h1>Parser</h1>
+
+<h2>Specifications</h2>
+<p>
+Click <a href="../../../01_Introduction/2_Project_Specifications/2_Parser.html">here</a> to view the parser specifications.
+</p>
+
+<h2>Source Listing</h2>
+<pre class="prettyprint" ><code class="language-java">
+
+
 package compiler;
 
 import java.io.*;
@@ -22,8 +106,8 @@ public class Parser {
         
         String infile = args[0];
         String message = "Working Directory = " +  System.getProperty("user.dir");
-        //Boolean debugOn = true;
-        Boolean debugOn = false;
+        Boolean debugOn = true;
+        //Boolean debugOn = false;
         
         Parser parse;
         
@@ -447,19 +531,18 @@ public class Parser {
         ArrayList<Args> argList = new ArrayList<Args>();
         Procedure procSym;
         String newLabel = "";
-        int position;
     	
         switch(lookahead.token_name){
-            case MP_PROCEDURE:
-                listRule(17); // List the rule number applied
-                    match(TokenType.MP_PROCEDURE);
-                    procedureName = ProcedureIdentifier();
-                    argList = OptionalFormalParameterList();        	
-                    break;
+	        case MP_PROCEDURE:
+		        listRule(17); // List the rule number applied
+	        	match(TokenType.MP_PROCEDURE);
+	        	procedureName = ProcedureIdentifier();
+	        	argList = OptionalFormalParameterList();        	
+	        	break;
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-                        System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
+				System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
 		        System.exit(-5);
         }
         newLabel = analyze.genUniqueLabel();
@@ -468,11 +551,9 @@ public class Parser {
 
         symbolTableHandle.newSymbolTableForNewContext(procedureName);
         
-        position = 0;
+        
         for(Args argument : argList){
-            argument.setPosition(position);
             symbolTableHandle.insert(argument);
-            position++;
         }
         
         analyze.dropLabelIR(newLabel);
@@ -491,7 +572,6 @@ public class Parser {
         SymbolType funcRetType = null;
         Function funcSym;
         String newLabel;
-        int position;
 
         switch(lookahead.token_name){
 	        case MP_FUNCTION:
@@ -500,7 +580,7 @@ public class Parser {
 	        	functionName = FunctionIdentifier();
 	        	argList = OptionalFormalParameterList();
 	        	match(TokenType.MP_COLON);
-	                funcRetType = Type();
+	            funcRetType = Type();
 	        	break;
 	        default:
 		        // parsing error
@@ -513,12 +593,8 @@ public class Parser {
         symbolTableHandle.insert(funcSym);
 
         symbolTableHandle.newSymbolTableForNewContext(functionName);
-
-        position = 0;
         for(Args argument : argList){
-            argument.setPosition(position);
             symbolTableHandle.insert(argument);
-            position++;
         }
         
         analyze.dropLabelIR(newLabel);
@@ -1059,26 +1135,15 @@ public class Parser {
 
             switch(idKind){
             case MP_SYMBOL_VAR:
-                listRule(51); // List the rule number applied
-                varLex = VariableIdentifier();
-                match(TokenType.MP_ASSIGN);
-                rec = Expression(noValOnStack);
-
-                analyze.genAssignmentIR(varLex, rec.dataType);
-                break;
+	    // XXX double check this, and see if this is legal
             case MP_SYMBOL_PARAMETER:
                 listRule(51); // List the rule number applied
                 varLex = VariableIdentifier();
                 match(TokenType.MP_ASSIGN);
                 rec = Expression(noValOnStack);
-                Args param = (Args) symbolTableHandle.fetchSymbolByLexeme(varLex);
-                if(param.getMode() == SymbolMode.MP_SYMBOL_VALUE){
-                    analyze.genAssignmentIR(varLex, rec.dataType);
-                }
-                else if(param.getMode() == SymbolMode.MP_SYMBOL_REFERENCE){
-                    analyze.genAssignmentWithIndirectionIR(varLex, rec.dataType);
-                }
+                // prepare info for semantic analyzer
 
+                analyze.genAssignmentIR(varLex, rec.dataType);
                 break;
             case MP_SYMBOL_FUNCTION:
                 listRule(52); // List the rule number applied
@@ -1386,19 +1451,15 @@ public class Parser {
     	Procedure procHandle = null;
     	String procLex = "";
     	String procLabel = "";
-    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
     	
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
             listRule(64); // List the rule number applied
             procLex = ProcedureIdentifier();
-            paramRecs = OptionalActualParameterList();
-
+            OptionalActualParameterList();
+            
             procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procLex);
             procLabel = procHandle.getJumpLabel();
-
-            analyze.checkModesPrepRefs(procLex, paramRecs);
-
             analyze.genProcCallIR(procLabel);
             analyze.postProcCallCleanupIR(procLex);
             
@@ -1411,25 +1472,17 @@ public class Parser {
         }
     }
 
-    public ArrayList<StackTopRecord> OptionalActualParameterList() {
+    public void OptionalActualParameterList() {
         // 65:OptionalActualParameterList ⟶ "(" ActualParameter ActualParameterTail ")"
         // 66: ⟶ ε
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-
-    	StackTopRecord recOnStack = null;
-    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
-    	ArrayList<StackTopRecord> moreParamRecs = new ArrayList<StackTopRecord>();
 
         switch (lookahead.token_name) {
         case MP_LPAREN:
             listRule(65); // List the rule number applied
             match(TokenType.MP_LPAREN);
-            recOnStack = ActualParameter();
-            paramRecs.add(recOnStack);
-
-            moreParamRecs = ActualParameterTail();
-            paramRecs.addAll(moreParamRecs);
-
+            ActualParameter();
+            ActualParameterTail();
             match(TokenType.MP_RPAREN);
             break;
         case MP_AND:
@@ -1462,30 +1515,21 @@ public class Parser {
 			System.out.println("Expected '(' or end of statement or multiplying operator but found "+ lookahead.token_name);
             System.exit(-5);
         }
-        return(paramRecs);
     }
 
     // ### LARRYS BLOCK ENDS HERE
 
     // ### MAHESHS BLOCK STARTS HERE
-    public ArrayList<StackTopRecord> ActualParameterTail() {
+    public void ActualParameterTail() {
 	//67:ActualParameterTail ⟶ "," ActualParameter ActualParameterTail
 	//68:                    ⟶ ε
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-
-    	StackTopRecord recOnStack = null;
-    	ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
-    	ArrayList<StackTopRecord> moreParamRecs = new ArrayList<StackTopRecord>();
-
         switch (lookahead.token_name) {
         case MP_COMMA:
                 listRule(67); // List the rule number applied
             match(TokenType.MP_COMMA);
-            recOnStack = ActualParameter();
-            paramRecs.add(recOnStack);
-
-            moreParamRecs = ActualParameterTail();
-            paramRecs.addAll(moreParamRecs);
+            ActualParameter();
+            ActualParameterTail();
             break;
 		case MP_RPAREN:
                 listRule(68); // List the rule number applied
@@ -1497,15 +1541,11 @@ public class Parser {
 			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);            
 			System.exit(-5);
         }
-        return(paramRecs);
     }
 
-    public StackTopRecord ActualParameter() {
+    public void ActualParameter() {
 	//69:ActualParameter     ⟶ OrdinalExpression
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
-
-    	StackTopRecord recOnStack = null;
-
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1514,7 +1554,7 @@ public class Parser {
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
             listRule(69); // List the rule number applied
-            recOnStack = OrdinalExpression();
+            OrdinalExpression();
             break;
         default:
             // parsing error
@@ -1522,7 +1562,6 @@ public class Parser {
 			System.out.println("Expected '+' or '-' but found "+ lookahead.token_name);            
             System.exit(-5);
         }
-        return(recOnStack);
     }
 
     public StackTopRecord Expression(StackTopRecord recOnStack) {
@@ -2071,30 +2110,12 @@ public class Parser {
 
             switch(idKind){
             case MP_SYMBOL_VAR:
+            case MP_SYMBOL_PARAMETER:
                 listRule(96); // List the rule number applied
                 VariableIdentifier();
                 sym = symbolTableHandle.fetchSymbolByLexeme( lex );
                 offset = sym.getOffset();
                 analyze.putVarOnStack(offset);
-                typedSym = (SymbolWithType) sym;
-                newType = typedSym.getType();
-                // The record on the stack is currently valid for pass-by-reference
-                newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_REFERENCE);  
-                
-                break;
-            case MP_SYMBOL_PARAMETER:
-                listRule(96); // List the rule number applied
-                VariableIdentifier();
-                sym = symbolTableHandle.fetchSymbolByLexeme( lex );
-                Args param = (Args) sym;
-                offset = param.getOffset();
-                if(param.getMode() == SymbolMode.MP_SYMBOL_VALUE){
-                    analyze.putVarOnStack(offset);
-                }
-                else if(param.getMode() == SymbolMode.MP_SYMBOL_REFERENCE){
-                    // for using parameters that were passed by reference
-                    analyze.putValOnStackWithIndirection(offset);
-                }
                 typedSym = (SymbolWithType) sym;
                 newType = typedSym.getType();
                 // The record on the stack is currently valid for pass-by-reference
@@ -2339,3 +2360,14 @@ public class Parser {
     }
     // MAHESHS BLOCK ENDS HERE
 }
+
+
+
+</code></pre>
+
+<!-- InstanceEndEditable -->
+
+</article>
+</div>
+</body>
+<!-- InstanceEnd --></html>

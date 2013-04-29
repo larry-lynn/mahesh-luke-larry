@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Args extends SymbolWithType {
     
     private SymbolMode mode;
+    int positionInCallSignature;
 
     // Public constructor when one input is known, the args type
     public Args(SymbolType sType) {
@@ -23,7 +24,37 @@ public class Args extends SymbolWithType {
     	this.kind = SymbolKind.MP_SYMBOL_PARAMETER;
         this.mode = sMode;
     }
+
+    public Args(String lexeme, SymbolType sType, SymbolMode sMode, int position){
+    	super(lexeme , sType);
+    	this.kind = SymbolKind.MP_SYMBOL_PARAMETER;
+        this.mode = sMode;
+        this.positionInCallSignature = position;
+    }
     
+    public void setPosition(int position){
+        this.positionInCallSignature = position;        
+    }
+
+    public int getPosition(){
+        return(positionInCallSignature);
+    }
+    
+    // helper function to ge used when loading data into local
+    // memory for paramters.  Kind of a hack.  Consider refactoring
+    public static Args getArgAtPosition(ArrayList<Symbol> topTableAsList, int position){
+        Args a;
+        for(Symbol s : topTableAsList){
+            if(s.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+                a = (Args) s;
+                if(a.getPosition() == position){
+                    return(a);
+                }
+            }
+        }
+        return(null);
+    }
+
     public SymbolMode getMode(){
     	return(mode);	
     }
