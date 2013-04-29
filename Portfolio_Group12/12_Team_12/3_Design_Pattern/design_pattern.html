@@ -75,15 +75,80 @@ Compilers 2013
 <!--
 Identify one design pattern that was used in your capstone project and describe exactly where in the code it is located. Highlight the design pattern in yellow. Explain why you used the pattern and didn’t just code directly
 -->
-
 <h2>Design Patterns in the Compilers Course</h2>
 <p>The components of the compiler&#8212;the scanner, parser, symbol table, and semantic analyzer&#8212;were each by way of a specific pattern that students were asked to follow. In some cases, students were allowed to deviate from the patterns. As a result, some students may have chosen a different formal design pattern for portions of the compiler. If so, they appear below.</p>
 <h2>Specific Design Patterns</h2>
-<p>Note: if you used a formal design pattern in any of your code, give the design pattern here and refer by line numbers to the code the Program section where the design pattern is implemented. If not, just put:</p>
-<p>In either case, replace the text in this section with yours.</p>
-<p>None beyond those given in the course.</p>
+<p>
+  <ul>
+    <li><h3>Facade Pattern</h3></li>
+    <ul>
+      <li>
+	The facade pattern can be described as an intermediary between two or more different types of classes&#47;programs.
+	An advantage to using this design pattern is a centralized location for accessing different methods and types.
+	</li>
+      <li>
+	In our compiler project, we used the facade pattern to simulate the uPascal language using the Java language.
+	</li>
+      <li>
+	Exact line numbers of where this pattern can be found does not apply directly. This is because the scanner, parser, and semantic analyzer were
+	designed with this pattern in mind and part of the project specifications.
+	</li>
+      </ul>
+    <li><h3>Decorator Pattern</h3></li>
+    <ul>
+      <li>The decorator pattern is a way to abstract out specific details of how a class performs an opertaion.
+	</li>
+      <li>A common example of our a program would make use of this is by iterating through a list. Different classes may iterate through their list
+	differently because of list's ADT, but by using the decorator pattern, the program only needs to know that each class
+	has a method to iterate. </li>
+      <li>Advantages of using this pattern are reusable code and less coupling of modules. What is meant by this is new objects that
+	will make use of the decorator pattern can be added to the code with little modification to exisiting code.</li>
+      <li>A noteable spot where this project uses this design pattern is with the Symbol class. When the program needs to figure out
+	what types of symbols we have when iterating, it simply goes over a general list of Symbols and casts when needed. This allows
+	for dynamiclly casting of the Symbols and dynamic calls to class specific methods.
+	</li>
+      <li>Corresponding classes and their code lines for the pattern are found the source listing and are as follows:</li>
+      <ul>
+	<li><b>Parser.java</b></li>
+	<li>A part of the parser makes use getting the genric symbols.</li>
+	<li>Line 2035</li>
+	<li>Line 2049</li>
+	</ul>
+      <ul>
+	<li><b>SemanticAnalyzer.java</b></li>
+	<li>Here, the semantic portion makes use of the SymbolTable to retrieve a symbol from it.
+	  After getting the symbol, we then can cast it based on contextual information.</li>
+	<li>Line 69</li>
+	<li>Line 75</li>
+	<li>Line 159</li>
+	<li>Line 182</li>
+	<li>Line 237</li>
+	<li>Line 255</li>
+	<li>Line 370</li>
+	</ul>
+      <ul>
+	<li><b>SymbolTable.java</b></li>
+	<li><b>Symbol.java</b></li>
+	</ul>
+      </ul>
+    <li><h3>Singleton Pattern</h3></li>
+    <ul>
+      <li>Code that impelments the Singleton pattern essentially restricts a class to one instantiation.</li>
+      <li>This pattern was not implicitlly enforced in our project, but came about with the parser, semantic analyzer, and scanner.
+	Each class is only created once in the course of the program, and as such thought it was appropriate to mention it.</li>
+      <li>An advantage to using this pattern is only one instantiation of the class is needed, and everything is accessed through
+	it. Another advantage is this helps with concurrency via only one class is operating on data at a time, preventing possible
+	errors.</li>
+      <li>Corresponding classes for this pattern are as follows:</li>
+      <ul>
+	<li><b>Parser.java</b></li>
+	<li><b>SemanticAnalyzer.java</b></li>
+	<li><b>Scanner.java</b></li>
+	</ul>
+      </ul>
+    </ul>
+  </p>
 <!-- InstanceEndEditable -->
-
 </article>
 </div>
 </body>
