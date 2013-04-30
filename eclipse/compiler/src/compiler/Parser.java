@@ -785,6 +785,7 @@ public class Parser {
             break;
         case MP_END:
         case MP_UNTIL:
+		case MP_ELSE:
             // go to ε
                 listRule(31); // List the rule number applied
             break;
@@ -903,6 +904,7 @@ public class Parser {
         case MP_END:
         case MP_UNTIL:
         case MP_SCOLON:
+		case MP_ELSE:
         // XXX MP_ELSE predicted by LL1 table, may be in error
         //case MP_ELSE:
                 listRule(42); // List the rule number applied
