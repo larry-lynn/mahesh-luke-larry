@@ -73,20 +73,22 @@ Compilers 2013
 <!-- InstanceBeginEditable name="Main" -->
 <h1>Design Tradeoffs</h1>
 (Describe a design trade-off decision (e.g. execution time vs. space requirements or compile time) in your capstone project and justify the design decisions that you made.)
-
-<h2>Scanner Design Tradeoffs</h2>
-
-<h3>Resolution of Keywords</h3>
-<li> We have a hash table that has all the keywords listed in it. When an identifier is encoutered, the hash table is looked into, to see if the identifier is a reserved keyword. 
-<li> Average time complexity for searching a word in a hash table is O(1), which tells that the amount of time required for searching the hash table is constant, irrelevant of its size.
-<li> Instead of hash table, other ADTs like arrays could be used, but the average time complexity of arrays goes much higher than that of hash tables for searching the elements.
-
-
-<h3>Symbol Table Design</h3>
-<li> The symbols are stored in the symbol table in a binary tree structure, in non-case sensitive lexicographical order.
-<li> The average time complexity for search and insert actions is O(log n).
-<li> Hash table could be used here, but binary trees are more memory-efficient. They do not reserve more memory than they need.
-
+<ul>
+	<li><h2>Scanner Design Tradeoffs</h2></li>
+	<ul>
+		<li><h3>Resolution of Keywords</h3></li>
+		<li> We created a hash table that has all the keywords listed in it. When an identifier is encountered, the hash table is accessed to see if the identifier is a reserved keyword. </li>
+		<li> Average time complexity for searching for a word in a hash table is O(1). This indicates that the amount of time required for searching the hash table is constant, irrelevant of its size.</li>
+		<li> Instead of hash table, other ADTs like arrays were considered. The average time complexity of arrays is much higher than that of hash tables for searching and sorting.</li>
+	</ul>
+	<li><h2>Symbol Table Tradeoffs</h2></li>
+	<ul>
+		<li><h3>Symbol Table Design</h3></li>
+		<li> The symbols are stored in the symbol table in a binary tree structure, in non-case sensitive lexicographical order.</li>
+		<li> The average time complexity for search and insert actions is O(log n).</li>
+		<li> A hash table could be used here, but binary trees are more memory-efficient. They do not reserve more memory than they need.</li>
+	</ul>
+</ul>
 <!--<h3>. . . </h3>-->
 <!-- InstanceEndEditable -->
 
