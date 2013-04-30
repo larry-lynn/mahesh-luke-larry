@@ -149,6 +149,35 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
     }
     
+    public void genReadIR(ArrayList<String> readIntoVars){
+    	Symbol varSym;
+    	SymbolWithType typedVarSym;
+    	String offset;
+        for(String varLex : readIntoVars){
+        	varSym = symbolTableHandle.fetchSymbolByLexeme(varLex);
+        	typedVarSym = (SymbolWithType) varSym;
+        	offset = typedVarSym.getOffset();
+        	switch(typedVarSym.getType() ){
+        	case MP_SYMBOL_INTEGER:
+            	irOutputFileHandle.format("RD\t%s\t; read integer into int var\n", offset);
+        		break;
+        	case MP_SYMBOL_STRING:
+            	irOutputFileHandle.format("RDS\t%s\t; read integer into int var\n", offset);
+        		break;
+        	case MP_SYMBOL_FIXED:
+        	case MP_SYMBOL_FLOAT:
+        	case MP_SYMBOL_REAL:
+            	irOutputFileHandle.format("RDF\t%s\t; read integer into int var\n", offset);
+        		break;
+        	default:
+        		System.out.println("This block in read IR should be unreachable");
+        		System.exit(-220);
+        		
+        	}
+
+        }
+    }
+    
     public String genBranchAroundDefsIR(){
         String branchAroundDefsLabel;
         branchAroundDefsLabel = genUniqueLabel();

@@ -917,17 +917,27 @@ public class Parser {
     }
 
     public void ReadStatement() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 43:ReadStatement ⟶ "read" "(" ReadParameter ReadParameterTail ")"
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	
+    	ArrayList<String> readIntoVars = new ArrayList<String>();
+    	ArrayList<String> moreReadIntoVars = new ArrayList<String>();
+    	String singleReadIntoVar = "";
+    	
         switch (lookahead.token_name) {
         case MP_READ:
                 listRule(43); // List the rule number applied
             match(TokenType.MP_READ);
             match(TokenType.MP_LPAREN);
-            ReadParameter();
-            ReadParameterTail();
+            singleReadIntoVar = ReadParameter();
+            readIntoVars.add(singleReadIntoVar);
+            moreReadIntoVars = ReadParameterTail();
+            readIntoVars.addAll(moreReadIntoVars);
             match(TokenType.MP_RPAREN);
+            
+            analyze.genReadIR(readIntoVars);
+            
             break;
         default:
             // parsing error
@@ -938,17 +948,24 @@ public class Parser {
         }
     }
 
-    public void ReadParameterTail() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<String> ReadParameterTail() {
         // 44:ReadParameterTail ⟶ "," ReadParameter ReadParameterTail
         // 45: ⟶ ε
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	ArrayList<String> readIntoVars = new ArrayList<String>();
+    	ArrayList<String> moreReadIntoVars = new ArrayList<String>();
+    	String singleReadIntoVar = "";
+    	
         switch (lookahead.token_name) {
         case MP_COMMA:
                 listRule(44); // List the rule number applied
             match(TokenType.MP_COMMA);
-            ReadParameter();
-            ReadParameterTail();
+            singleReadIntoVar = ReadParameter();
+            readIntoVars.add(singleReadIntoVar);
+            moreReadIntoVars = ReadParameterTail();
+            readIntoVars.addAll(moreReadIntoVars);
+            
             break;
         case MP_RPAREN:
         	// map to ε
@@ -961,16 +978,19 @@ public class Parser {
 	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
+        return(readIntoVars);
     }
 
-    public void ReadParameter() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
-    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public String ReadParameter() {
         // 46:ReadParameter ⟶ VariableIdentifier
+    	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
+
+    	String readIntoVar = "";
+    	
         switch (lookahead.token_name) {
         case MP_IDENTIFIER:
                 listRule(46); // List the rule number applied
-            VariableIdentifier();
+            readIntoVar = VariableIdentifier();
             break;
         default:
             // parsing error
@@ -979,6 +999,7 @@ public class Parser {
 	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
+        return(readIntoVar);
     }
 
     public void WriteStatement() {    

@@ -418,6 +418,9 @@
       <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
         <arg value="ref_torture_test.mp"/>
       </java>
+      <java classname="compiler.Parser" classpath="${build}/classes" dir="${data}" fork="true" maxmemory="1024m">
+        <arg value="multi_read_test.mp"/>
+      </java>
 
   </target>
 	
