@@ -131,6 +131,7 @@ public class Parser {
             System.out.println("Parse Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
             System.out.println("Expected: " + compareTok + ", but got: " + lookahead.token_name);
             // Thread.currentThread().getStackTrace()[1].getMethodName()
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-6);
         }
         return(processedLexeme);
@@ -153,6 +154,7 @@ public class Parser {
 		        // parsing error
                     System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                     System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+		    analyze.cleanupAndDeleteIRFile();
                     System.exit(-5);
         }
 
@@ -172,7 +174,8 @@ public class Parser {
 	        default:
 	        // parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+			System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 	        	System.exit(-5);
         }
         
@@ -200,7 +203,8 @@ public class Parser {
 	        default:
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+			System.out.println("Expected keyword 'PROGRAM' but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
     }
@@ -231,6 +235,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected VAR, PROCEDURE, FUNCTION or BEGIN but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
     }
@@ -260,6 +265,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
     }
@@ -286,6 +292,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected variable name OR procedure declaration or function declaration or keyword 'BEGIN' but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
     }
@@ -307,6 +314,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			    System.out.println("Expected variable name but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
         for(String lexeme: lexemes){
@@ -346,6 +354,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected data type of variable, but found " + lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
 		        
         }
@@ -377,6 +386,7 @@ public class Parser {
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected procedure declaration or function declaration or keyword 'BEGIN' but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 	        	System.exit(-5);
         }
     }
@@ -408,6 +418,7 @@ public class Parser {
 	        	// parsing error
 	        	System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			    System.out.println("Expected procedure declaration but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 	        	System.exit(-5);
         }
     }
@@ -435,6 +446,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                 System.out.println("Expected function declaration but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
     }
@@ -460,6 +472,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
                         System.out.println("Expected procedure declaration but found "+ lookahead.token_name);				
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
         newLabel = analyze.genUniqueLabel();
@@ -506,6 +519,7 @@ public class Parser {
 		        // parsing error
 		        System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			    System.out.println("Expected function declaration but found "+ lookahead.token_name);
+			analyze.cleanupAndDeleteIRFile();
 		        System.exit(-5);
         }
         newLabel = analyze.genUniqueLabel();
@@ -553,6 +567,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected parameter list or ':' [for functions] or ';' [for procedures] but found "+ lookahead.token_name);				
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
         argList.addAll(moreArgs);
@@ -583,6 +598,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected ';' or ')' but found "+ lookahead.token_name);
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
         argList.addAll(moreArgs);
@@ -609,6 +625,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected variable name or kyword 'VAR' but found "+ lookahead.token_name);
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
         
@@ -635,6 +652,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected variable name but found "+ lookahead.token_name);
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
         
@@ -668,6 +686,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected keyword 'VAR' but found "+ lookahead.token_name);				
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
         // prepare semantic records for return
@@ -691,6 +710,7 @@ public class Parser {
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 				System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);
+		    analyze.cleanupAndDeleteIRFile();
 	            System.exit(-5);
 	        }
     }
@@ -711,7 +731,8 @@ public class Parser {
 	        default:
 	            // parsing error
 	            System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
-				System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);	            
+				System.out.println("Expected keyword 'BEGIN' but found "+ lookahead.token_name);	            	
+				analyze.cleanupAndDeleteIRFile();
 				System.exit(-5);
 	        }
     }
@@ -742,6 +763,7 @@ public class Parser {
             // parsing error    
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.out.println("Expected start of statement but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -770,6 +792,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
 
         }
@@ -836,6 +859,7 @@ public class Parser {
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
                 symbolTableHandle.dumpAll();
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-8);
             }
 
@@ -857,6 +881,7 @@ public class Parser {
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
                 System.out.println("Found Identifier token: " + lookahead.getLexeme()
                     + ", of kind: " + idKind + ", looking for variable, function, parameter or procedure");
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-7);         
             }
 
@@ -865,6 +890,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.out.println("Expected start of statement but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     } // end statement
@@ -885,6 +911,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.out.println("Expected ';' or keyword 'END' or keyword 'UNTIL' [for REPEAT loop] but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -906,6 +933,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'READ' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -930,6 +958,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -947,6 +976,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected an identifier but found " + lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -978,6 +1008,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'WRITE' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1001,6 +1032,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1027,6 +1059,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1049,6 +1082,7 @@ public class Parser {
                 // XXX : move this into a better error handler
                 System.out.println("Symbol error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
                 System.out.println("Attempted to assign a value to an undeclared variable: "+ lookahead.getLexeme() );
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-6);
             }
             // XXX: need more logic here for checking that the types match
@@ -1094,6 +1128,7 @@ public class Parser {
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
                 System.out.println("Found Identifier token: " + lookahead.getLexeme()
                     + ", of kind: " + idKind + ", looking for variable, parameter or function");
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-7);         
             }
             
@@ -1103,6 +1138,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected an identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1133,6 +1169,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'IF' but found "+ lookahead.token_name);			
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1161,6 +1198,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'ELSE' or end of IF part but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-15);
         }
     }
@@ -1188,6 +1226,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'REPEAT' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1226,6 +1265,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'WHILE' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1274,6 +1314,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'FOR' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1292,6 +1333,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected an identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(controlVarLex);
@@ -1321,6 +1363,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -1348,6 +1391,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected keyword 'TO' or 'DOWNTO' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     	return(positive);
@@ -1374,6 +1418,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected start of expression but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -1407,6 +1452,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected an identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -1460,6 +1506,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected '(' or end of statement or multiplying operator but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(paramRecs);
@@ -1495,6 +1542,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected ',' or ')' but found "+ lookahead.token_name);            
+			analyze.cleanupAndDeleteIRFile();
 			System.exit(-5);
         }
         return(paramRecs);
@@ -1520,6 +1568,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected '+' or '-' but found "+ lookahead.token_name);            
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -1553,6 +1602,7 @@ public class Parser {
             // parsing error
             System.out.println("Parse Error at line: " + lookahead.getLineNumber() + ", column: " + lookahead.getColumnNumber());
             System.out.println("Expected start of expression but found "+ lookahead.token_name);            			
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
 
@@ -1602,6 +1652,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.out.println("Expected relational operator or end of statement but found "+ lookahead.token_name);            			
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
 	return (newType);
@@ -1651,6 +1702,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 	    System.out.println("Expected relational operator but found "+ lookahead.token_name);                        
+	    analyze.cleanupAndDeleteIRFile();
 	    System.exit(-5);
         }
 	return (opType);
@@ -1704,6 +1756,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
             System.out.println("Expected start of expression but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
 
@@ -1755,6 +1808,7 @@ public class Parser {
         default:
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected adding operator or *** but found "+ lookahead.token_name);            
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -1794,6 +1848,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
 	return (signType);
@@ -1828,6 +1883,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
             System.out.println("Expected keyword 'OR' or '+' or '-' but found "+ lookahead.token_name);            
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(addType);
@@ -1864,6 +1920,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
 			System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         
@@ -1928,6 +1985,7 @@ public class Parser {
         default:
             System.out.println("Parsing error at : " + Thread.currentThread().getStackTrace()[1].getMethodName());
             System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' or *** but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -1972,6 +2030,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected  multiplying operator but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(mulType);
@@ -2065,6 +2124,7 @@ public class Parser {
             if(idKind == null){
                 System.out.println("Attempted to look up an undeclared variable: "+ lex);
                 symbolTableHandle.dumpAll();
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-9);
             }
 
@@ -2130,6 +2190,7 @@ public class Parser {
                 System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
                 System.out.println("Found Identifier token: " + lookahead.getLexeme()
                     + ", of kind: " + idKind + ", looking for variable or function");
+		analyze.cleanupAndDeleteIRFile();
                 System.exit(-7);         
             }
 	    break;
@@ -2138,6 +2199,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getMethodName() );
 	        System.out.println("Expected  '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+		analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         if( (newRec == null) && (newType != null) ){
@@ -2170,6 +2232,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(programLexeme);
@@ -2189,6 +2252,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(lex);
@@ -2208,6 +2272,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected identifier but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(procedureName);
@@ -2227,6 +2292,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected identifier but found "+ lookahead.token_name);            
+	    analyze.cleanupAndDeleteIRFile();
 			System.exit(-5);
         }
         return(functionName);
@@ -2253,6 +2319,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
             System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
     }
@@ -2285,6 +2352,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[1].getLineNumber());
             System.out.println("Expected '+' or '-' or '(' or identifier or integer or keyword 'NOT' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(recOnStack);
@@ -2308,6 +2376,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error at: " + Thread.currentThread().getStackTrace()[2].getLineNumber());
 			System.out.println("Expected identifier but found "+ lookahead.token_name);			
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(lexemes);
@@ -2337,6 +2406,7 @@ public class Parser {
             // parsing error
             System.out.println("Parsing error in: " + Thread.currentThread().getStackTrace()[1].getMethodName());
 			System.out.println("Expected ',' or ':' but found "+ lookahead.token_name);
+	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
         return(lexemes);

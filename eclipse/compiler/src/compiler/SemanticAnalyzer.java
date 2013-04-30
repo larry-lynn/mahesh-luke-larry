@@ -2,16 +2,19 @@ package compiler;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.io.File;
 
 public class SemanticAnalyzer {
     PrintWriter irOutputFileHandle;
     SymbolTableMaster symbolTableHandle;
     int labelCounter;
+    String irOutputFileName;
     
     public SemanticAnalyzer(String fileWithPath, SymbolTableMaster stHandle) throws Exception{        
         irOutputFileHandle = new PrintWriter(fileWithPath + ".ir");
         symbolTableHandle = stHandle;
         labelCounter = 0;
+	irOutputFileName = fileWithPath + ".ir";
     }
     
     public String genUniqueLabel(){
@@ -83,16 +86,19 @@ public class SemanticAnalyzer {
 	    else if( (lhs == SymbolType.MP_SYMBOL_INTEGER || isFloatType(lhs)) && !( isFloatType(type) || type == SymbolType.MP_SYMBOL_INTEGER))
 	    {
 		System.out.println("Semantic Error: Can not do assignment to float/int with type not float/int");
+		cleanupAndDeleteIRFile();
 		System.exit(-12);
 	    }
 	    else if( lhs == SymbolType.MP_SYMBOL_BOOLEAN && type != SymbolType.MP_SYMBOL_BOOLEAN)
 		{
 		    System.out.println("Semantic Error: Can not do assignment to bool without non bool type");
+		    cleanupAndDeleteIRFile();
 		    System.exit(-13);
 		}
 	    else if( lhs == SymbolType.MP_SYMBOL_STRING && type != SymbolType.MP_SYMBOL_STRING)
 		{
 		    System.out.println("Semantic Error: Can not do assignment to string without string type");
+		    cleanupAndDeleteIRFile();
 		    System.exit(-14);
 		}
 	}
@@ -118,6 +124,7 @@ public class SemanticAnalyzer {
 	else
 	{
 	    System.out.println("Semantic Error: Cannot apply negative operation on given type.");
+	    cleanupAndDeleteIRFile();
 	    System.exit(-11);
 	}
     }
@@ -323,6 +330,7 @@ public class SemanticAnalyzer {
         if(numFormalParams != numActualParams){
             System.out.println("Semantic error calling subroutine");
             System.out.println("Expected: " + numFormalParams + " arguments, but got: " + numActualParams);
+	    cleanupAndDeleteIRFile();
             System.exit(-20);
         }
     
@@ -348,6 +356,7 @@ public class SemanticAnalyzer {
                 System.out.println("Semantic error calling subroutine");
                 System.out.println("Parameter: " + singleFormalParam.getLexeme() + " is defined call-by-reference");
                 System.out.println("But actual parameter is not compatible with this");
+		cleanupAndDeleteIRFile();
                 System.exit(-21);
             }
             else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
@@ -525,6 +534,7 @@ public class SemanticAnalyzer {
 	{
 	    //Send message that we have an error
 	    System.out.println(" Semantic Error: No legal operations for string types with relational operator" );
+	    cleanupAndDeleteIRFile();
 	    System.exit(-11);
 	}
 	//Check to see if we have booleans as well
@@ -532,6 +542,7 @@ public class SemanticAnalyzer {
 	{
 	    //Send message that we have an error
 	    System.out.println(" Semantic Error: No legal operations for non bool-bool types with relational operator");
+	    cleanupAndDeleteIRFile();
 	    System.exit(-12);
 	}
 	// Else check to see if we need to do casting before compare hapens
@@ -591,6 +602,7 @@ public class SemanticAnalyzer {
 		else
 		    {
 			System.out.println("Semantic Error: Op Type does not work with Boolean types");
+			cleanupAndDeleteIRFile();
 			System.exit(-14);
 		    }
 	    }
@@ -615,6 +627,7 @@ public class SemanticAnalyzer {
     	if( (lhsType==SymbolType.MP_SYMBOL_STRING) || (rhsType==SymbolType.MP_SYMBOL_STRING) ){
     	    // string types in a mulop
             System.out.println("Semantic Error: No legal operations for string types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
     	}
     	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (mulType == MulOpType.MP_AND) &&
@@ -625,14 +638,17 @@ public class SemanticAnalyzer {
     	}
     	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
     	    System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-12);
     	}
         else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-13);
         }
         else if(mulType == MulOpType.MP_AND){
             System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-15);
         }
     	else if( mulType == MulOpType.MP_MOD){
@@ -712,6 +728,7 @@ public class SemanticAnalyzer {
 
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
         }
     	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (addType == AddOpType.MP_OR) &&
@@ -721,14 +738,17 @@ public class SemanticAnalyzer {
     	}
     	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
     	    System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-12);
     	}
         else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-13);
         }
         else if(addType == AddOpType.MP_OR){
             System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-15);
         }
         else if( addType == AddOpType.MP_PLUS){
@@ -786,6 +806,7 @@ public class SemanticAnalyzer {
 
         if(rec.dataType != SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: NOT only legal for BOOLEAN types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
         }
 
@@ -903,6 +924,12 @@ public class SemanticAnalyzer {
     
     public void cleanup(){
         irOutputFileHandle.close();
+    }
+
+    public void cleanupAndDeleteIRFile(){
+        irOutputFileHandle.close();
+	File file = new File(irOutputFileName);
+       	file.delete();
     }
     
     private boolean isFloatType(SymbolType sType){
