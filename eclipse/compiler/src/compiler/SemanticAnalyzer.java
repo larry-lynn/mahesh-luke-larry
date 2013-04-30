@@ -298,18 +298,24 @@ public class SemanticAnalyzer {
     }
 
     public void checkModesPrepRefs(String procLex, ArrayList<StackTopRecord> actualParamRecs){
-        ArrayList<Args> formalParams;
+        ArrayList<Args> formalParams = null;
         Symbol tmpSym, varByRef;
         Procedure proc;
-        int i, numFormalParams, numActualParams, relativeOffset, address;
+        Function func;
+        int i, numFormalParams, numActualParams, relativeOffset;
         Args singleFormalParam;
         StackTopRecord singleActualParam;
         String register;
-        
 
         tmpSym = symbolTableHandle.fetchSymbolByLexeme(procLex);
-        proc = (Procedure) tmpSym;
-        formalParams = proc.getArgs();
+        if(tmpSym.getKind() == SymbolKind.MP_SYMBOL_PROCEDURE){
+            proc = (Procedure) tmpSym;
+            formalParams = proc.getArgs();
+        }
+        else if(tmpSym.getKind() == SymbolKind.MP_SYMBOL_FUNCTION){
+            func = (Function) tmpSym;
+            formalParams = func.getArgs();
+        }
         numFormalParams = formalParams.size();
         numActualParams = actualParamRecs.size();
         if(numFormalParams != numActualParams){
@@ -319,7 +325,7 @@ public class SemanticAnalyzer {
         }
     
         for(i = 0; i < numFormalParams; ++i){
-	    singleFormalParam = formalParams.get(i);
+	        singleFormalParam = formalParams.get(i);
             singleActualParam = actualParamRecs.get(i);
 
             if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
@@ -457,7 +463,6 @@ public class SemanticAnalyzer {
     }
     public SymbolType deepCastIntToFloatIR(){
         SymbolType newTypeOnStack = null;
-        // XXX Luke's code to go here
         System.out.println("Cast int 2 deep in stack to float");
         irOutputFileHandle.format(";cast the int 2 deep on the stack to a float\n");
         irOutputFileHandle.format("PUSH -2(SP) ;push the bottom int on top of the stack\n");
@@ -470,7 +475,6 @@ public class SemanticAnalyzer {
 
     public SymbolType castIntToFloatIR(){
         SymbolType newTypeOnStack = null;
-        // XXX Luke's code to go here
         System.out.println("Cast int on top of stack to float");
         irOutputFileHandle.format("CASTSF ;cast the int on top of the stack to a float\n");
 

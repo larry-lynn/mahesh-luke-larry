@@ -2038,7 +2038,6 @@ public class Parser {
             analyze.storeString(stringVal);
             break;
         case MP_TRUE:
-	    // XXX true & false may need to change for semantics of VM
             listRule(115); // List the rule number applied
             literalVal = match(TokenType.MP_TRUE);
             newType = SymbolType.MP_SYMBOL_BOOLEAN;
@@ -2105,18 +2104,23 @@ public class Parser {
                 listRule(99); // List the rule number applied
                 Function funcHandle;
                 String funcLabel;
+                ArrayList<StackTopRecord> paramRecs = new ArrayList<StackTopRecord>();
                 
                 FunctionIdentifier(); 
                 sym = symbolTableHandle.fetchSymbolByLexeme( lex );
                 offset = sym.getOffset();
                 typedSym = (SymbolWithType) sym;
                 newType = typedSym.getType();
-                OptionalActualParameterList(); 
+                paramRecs = OptionalActualParameterList(); 
                 
                 funcHandle = (Function) typedSym;
                 funcLabel = funcHandle.getJumpLabel();
+                
+                analyze.checkModesPrepRefs(lex, paramRecs);
+                
                 analyze.genFuncCallIR(funcLabel);
                 analyze.postFuncCallCleanupIR( lex );
+                
                 
                 newRec = new StackTopRecord(newType, lex, SymbolMode.MP_SYMBOL_VALUE);
                 break;
