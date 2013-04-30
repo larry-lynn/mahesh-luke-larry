@@ -233,7 +233,7 @@ public class SemanticAnalyzer {
     
     public void postProcCallCleanupIR(String procName){
         Procedure procHandle;
-        int argCount, i;
+        int argCount;
         procHandle = (Procedure) symbolTableHandle.fetchSymbolByLexeme(procName);
         argCount = procHandle.getArgCount();
         irOutputFileHandle.format("PUSH SP\n");
@@ -280,7 +280,7 @@ public class SemanticAnalyzer {
     
     public void genProcDefPostambleIR(String procedureName){
         String depth;
-        int i, symbolCount;
+        int symbolCount;
         ArrayList<Symbol> topTableAsList = symbolTableHandle.topToArrayList();
         
         symbolCount = symbolTableHandle.getSymbolCountForCurrentTable(); 
@@ -303,9 +303,11 @@ public class SemanticAnalyzer {
         Procedure proc;
         Function func;
         int i, numFormalParams, numActualParams, relativeOffset;
-        Args singleFormalParam;
+        Args singleFormalParam, priorInputArg;
         StackTopRecord singleActualParam;
         String register;
+        SymbolMode priorParamInputMode;
+
 
         tmpSym = symbolTableHandle.fetchSymbolByLexeme(procLex);
         if(tmpSym.getKind() == SymbolKind.MP_SYMBOL_PROCEDURE){
@@ -327,6 +329,19 @@ public class SemanticAnalyzer {
         for(i = 0; i < numFormalParams; ++i){
 	        singleFormalParam = formalParams.get(i);
             singleActualParam = actualParamRecs.get(i);
+            tmpSym = symbolTableHandle.fetchSymbolByLexeme(singleActualParam.variableLexeme);
+
+            if(tmpSym == null){
+                priorParamInputMode = SymbolMode.MP_SYMBOL_VALUE;
+            }
+            else if(tmpSym.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+                priorInputArg = (Args) tmpSym;
+                priorParamInputMode = priorInputArg.getMode();
+            }
+            else{
+                priorParamInputMode = SymbolMode.MP_SYMBOL_VALUE;
+            }
+
 
             if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
                 (singleActualParam.callTypeCompatibility != SymbolMode.MP_SYMBOL_REFERENCE) ){
@@ -334,6 +349,15 @@ public class SemanticAnalyzer {
                 System.out.println("Parameter: " + singleFormalParam.getLexeme() + " is defined call-by-reference");
                 System.out.println("But actual parameter is not compatible with this");
                 System.exit(-21);
+            }
+            else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
+                (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) &&
+                 (priorParamInputMode == SymbolMode.MP_SYMBOL_REFERENCE) ){
+                // Pass by reference is in play
+                // SPECIAL CASE - pass by ref param passed again to a subroutine that is also
+                // pass by ref. 
+                genPushRawAddressForParamContainingAnAddressIR(singleActualParam);
+                genReplaceValWithAddressIR(i, numFormalParams);
             }
             else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
                 (singleActualParam.callTypeCompatibility == SymbolMode.MP_SYMBOL_REFERENCE) ){
@@ -352,6 +376,13 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("PUSH\t%s\t ; calculating the runtime address of a variable\n", register);
         irOutputFileHandle.format("PUSH\t#%s\n", relativeOffset);
         irOutputFileHandle.format("ADDS\t ; Should leave a calculated address on top of the stack\n");
+    }
+    
+    public void genPushRawAddressForParamContainingAnAddressIR(StackTopRecord priorByRefParam){
+        String paramLex = priorByRefParam.variableLexeme;
+        Symbol argSym = symbolTableHandle.fetchSymbolByLexeme(paramLex);
+        String offset = argSym.getOffset(); 
+        irOutputFileHandle.format("PUSH\t%s\t ;put a raw address on the stack for the dreaded double-call-by-ref\n", offset);
     }
     
     public void genReplaceValWithAddressIR(int position, int numParams){
