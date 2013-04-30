@@ -368,7 +368,7 @@ public class SemanticAnalyzer {
                 genCalculateAddressIR(register, relativeOffset);
                 genReplaceValWithAddressIR(i, numFormalParams);
             }
-        }
+        } 
 
     }
     
