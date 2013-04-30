@@ -1323,7 +1323,7 @@ public class Parser {
             // again we should do a semantic check & make sure this is numeric
 	    // Also need to add the terminator value to the Preamble?
 	    // See test...
-            analyze.genForLoopPreambleIR(controlVarLex, exitForLoopLabel);
+            analyze.genForLoopPreambleIR(controlVarLex, positive, exitForLoopLabel);
             match(TokenType.MP_DO);
             Statement();
 

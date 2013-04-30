@@ -470,10 +470,15 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("BR\t%s\t ; return to top of FOR loop\n", beginWhileLoopLabel);
     }
     
-    public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
+    public void genForLoopPreambleIR(String controlVarLex, Boolean positive, String exitForLoopLabel){
         putVarOnStackByName(controlVarLex);
 	//Added today on 4-24 for an error about CMPNES, need to drop Terminator here as well
-        irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");
+        if(positive){
+			irOutputFileHandle.format("CMPGES\t; check FOR loop condition\n");
+        }
+        else{
+			irOutputFileHandle.format("CMPLES\t; check FOR loop condition\n");
+        }
         irOutputFileHandle.format("BRFS\t%s\t; repeat FOR until terminating condition satisfied\n", exitForLoopLabel);
    
     }
