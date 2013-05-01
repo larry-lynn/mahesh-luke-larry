@@ -153,21 +153,46 @@ public class SemanticAnalyzer {
     	Symbol varSym;
     	SymbolWithType typedVarSym;
     	String offset;
+    	SymbolMode symMode = null;
+    	Args param = null;
+    	Boolean isParam = false;
+    	
         for(String varLex : readIntoVars){
         	varSym = symbolTableHandle.fetchSymbolByLexeme(varLex);
         	typedVarSym = (SymbolWithType) varSym;
         	offset = typedVarSym.getOffset();
+        	if(varSym.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+        	    isParam = true;
+        	    param = (Args) varSym;
+        	    symMode = param.getMode();
+        	}
+        	
         	switch(typedVarSym.getType() ){
         	case MP_SYMBOL_INTEGER:
-            	irOutputFileHandle.format("RD\t%s\t; read integer into int var\n", offset);
+        	    if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+        	        irOutputFileHandle.format("RD\t@%s\t; read integer into param with indirection\n", offset);
+        	    }
+        	    else{
+        	        irOutputFileHandle.format("RD\t%s\t; read integer into int var\n", offset);
+        	    }
         		break;
         	case MP_SYMBOL_STRING:
-            	irOutputFileHandle.format("RDS\t%s\t; read integer into int var\n", offset);
+                if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+                    irOutputFileHandle.format("RDS\t@%s\t; read string into param with indirection\n", offset);
+                }
+                else{
+                    irOutputFileHandle.format("RDS\t%s\t; read stringr into var\n", offset);
+                }	
         		break;
         	case MP_SYMBOL_FIXED:
         	case MP_SYMBOL_FLOAT:
         	case MP_SYMBOL_REAL:
-            	irOutputFileHandle.format("RDF\t%s\t; read integer into int var\n", offset);
+                if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+                    irOutputFileHandle.format("RDF\t@%s\t; read float into param with indirection\n", offset);
+                }
+                else{
+                    irOutputFileHandle.format("RDF\t%s\t; read integer into\n", offset);
+                }
         		break;
         	default:
         		System.out.println("This block in read IR should be unreachable");
