@@ -86,16 +86,19 @@ package compiler;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.io.File;
 
 public class SemanticAnalyzer {
     PrintWriter irOutputFileHandle;
     SymbolTableMaster symbolTableHandle;
     int labelCounter;
+    String irOutputFileName;
     
     public SemanticAnalyzer(String fileWithPath, SymbolTableMaster stHandle) throws Exception{        
         irOutputFileHandle = new PrintWriter(fileWithPath + ".ir");
         symbolTableHandle = stHandle;
         labelCounter = 0;
+	irOutputFileName = fileWithPath + ".ir";
     }
     
     public String genUniqueLabel(){
@@ -167,16 +170,19 @@ public class SemanticAnalyzer {
 	    else if( (lhs == SymbolType.MP_SYMBOL_INTEGER || isFloatType(lhs)) && !( isFloatType(type) || type == SymbolType.MP_SYMBOL_INTEGER))
 	    {
 		System.out.println("Semantic Error: Can not do assignment to float/int with type not float/int");
+		cleanupAndDeleteIRFile();
 		System.exit(-12);
 	    }
 	    else if( lhs == SymbolType.MP_SYMBOL_BOOLEAN && type != SymbolType.MP_SYMBOL_BOOLEAN)
 		{
 		    System.out.println("Semantic Error: Can not do assignment to bool without non bool type");
+		    cleanupAndDeleteIRFile();
 		    System.exit(-13);
 		}
 	    else if( lhs == SymbolType.MP_SYMBOL_STRING && type != SymbolType.MP_SYMBOL_STRING)
 		{
 		    System.out.println("Semantic Error: Can not do assignment to string without string type");
+		    cleanupAndDeleteIRFile();
 		    System.exit(-14);
 		}
 	}
@@ -202,6 +208,7 @@ public class SemanticAnalyzer {
 	else
 	{
 	    System.out.println("Semantic Error: Cannot apply negative operation on given type.");
+	    cleanupAndDeleteIRFile();
 	    System.exit(-11);
 	}
     }
@@ -216,14 +223,93 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("PUSH\t#\"%s\"\t;store a string literal on the stack\n", stringLit);
     }
     
-    public void genWriteIR(){
-        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
-        irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
+    public void genWriteIR(ArrayList<StackTopRecord> writeOutVars){
+		int i,count;
+		count = writeOutVars.size();
+		//We can write from a src using WRT and might not have to push and pop
+		for(i = count; i > 0;i--)
+		{
+			irOutputFileHandle.format("WRT\t%s(SP)\t;print value on the stack\n", -(i));
+		}
+		//perform some arithmatic on the pointer
+		irOutputFileHandle.format("PUSH SP\n");
+		irOutputFileHandle.format("PUSH #%s\n", count);
+		irOutputFileHandle.format("SUBS\n");
+		irOutputFileHandle.format("POP SP\n");
     }
     
-    public void genWriteLineIR(){
-        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
-        irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+    public void genWriteLineIR(ArrayList<StackTopRecord> writeOutVars){
+        int i, count;
+        count = writeOutVars.size();
+        // XXX Hack - does it work if we reverse the order of what's on the stack 
+        // then tear it down?
+        for(i = count; i > 0; --i){
+			irOutputFileHandle.format("WRTLN\t%s(SP)\t;print value on the stack\n",-i);
+        }
+        irOutputFileHandle.format("PUSH SP\n");
+        irOutputFileHandle.format("PUSH #%s\n", count);
+        irOutputFileHandle.format("SUBS\n");
+        irOutputFileHandle.format("POP SP\n");
+        /*
+        for(StackTopRecord singleWriteOutVar : writeOutVars){
+            irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+        }
+        */
+        //irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+    }
+    
+    public void genReadIR(ArrayList<String> readIntoVars){
+    	Symbol varSym;
+    	SymbolWithType typedVarSym;
+    	String offset;
+    	SymbolMode symMode = null;
+    	Args param = null;
+    	Boolean isParam = false;
+    	
+        for(String varLex : readIntoVars){
+        	varSym = symbolTableHandle.fetchSymbolByLexeme(varLex);
+        	typedVarSym = (SymbolWithType) varSym;
+        	offset = typedVarSym.getOffset();
+        	if(varSym.getKind() == SymbolKind.MP_SYMBOL_PARAMETER){
+        	    isParam = true;
+        	    param = (Args) varSym;
+        	    symMode = param.getMode();
+        	}
+        	
+        	switch(typedVarSym.getType() ){
+        	case MP_SYMBOL_INTEGER:
+        	    if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+        	        irOutputFileHandle.format("RD\t@%s\t; read integer into param with indirection\n", offset);
+        	    }
+        	    else{
+        	        irOutputFileHandle.format("RD\t%s\t; read integer into int var\n", offset);
+        	    }
+        		break;
+        	case MP_SYMBOL_STRING:
+                if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+                    irOutputFileHandle.format("RDS\t@%s\t; read string into param with indirection\n", offset);
+                }
+                else{
+                    irOutputFileHandle.format("RDS\t%s\t; read stringr into var\n", offset);
+                }	
+        		break;
+        	case MP_SYMBOL_FIXED:
+        	case MP_SYMBOL_FLOAT:
+        	case MP_SYMBOL_REAL:
+                if(isParam && (symMode == SymbolMode.MP_SYMBOL_REFERENCE)){
+                    irOutputFileHandle.format("RDF\t@%s\t; read float into param with indirection\n", offset);
+                }
+                else{
+                    irOutputFileHandle.format("RDF\t%s\t; read integer into\n", offset);
+                }
+        		break;
+        	default:
+        		System.out.println("This block in read IR should be unreachable");
+        		System.exit(-220);
+        		
+        	}
+
+        }
     }
     
     public String genBranchAroundDefsIR(){
@@ -407,6 +493,7 @@ public class SemanticAnalyzer {
         if(numFormalParams != numActualParams){
             System.out.println("Semantic error calling subroutine");
             System.out.println("Expected: " + numFormalParams + " arguments, but got: " + numActualParams);
+	    cleanupAndDeleteIRFile();
             System.exit(-20);
         }
     
@@ -432,6 +519,7 @@ public class SemanticAnalyzer {
                 System.out.println("Semantic error calling subroutine");
                 System.out.println("Parameter: " + singleFormalParam.getLexeme() + " is defined call-by-reference");
                 System.out.println("But actual parameter is not compatible with this");
+		cleanupAndDeleteIRFile();
                 System.exit(-21);
             }
             else if( (singleFormalParam.getMode() == SymbolMode.MP_SYMBOL_REFERENCE) &&
@@ -452,7 +540,7 @@ public class SemanticAnalyzer {
                 genCalculateAddressIR(register, relativeOffset);
                 genReplaceValWithAddressIR(i, numFormalParams);
             }
-        }
+        } 
 
     }
     
@@ -516,10 +604,15 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("BR\t%s\t ; return to top of FOR loop\n", beginWhileLoopLabel);
     }
     
-    public void genForLoopPreambleIR(String controlVarLex, String exitForLoopLabel){
+    public void genForLoopPreambleIR(String controlVarLex, Boolean positive, String exitForLoopLabel){
         putVarOnStackByName(controlVarLex);
 	//Added today on 4-24 for an error about CMPNES, need to drop Terminator here as well
-        irOutputFileHandle.format("CMPNES\t; check FOR loop condition\n");
+        if(positive){
+			irOutputFileHandle.format("CMPGES\t; check FOR loop condition\n");
+        }
+        else{
+			irOutputFileHandle.format("CMPLES\t; check FOR loop condition\n");
+        }
         irOutputFileHandle.format("BRFS\t%s\t; repeat FOR until terminating condition satisfied\n", exitForLoopLabel);
    
     }
@@ -609,6 +702,7 @@ public class SemanticAnalyzer {
 	{
 	    //Send message that we have an error
 	    System.out.println(" Semantic Error: No legal operations for string types with relational operator" );
+	    cleanupAndDeleteIRFile();
 	    System.exit(-11);
 	}
 	//Check to see if we have booleans as well
@@ -616,6 +710,7 @@ public class SemanticAnalyzer {
 	{
 	    //Send message that we have an error
 	    System.out.println(" Semantic Error: No legal operations for non bool-bool types with relational operator");
+	    cleanupAndDeleteIRFile();
 	    System.exit(-12);
 	}
 	// Else check to see if we need to do casting before compare hapens
@@ -675,6 +770,7 @@ public class SemanticAnalyzer {
 		else
 		    {
 			System.out.println("Semantic Error: Op Type does not work with Boolean types");
+			cleanupAndDeleteIRFile();
 			System.exit(-14);
 		    }
 	    }
@@ -699,6 +795,7 @@ public class SemanticAnalyzer {
     	if( (lhsType==SymbolType.MP_SYMBOL_STRING) || (rhsType==SymbolType.MP_SYMBOL_STRING) ){
     	    // string types in a mulop
             System.out.println("Semantic Error: No legal operations for string types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
     	}
     	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (mulType == MulOpType.MP_AND) &&
@@ -709,14 +806,17 @@ public class SemanticAnalyzer {
     	}
     	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
     	    System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-12);
     	}
         else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-13);
         }
         else if(mulType == MulOpType.MP_AND){
             System.out.println("Semantic Error: BOOL AND BOOL only legal boolean MulOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-15);
         }
     	else if( mulType == MulOpType.MP_MOD){
@@ -796,6 +896,7 @@ public class SemanticAnalyzer {
 
         if(lhsType == SymbolType.MP_SYMBOL_STRING || rhsType == SymbolType.MP_SYMBOL_STRING){
             System.out.println("Semantic Error: No legal operations for string types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
         }
     	else if( (lhsType == SymbolType.MP_SYMBOL_BOOLEAN) && (addType == AddOpType.MP_OR) &&
@@ -805,14 +906,17 @@ public class SemanticAnalyzer {
     	}
     	else if(lhsType == SymbolType.MP_SYMBOL_BOOLEAN){
     	    System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-12);
     	}
         else if(rhsType == SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-13);
         }
         else if(addType == AddOpType.MP_OR){
             System.out.println("Semantic Error: BOOL OR BOOL only legal boolean AddOp");
+	    cleanupAndDeleteIRFile();
             System.exit(-15);
         }
         else if( addType == AddOpType.MP_PLUS){
@@ -870,6 +974,7 @@ public class SemanticAnalyzer {
 
         if(rec.dataType != SymbolType.MP_SYMBOL_BOOLEAN){
             System.out.println("Semantic Error: NOT only legal for BOOLEAN types");
+	    cleanupAndDeleteIRFile();
             System.exit(-11);
         }
 
@@ -988,6 +1093,12 @@ public class SemanticAnalyzer {
     public void cleanup(){
         irOutputFileHandle.close();
     }
+
+    public void cleanupAndDeleteIRFile(){
+        irOutputFileHandle.close();
+	File file = new File(irOutputFileName);
+       	file.delete();
+    }
     
     private boolean isFloatType(SymbolType sType){
         if( (sType == SymbolType.MP_SYMBOL_FIXED) || (sType == SymbolType.MP_SYMBOL_FLOAT) || 
@@ -999,7 +1110,6 @@ public class SemanticAnalyzer {
         }
     }
 }
-
 
 
 </code></pre>
