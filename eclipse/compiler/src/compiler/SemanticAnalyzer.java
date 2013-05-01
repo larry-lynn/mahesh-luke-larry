@@ -140,21 +140,27 @@ public class SemanticAnalyzer {
     }
     
     public void genWriteIR(ArrayList<StackTopRecord> writeOutVars){
-        for(StackTopRecord singleWriteOutVar : writeOutVars){
-            irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
-        }
-        //irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
+		int i,count;
+		count = writeOutVars.size();
+		//We can write from a src using WRT and might not have to push and pop
+		for(i = count; i > 0;i--)
+		{
+			irOutputFileHandle.format("WRT\t%s(SP)\t;print value on the stack\n", -(i));
+		}
+		//perform some arithmatic on the pointer
+		irOutputFileHandle.format("PUSH SP\n");
+		irOutputFileHandle.format("PUSH #%s\n", count);
+		irOutputFileHandle.format("SUBS\n");
+		irOutputFileHandle.format("POP SP\n");
     }
     
     public void genWriteLineIR(ArrayList<StackTopRecord> writeOutVars){
-        int i, count, stackOffset;
+        int i, count;
         count = writeOutVars.size();
         // XXX Hack - does it work if we reverse the order of what's on the stack 
         // then tear it down?
         for(i = count; i > 0; --i){
-            stackOffset = -i;
-            irOutputFileHandle.format("PUSH\t%s(SP)\t\n", stackOffset);
-            irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+			irOutputFileHandle.format("WRTLN\t%s(SP)\t;print value on the stack\n",-i);
         }
         irOutputFileHandle.format("PUSH SP\n");
         irOutputFileHandle.format("PUSH #%s\n", count);
