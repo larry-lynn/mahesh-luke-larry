@@ -1008,24 +1008,32 @@ public class Parser {
         // 47:WriteStatement ⟶ "write" "(" WriteParameter WriteParameterTail ")"
     	infoLog(genStdInfoMsg());
 
+        StackTopRecord singleWriteOutVar;
+        ArrayList<StackTopRecord> writeOutVars = new ArrayList<StackTopRecord>();
+        ArrayList<StackTopRecord> moreWriteOutVars = new ArrayList<StackTopRecord>();
+    	
         switch (lookahead.token_name) {
         case MP_WRITE:
             listRule(47); // List the rule number applied
             match(TokenType.MP_WRITE);
             match(TokenType.MP_LPAREN);
-            WriteParameter();
-            WriteParameterTail();
+            singleWriteOutVar = WriteParameter();
+            writeOutVars.add(singleWriteOutVar);
+            moreWriteOutVars = WriteParameterTail();
+            writeOutVars.addAll(moreWriteOutVars);
             match(TokenType.MP_RPAREN);
-            analyze.genWriteIR();
+            analyze.genWriteIR(writeOutVars);
             break;
 		case MP_WRITELN:
 			listRule(111); // List the rule number applied
             match(TokenType.MP_WRITELN);
             match(TokenType.MP_LPAREN);
-            WriteParameter();
-            WriteParameterTail();
+            singleWriteOutVar = WriteParameter();
+            writeOutVars.add(singleWriteOutVar);
+            moreWriteOutVars = WriteParameterTail();
+            writeOutVars.addAll(moreWriteOutVars);
             match(TokenType.MP_RPAREN);
-            analyze.genWriteLineIR();
+            analyze.genWriteLineIR(writeOutVars);
             break;
         default:
             // parsing error
@@ -1036,16 +1044,23 @@ public class Parser {
         }
     }
 
-    public void WriteParameterTail() {
-        //System.out.println("ZZZ : " + Thread.currentThread().getStackTrace()[1].getMethodName());
+    public ArrayList<StackTopRecord> WriteParameterTail() {
     	infoLog(Thread.currentThread().getStackTrace()[1].getMethodName());
         // 48:WriteParameterTail ⟶ "," WriteParameter
         // 49: ⟶ ε
+    	
+    	StackTopRecord singleWriteOutVar;
+        ArrayList<StackTopRecord> writeOutVars = new ArrayList<StackTopRecord>();
+        ArrayList<StackTopRecord> moreWriteOutVars = new ArrayList<StackTopRecord>();
+
         switch (lookahead.token_name) {
         case MP_COMMA:
                 listRule(48); // List the rule number applied
             match(TokenType.MP_COMMA);
-            WriteParameter();
+            singleWriteOutVar = WriteParameter();
+            writeOutVars.add(singleWriteOutVar);
+            moreWriteOutVars = WriteParameterTail();
+            writeOutVars.addAll(moreWriteOutVars);
             break;
         case MP_RPAREN:
             // map to ε
@@ -1058,11 +1073,15 @@ public class Parser {
 	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
+        return(writeOutVars);
     }
 
-    public void WriteParameter() {
+    public StackTopRecord WriteParameter() {
     	infoLog( genStdInfoMsg() );
         // 50:WriteParameter ⟶ OrdinalExpression
+    	
+    	StackTopRecord recOnStack = null;
+    	
         switch (lookahead.token_name) {
         case MP_PLUS:
         case MP_MINUS:
@@ -1070,13 +1089,13 @@ public class Parser {
         case MP_NOT:
         case MP_IDENTIFIER:
         case MP_INTEGER_LIT:
-	case MP_FIXED_LIT:
-	case MP_FLOAT_LIT:
-	case MP_STRING_LIT:
-	case MP_TRUE:
-	case MP_FALSE:
+        case MP_FIXED_LIT:
+        case MP_FLOAT_LIT:
+        case MP_STRING_LIT:
+        case MP_TRUE:
+        case MP_FALSE:
             listRule(50); // List the rule number applied
-            OrdinalExpression();
+            recOnStack = OrdinalExpression();
             break;
         default:
             // parsing error
@@ -1085,6 +1104,7 @@ public class Parser {
 	    analyze.cleanupAndDeleteIRFile();
             System.exit(-5);
         }
+        return(recOnStack);
     }
 
     public void AssignmentStatement() {

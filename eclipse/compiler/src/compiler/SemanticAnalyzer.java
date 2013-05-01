@@ -139,14 +139,33 @@ public class SemanticAnalyzer {
         irOutputFileHandle.format("PUSH\t#\"%s\"\t;store a string literal on the stack\n", stringLit);
     }
     
-    public void genWriteIR(){
-        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
-        irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
+    public void genWriteIR(ArrayList<StackTopRecord> writeOutVars){
+        for(StackTopRecord singleWriteOutVar : writeOutVars){
+            irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
+        }
+        //irOutputFileHandle.format("WRTS\t ;print a value left on the stack by an expression\n");
     }
     
-    public void genWriteLineIR(){
-        //irOutputFileHandle.format(";print a value left on the stack by an expression\n");
-        irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+    public void genWriteLineIR(ArrayList<StackTopRecord> writeOutVars){
+        int i, count, stackOffset;
+        count = writeOutVars.size();
+        // XXX Hack - does it work if we reverse the order of what's on the stack 
+        // then tear it down?
+        for(i = count; i > 0; --i){
+            stackOffset = -i;
+            irOutputFileHandle.format("PUSH\t%s(SP)\t\n", stackOffset);
+            irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+        }
+        irOutputFileHandle.format("PUSH SP\n");
+        irOutputFileHandle.format("PUSH #%s\n", count);
+        irOutputFileHandle.format("SUBS\n");
+        irOutputFileHandle.format("POP SP\n");
+        /*
+        for(StackTopRecord singleWriteOutVar : writeOutVars){
+            irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
+        }
+        */
+        //irOutputFileHandle.format("WRTLNS\t ;print a value left on the stack by an expression\n");
     }
     
     public void genReadIR(ArrayList<String> readIntoVars){
