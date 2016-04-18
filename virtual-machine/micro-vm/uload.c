@@ -503,27 +503,30 @@ void loadSource(uINSTRUCTION *instr, int opNum)
         break;
 
       case tImmediateS:
-        //Stip off #" from front and " from the back
-        len = strlen(yytext);
-        char stripped[len-2];
+        {
         
-        strncpy(stripped, yytext + 2, len - 2);
-        stripped[len - 3] = '\0';           //Null terminated & remove trailing "
+            //Stip off #" from front and " from the back
+            len = strlen(yytext);
+            char stripped[len-2];
         
-        //Parse string, replacing escape sequences.
-        char parsedString[strlen(stripped)];
+            strncpy(stripped, yytext + 2, len - 2);
+            stripped[len - 3] = '\0';           //Null terminated & remove trailing "
         
-        //char* parsedString;
-        //parsedString = (char*)malloc(strlen(stripped) * sizeof(char));
-        //if(parsedString == NULL){
-        //  fprintf(stderr, "Malloc error: Out of memory\n");
-        //  exit(EXIT_FAILURE);
-        //}
-        replaceEscapeSequences(stripped, parsedString);
+            //Parse string, replacing escape sequences.
+            char parsedString[strlen(stripped)];
         
-        //Save parsed string into operand.
-        instr->Operand[opNum].Mode = mImmediate;
-        setOperandValue(&(instr->Operand[opNum]), parsedString);
+            //char* parsedString;
+            //parsedString = (char*)malloc(strlen(stripped) * sizeof(char));
+            //if(parsedString == NULL){
+            //  fprintf(stderr, "Malloc error: Out of memory\n");
+            //  exit(EXIT_FAILURE);
+            //}
+            replaceEscapeSequences(stripped, parsedString);
+        
+            //Save parsed string into operand.
+            instr->Operand[opNum].Mode = mImmediate;
+            setOperandValue(&(instr->Operand[opNum]), parsedString);
+        }
         break;
 
       case tRegister:
